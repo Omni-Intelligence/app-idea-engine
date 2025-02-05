@@ -42,7 +42,7 @@ serve(async (req) => {
     }
 
     // Prepare the prompt for OpenAI
-    const prompt = `Please analyze this software project proposal and provide detailed feedback and recommendations:
+    const prompt = `Analyze this software project proposal and provide detailed feedback and recommendations. Format your response in plain text with clear sections. DO NOT use markdown formatting.
 
 Project Idea: ${submission.project_idea}
 Target Audience: ${submission.target_audience}
@@ -55,14 +55,16 @@ Technical Expertise: ${submission.technical_expertise}
 Tech Stack: ${submission.tech_stack}
 Scaling Expectation: ${submission.scaling_expectation}
 
-Please provide a comprehensive analysis covering:
+Provide a comprehensive analysis covering:
 1. Technical feasibility and potential challenges
 2. Market viability and competitive analysis
 3. Development roadmap recommendations
 4. Scaling considerations and architecture suggestions
 5. Risk assessment and mitigation strategies
 6. Monetization strategy evaluation
-7. AI integration recommendations`;
+7. AI integration recommendations
+
+Format your response in plain text with clear section headers and line breaks. Do not use markdown formatting.`;
 
     console.log('Calling OpenAI API...');
     
@@ -74,11 +76,15 @@ Please provide a comprehensive analysis covering:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4',
         messages: [
-          { role: 'system', content: 'You are a technical project analyst and business consultant with expertise in software development, AI integration, and market analysis.' },
+          { 
+            role: 'system', 
+            content: 'You are a technical project analyst and business consultant. Format your responses in plain text with clear sections. Do not use markdown formatting.' 
+          },
           { role: 'user', content: prompt }
         ],
+        temperature: 0.7,
       }),
     });
 
