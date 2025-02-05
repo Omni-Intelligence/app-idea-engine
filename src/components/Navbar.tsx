@@ -5,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Plus } from "lucide-react";
 
 export const Navbar = () => {
   const [session, setSession] = useState<boolean | null>(null);
@@ -43,28 +42,17 @@ export const Navbar = () => {
     <nav className="border-b border-purple-100 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
-          <div className="flex items-center space-x-8">
-            <Link to="/" className="text-xl font-bold text-purple-600">
-              App Idea Engine
-            </Link>
-            {session && (
-              <Link 
-                to="/projects" 
-                className="text-sm font-medium text-gray-600 hover:text-purple-600 transition-colors"
-              >
-                My Projects
-              </Link>
-            )}
-          </div>
+          <Link to="/" className="text-xl font-bold text-purple-600">
+            App Idea Engine
+          </Link>
           <div className="flex items-center space-x-4">
             {session ? (
               <>
                 <Button 
-                  onClick={() => navigate('/questionnaire')}
-                  className="bg-purple-600 hover:bg-purple-700 rounded-full px-4 py-2 flex items-center gap-2"
+                  onClick={() => navigate('/projects')}
+                  className="bg-purple-600 hover:bg-purple-700 rounded-full px-6 py-2 text-white transition-all duration-300 shadow-md hover:shadow-lg"
                 >
-                  <Plus className="w-4 h-4" />
-                  New Project
+                  My Projects
                 </Button>
                 <Button 
                   variant="outline" 
@@ -89,3 +77,4 @@ export const Navbar = () => {
     </nav>
   );
 };
+
