@@ -76,7 +76,7 @@ Format your response in plain text with clear section headers and line breaks. D
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-o3-mini',
         messages: [
           { 
             role: 'system', 
