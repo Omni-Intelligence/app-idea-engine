@@ -83,8 +83,7 @@ Format your response in plain text with clear section headers and line breaks. D
             content: 'You are a technical project analyst and business consultant. Format your responses in plain text with clear sections. Do not use markdown formatting.' 
           },
           { role: 'user', content: prompt }
-        ],
-        temperature: 0.7,
+        ]
       }),
     });
 
@@ -145,4 +144,3 @@ Format your response in plain text with clear section headers and line breaks. D
     );
   }
 });
-
