@@ -56,24 +56,31 @@ const Questionnaire = () => {
     if (currentStep < questions.length - 1) {
       nextStep();
     } else {
-      // Handle completion
       console.log('Questionnaire completed');
     }
   };
 
   return (
-    <div className="min-h-screen p-6 flex flex-col items-center justify-center">
-      <ProgressBar currentStep={currentStep} totalSteps={questions.length} />
-      <QuestionCard
-        question={questions[currentStep].question}
-        placeholder={questions[currentStep].placeholder}
-        options={questions[currentStep].options}
-        onSubmit={handleSubmit}
-      />
-      <NavigationControls
-        onBack={previousStep}
-        showBack={currentStep > 0}
-      />
+    <div className="min-h-screen flex flex-col">
+      <div className="fixed top-0 left-0 right-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <ProgressBar currentStep={currentStep} totalSteps={questions.length} />
+      </div>
+      
+      <div className="flex-1 flex items-center justify-center p-6 mt-16">
+        <QuestionCard
+          question={questions[currentStep].question}
+          placeholder={questions[currentStep].placeholder}
+          options={questions[currentStep].options}
+          onSubmit={handleSubmit}
+        />
+      </div>
+
+      <div className="fixed bottom-0 left-0 right-0 p-6">
+        <NavigationControls
+          onBack={previousStep}
+          showBack={currentStep > 0}
+        />
+      </div>
     </div>
   );
 };

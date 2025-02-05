@@ -33,12 +33,12 @@ export const QuestionCard = ({ question, placeholder, options = [], onSubmit }: 
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardContent className="pt-6">
-        <h2 className="text-2xl font-semibold mb-6">{question}</h2>
+    <Card className="w-full max-w-4xl mx-auto">
+      <CardContent className="p-8">
+        <h2 className="text-3xl font-semibold mb-8 text-center">{question}</h2>
         
         <RadioGroup
-          className="gap-4 mb-6"
+          className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"
           value={isCustom ? 'custom' : selectedOption}
           onValueChange={(value) => {
             if (value === 'custom') {
@@ -51,16 +51,33 @@ export const QuestionCard = ({ question, placeholder, options = [], onSubmit }: 
           }}
         >
           {options.map((option) => (
-            <div key={option.value} className="flex items-center space-x-2">
-              <RadioGroupItem value={option.value} id={option.value} />
-              <Label htmlFor={option.value} className="text-lg cursor-pointer">
+            <div
+              key={option.value}
+              className={`p-6 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                selectedOption === option.value
+                  ? 'border-primary bg-primary/5'
+                  : 'border-border hover:border-primary/50'
+              }`}
+            >
+              <RadioGroupItem value={option.value} id={option.value} className="hidden" />
+              <Label
+                htmlFor={option.value}
+                className="text-xl cursor-pointer flex items-center justify-center h-full text-center"
+              >
                 {option.label}
               </Label>
             </div>
           ))}
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="custom" id="custom" />
-            <Label htmlFor="custom" className="text-lg cursor-pointer">
+          <div
+            className={`p-6 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+              isCustom ? 'border-primary bg-primary/5 col-span-full' : 'border-border hover:border-primary/50 col-span-full'
+            }`}
+          >
+            <RadioGroupItem value="custom" id="custom" className="hidden" />
+            <Label
+              htmlFor="custom"
+              className="text-xl cursor-pointer flex items-center justify-center h-full text-center"
+            >
               Custom Answer
             </Label>
           </div>
@@ -71,13 +88,13 @@ export const QuestionCard = ({ question, placeholder, options = [], onSubmit }: 
             placeholder={placeholder}
             value={customAnswer}
             onChange={(e) => setCustomAnswer(e.target.value)}
-            className="min-h-[120px] mb-4"
+            className="min-h-[120px] mb-6 text-lg p-4"
           />
         )}
 
         <Button 
           onClick={handleSubmit} 
-          className="w-full"
+          className="w-full py-6 text-lg"
           disabled={(!isCustom && !selectedOption) || (isCustom && !customAnswer.trim())}
         >
           Continue
