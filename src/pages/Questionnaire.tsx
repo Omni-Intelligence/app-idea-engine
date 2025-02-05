@@ -68,22 +68,20 @@ const Questionnaire = () => {
           <div className="mb-4">
             <ProgressBar currentStep={currentStep} totalSteps={questions.length} />
           </div>
-          <div className="relative">
-            {currentStep > 0 && (
-              <div className="absolute -top-12 right-0">
-                <NavigationControls
-                  onBack={previousStep}
-                  showBack={currentStep > 0}
-                />
-              </div>
-            )}
-            <QuestionCard
-              question=""
-              placeholder={questions[currentStep].placeholder}
-              options={questions[currentStep].options}
-              onSubmit={handleSubmit}
-            />
-          </div>
+          <QuestionCard
+            question=""
+            placeholder={questions[currentStep].placeholder}
+            options={questions[currentStep].options}
+            onSubmit={handleSubmit}
+          />
+          {currentStep > 0 && (
+            <div className="flex justify-end mt-4">
+              <NavigationControls
+                onBack={previousStep}
+                showBack={currentStep > 0}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>
