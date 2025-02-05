@@ -97,7 +97,7 @@ export const QuestionCard = ({ question, placeholder, options = [], onSubmit }: 
 
         <Button 
           onClick={handleSubmit} 
-          className="w-full py-4 md:py-6 text-base md:text-lg bg-[#1A1F2C] hover:bg-[#1A1F2C]/90"
+          className="w-full py-4 md:py-6 text-base md:text-lg bg-[#9b87f5] hover:bg-[#9b87f5]/90"
           disabled={(!isCustom && !selectedOption) || (isCustom && !customAnswer.trim())}
         >
           Continue
