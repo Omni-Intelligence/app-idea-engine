@@ -30,7 +30,8 @@ serve(async (req) => {
             role: 'system',
             content: `You are a creative consultant that helps people identify opportunities for automation and app development in their work. 
             Analyze their daily tasks and suggest a specific, focused project idea that could help them be more efficient or solve a problem.
-            Format your response as a clear project idea pitch in 2-3 sentences, focusing on the core value proposition.`
+            Format your response as a clear project idea pitch in 2-3 sentences, focusing on the core value proposition.
+            Do not use any markdown formatting, special characters, or bullet points - just plain text.`
           },
           { role: 'user', content: dailyTasks }
         ],
