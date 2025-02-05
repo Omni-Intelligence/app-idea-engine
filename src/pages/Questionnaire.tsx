@@ -188,18 +188,36 @@ const Questionnaire = () => {
           scaling_expectation: answers[9] || ''
         };
 
-        const { error } = await supabase
+        const { data: submissionData, error } = await supabase
           .from('project_submissions')
-          .insert([submission]);
+          .insert([submission])
+          .select()
+          .single();
 
         if (error) throw error;
 
-        toast({
-          title: "Success!",
-          description: "Your project submission has been saved.",
-        });
+        // Trigger AI analysis
+        try {
+          const { error: analysisError } = await supabase.functions.invoke('analyze-submission', {
+            body: { submissionId: submissionData.id }
+          });
 
-        // For now, navigate back to home page
+          if (analysisError) throw analysisError;
+
+          toast({
+            title: "Success!",
+            description: "Your project has been submitted and is being analyzed.",
+          });
+        } catch (analysisError) {
+          console.error('Error triggering analysis:', analysisError);
+          toast({
+            title: "Partial Success",
+            description: "Project saved but analysis failed. Please try analyzing later.",
+            variant: "destructive",
+          });
+        }
+
+        // Navigate back to home page
         navigate('/');
       } catch (error: any) {
         console.error('Error submitting questionnaire:', error);
@@ -215,7 +233,6 @@ const Questionnaire = () => {
   // Clear answers when component unmounts
   useEffect(() => {
     return () => {
-      // Reset the store when leaving the questionnaire
       useQuestionStore.getState().reset();
     };
   }, []);
