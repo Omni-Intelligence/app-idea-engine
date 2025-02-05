@@ -33,6 +33,11 @@ serve(async (req) => {
       throw new Error('Failed to fetch submission');
     }
 
+    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    if (!openAIApiKey) {
+      throw new Error('OpenAI API key not configured');
+    }
+
     // Prepare the prompt for OpenAI
     const prompt = `Please analyze this software project proposal and provide detailed feedback and recommendations:
 
@@ -56,15 +61,15 @@ Please provide a comprehensive analysis covering:
 6. Monetization strategy evaluation
 7. AI integration recommendations`;
 
-    // Call OpenAI API
+    // Call OpenAI API with the correct model name
     const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+        'Authorization': `Bearer ${openAIApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o',
         messages: [
           { role: 'system', content: 'You are a technical project analyst and business consultant with expertise in software development, AI integration, and market analysis.' },
           { role: 'user', content: prompt }
@@ -73,6 +78,7 @@ Please provide a comprehensive analysis covering:
     });
 
     if (!openAIResponse.ok) {
+      console.error('OpenAI API Error:', await openAIResponse.text());
       throw new Error('OpenAI API request failed');
     }
 
