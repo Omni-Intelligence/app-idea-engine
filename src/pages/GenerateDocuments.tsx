@@ -68,22 +68,15 @@ const GenerateDocuments = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-document`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('generate-document', {
+        body: {
           submissionId,
           documentType: type,
           userId: user.id,
-        }),
+        },
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to generate document');
-      }
+      if (error) throw error;
 
       await fetchDocuments();
       toast({
