@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from 'date-fns';
 import { Skeleton } from "@/components/ui/skeleton";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/components/ui/toast";
 
 interface Project {
   id: string;
@@ -71,7 +71,7 @@ const Projects = () => {
     <div className="container mx-auto py-8 px-4 bg-gradient-to-br from-purple-50 to-white min-h-screen">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold purple-gradient text-gradient">My Projects</h1>
-        <Button onClick={() => navigate('/questionnaire')} className="primary-button">
+        <Button onClick={() => navigate('/')} className="primary-button">
           New Project
         </Button>
       </div>
@@ -80,7 +80,7 @@ const Projects = () => {
         <Card className="glass-card">
           <CardContent className="flex flex-col items-center justify-center py-12">
             <p className="text-lg text-muted-foreground mb-4">You haven't created any projects yet</p>
-            <Button onClick={() => navigate('/questionnaire')} className="primary-button">
+            <Button onClick={() => navigate('/')} className="primary-button">
               Create Your First Project
             </Button>
           </CardContent>
