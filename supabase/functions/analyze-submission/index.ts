@@ -42,9 +42,9 @@ serve(async (req) => {
     }
 
     // Prepare the prompt for OpenAI
-    const prompt = `Analyze this software project proposal and provide detailed feedback and recommendations. Format your response in plain text with clear sections. DO NOT use markdown formatting.
+    const prompt = `Analyze this software project proposal and provide detailed feedback and recommendations. This is the complete project idea from the user's initial input: "${submission.answers[0]}". Now analyze the detailed questionnaire responses:
 
-Project Idea: ${submission.project_idea}
+Project Type: ${submission.project_idea}
 Target Audience: ${submission.target_audience}
 Problem Solved: ${submission.problem_solved}
 Core Features: ${submission.core_features}
@@ -55,7 +55,7 @@ Technical Expertise: ${submission.technical_expertise}
 Tech Stack: ${submission.tech_stack}
 Scaling Expectation: ${submission.scaling_expectation}
 
-Provide a comprehensive analysis covering:
+Taking into account both the initial project idea and the detailed questionnaire responses, provide a comprehensive analysis covering:
 1. Technical feasibility and potential challenges
 2. Market viability and competitive analysis
 3. Development roadmap recommendations
