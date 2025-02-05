@@ -8,7 +8,7 @@ interface NavigationControlsProps {
 
 export const NavigationControls = ({ onBack, showBack }: NavigationControlsProps) => {
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="w-full flex justify-end">
       {showBack && (
         <Button onClick={onBack} className="flex items-center">
           <ChevronLeft className="w-4 h-4 mr-2" />
