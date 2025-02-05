@@ -1,30 +1,15 @@
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Loader2, FileText, Code, Users, Book } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-
-type DocumentType = 'technical_specs' | 'user_stories' | 'api_docs' | 'implementation_guide';
-
-interface GeneratedDocument {
-  id: string;
-  document_type: DocumentType;
-  content: string;
-  status: 'pending' | 'completed';
-  created_at?: string;
-  updated_at?: string;
-  submission_id?: string;
-  user_id?: string;
-}
+import { LoadingState } from "@/components/analysis/LoadingState";
+import { DocumentSection } from "@/components/analysis/DocumentSection";
+import { DocumentViewer } from "@/components/analysis/DocumentViewer";
+import { GeneratedDocument, DocumentType } from "@/components/analysis/types";
+import { useEffect } from "react";
 
 const AnalysisResults = () => {
   const [analysis, setAnalysis] = useState<string | null>(null);
@@ -46,7 +31,6 @@ const AnalysisResults = () => {
 
       if (error) throw error;
       
-      // Cast the data to ensure it matches our GeneratedDocument type
       const typedDocuments: GeneratedDocument[] = data?.map(doc => ({
         id: doc.id,
         document_type: doc.document_type as DocumentType,
@@ -168,37 +152,8 @@ const AnalysisResults = () => {
     navigate('/');
   };
 
-  const documentTypeConfig = {
-    technical_specs: {
-      icon: FileText,
-      label: 'Technical Specifications',
-    },
-    user_stories: {
-      icon: Users,
-      label: 'User Stories',
-    },
-    api_docs: {
-      icon: Code,
-      label: 'API Documentation',
-    },
-    implementation_guide: {
-      icon: Book,
-      label: 'Implementation Guide',
-    },
-  } as const;
-
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4">
-        <Card className="w-full max-w-4xl p-6">
-          <div className="flex flex-col items-center space-y-4">
-            <Loader2 className="h-8 w-8 animate-spin" />
-            <h2 className="text-2xl font-semibold">Analyzing Your Project...</h2>
-            <p className="text-gray-600">Please wait while our AI analyzes your project details.</p>
-          </div>
-        </Card>
-      </div>
-    );
+    return <LoadingState />;
   }
 
   return (
@@ -211,46 +166,12 @@ const AnalysisResults = () => {
               <div className="whitespace-pre-wrap">{analysis}</div>
             </div>
             
-            <div className="border-t pt-6">
-              <h3 className="text-xl font-semibold mb-4">Generate Documentation</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {(Object.entries(documentTypeConfig) as [DocumentType, typeof documentTypeConfig.technical_specs][]).map(([type, config]) => {
-                  const existingDoc = documents.find(doc => doc.document_type === type);
-                  const Icon = config.icon;
-                  
-                  return (
-                    <div key={type} className="flex items-center space-x-4 p-4 border rounded-lg">
-                      <Icon className="h-6 w-6 text-gray-500" />
-                      <div className="flex-1">
-                        <h4 className="font-medium">{config.label}</h4>
-                      </div>
-                      {existingDoc ? (
-                        <Button
-                          variant="outline"
-                          onClick={() => setSelectedDocument(existingDoc)}
-                        >
-                          View
-                        </Button>
-                      ) : (
-                        <Button
-                          onClick={() => handleGenerateDocument(type)}
-                          disabled={!!isGenerating}
-                        >
-                          {isGenerating === type ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              Generating...
-                            </>
-                          ) : (
-                            'Generate'
-                          )}
-                        </Button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+            <DocumentSection
+              documents={documents}
+              isGenerating={isGenerating}
+              onGenerate={handleGenerateDocument}
+              onView={setSelectedDocument}
+            />
           </>
         ) : (
           <p className="text-gray-600">No analysis available. Please try again later.</p>
@@ -260,22 +181,16 @@ const AnalysisResults = () => {
         </div>
       </Card>
 
-      <Dialog open={!!selectedDocument} onOpenChange={() => setSelectedDocument(null)}>
-        <DialogContent className="max-w-4xl h-[80vh] flex flex-col">
-          <DialogHeader>
-            <DialogTitle>
-              {selectedDocument && documentTypeConfig[selectedDocument.document_type].label}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="flex-1 overflow-y-auto mt-4">
-            <div className="prose max-w-none">
-              <div className="whitespace-pre-wrap">
-                {selectedDocument?.content}
-              </div>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <DocumentViewer
+        document={selectedDocument}
+        documentLabel={selectedDocument?.document_type ? 
+          selectedDocument.document_type.split('_').map(word => 
+            word.charAt(0).toUpperCase() + word.slice(1)
+          ).join(' ') : 
+          ''}
+        open={!!selectedDocument}
+        onOpenChange={() => setSelectedDocument(null)}
+      />
     </div>
   );
 };
