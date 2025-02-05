@@ -1,17 +1,32 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useQuestionStore } from '@/store/questionStore';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/components/ui/use-toast';
 
 const Index = () => {
   const [idea, setIdea] = useState('');
   const navigate = useNavigate();
   const { setAnswer, reset } = useQuestionStore();
+  const { toast } = useToast();
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (idea.trim()) {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast({
+          title: "Sign in required",
+          description: "Please sign in to continue with your idea exploration.",
+        });
+        navigate('/auth');
+        return;
+      }
+
       reset(); // Reset to first question
       setAnswer(0, idea);
       navigate('/questionnaire');
