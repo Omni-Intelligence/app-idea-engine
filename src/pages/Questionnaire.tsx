@@ -25,6 +25,16 @@ const questions = [
     ]
   },
   {
+    question: "What problem does your application solve?",
+    placeholder: "Describe the main problem your application addresses...",
+    options: [
+      { value: "efficiency", label: "Improves Efficiency" },
+      { value: "automation", label: "Automates Tasks" },
+      { value: "communication", label: "Enhances Communication" },
+      { value: "analysis", label: "Provides Better Insights" },
+    ]
+  },
+  {
     question: "What are the core features you need?",
     placeholder: "List the main features your application should have...",
     options: [
@@ -44,6 +54,56 @@ const questions = [
       { value: "automation", label: "Process Automation" },
     ]
   },
+  {
+    question: "What's your preferred monetization strategy?",
+    placeholder: "Describe how you plan to generate revenue...",
+    options: [
+      { value: "subscription", label: "Subscription Model" },
+      { value: "freemium", label: "Freemium with Premium Features" },
+      { value: "ads", label: "Advertisement Based" },
+      { value: "pay-per-use", label: "Pay Per Use" },
+    ]
+  },
+  {
+    question: "What's your development timeline?",
+    placeholder: "Describe your expected development timeline...",
+    options: [
+      { value: "quick", label: "1-3 Months (MVP)" },
+      { value: "medium", label: "3-6 Months" },
+      { value: "long", label: "6-12 Months" },
+      { value: "ongoing", label: "Continuous Development" },
+    ]
+  },
+  {
+    question: "What's your technical expertise level?",
+    placeholder: "Describe your technical background...",
+    options: [
+      { value: "beginner", label: "Beginner (New to Development)" },
+      { value: "intermediate", label: "Intermediate (Some Experience)" },
+      { value: "advanced", label: "Advanced (Experienced Developer)" },
+      { value: "expert", label: "Expert (Professional Developer)" },
+    ]
+  },
+  {
+    question: "What's your preferred tech stack?",
+    placeholder: "Describe your preferred technologies...",
+    options: [
+      { value: "modern-web", label: "Modern Web Stack (React, Node.js)" },
+      { value: "traditional", label: "Traditional Stack (PHP, MySQL)" },
+      { value: "cloud-native", label: "Cloud Native (AWS, Azure)" },
+      { value: "mobile", label: "Mobile Development (React Native)" },
+    ]
+  },
+  {
+    question: "What's your scaling expectation?",
+    placeholder: "Describe your expected user base growth...",
+    options: [
+      { value: "small", label: "Small Scale (< 1000 users)" },
+      { value: "medium", label: "Medium Scale (1000-10000 users)" },
+      { value: "large", label: "Large Scale (10000-100000 users)" },
+      { value: "enterprise", label: "Enterprise Scale (100000+ users)" },
+    ]
+  }
 ];
 
 const Questionnaire = () => {
