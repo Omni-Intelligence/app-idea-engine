@@ -34,6 +34,7 @@ export type Database = {
         Row: {
           ai_analysis: string | null
           ai_integration: string
+          answers: Json
           core_features: string
           created_at: string
           development_timeline: string
@@ -51,6 +52,7 @@ export type Database = {
         Insert: {
           ai_analysis?: string | null
           ai_integration: string
+          answers?: Json
           core_features: string
           created_at?: string
           development_timeline: string
@@ -68,6 +70,7 @@ export type Database = {
         Update: {
           ai_analysis?: string | null
           ai_integration?: string
+          answers?: Json
           core_features?: string
           created_at?: string
           development_timeline?: string

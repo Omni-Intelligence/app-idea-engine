@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuestionStore } from '@/store/questionStore';
 import { QuestionCard } from '@/components/QuestionCard';
 import { ProgressBar } from '@/components/ProgressBar';
@@ -7,6 +7,7 @@ import { NavigationControls } from '@/components/NavigationControls';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { ConfirmationPage } from '@/components/ConfirmationPage';
 
 const questions = [
   {
@@ -155,6 +156,7 @@ const Questionnaire = () => {
   const { currentStep, answers, setAnswer, nextStep, previousStep } = useQuestionStore();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleSubmit = async (answer: string) => {
     setAnswer(currentStep, answer);
@@ -162,71 +164,80 @@ const Questionnaire = () => {
     if (currentStep < questions.length - 1) {
       nextStep();
     } else {
-      // All questions answered, prepare submission
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-          toast({
-            title: "Error",
-            description: "You must be signed in to submit the questionnaire",
-            variant: "destructive",
-          });
-          return;
-        }
+      setShowConfirmation(true);
+    }
+  };
 
-        const submission = {
-          user_id: session.user.id,
-          project_idea: answers[0] || '',
-          target_audience: answers[1] || '',
-          problem_solved: answers[2] || '',
-          core_features: answers[3] || '',
-          ai_integration: answers[4] || '',
-          monetization: answers[5] || '',
-          development_timeline: answers[6] || '',
-          technical_expertise: answers[7] || '',
-          tech_stack: answers[8] || '',
-          scaling_expectation: answers[9] || ''
-        };
+  const handleConfirmationBack = () => {
+    setShowConfirmation(false);
+    previousStep();
+  };
 
-        const { data: submissionData, error } = await supabase
-          .from('project_submissions')
-          .insert([submission])
-          .select()
-          .single();
-
-        if (error) throw error;
-
-        // Trigger AI analysis
-        try {
-          const { error: analysisError } = await supabase.functions.invoke('analyze-submission', {
-            body: { submissionId: submissionData.id }
-          });
-
-          if (analysisError) throw analysisError;
-
-          toast({
-            title: "Success!",
-            description: "Your project has been submitted and is being analyzed.",
-          });
-        } catch (analysisError) {
-          console.error('Error triggering analysis:', analysisError);
-          toast({
-            title: "Partial Success",
-            description: "Project saved but analysis failed. Please try analyzing later.",
-            variant: "destructive",
-          });
-        }
-
-        // Navigate back to home page
-        navigate('/');
-      } catch (error: any) {
-        console.error('Error submitting questionnaire:', error);
+  const handleFinalSubmit = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
         toast({
           title: "Error",
-          description: error.message || "Failed to submit questionnaire",
+          description: "You must be signed in to submit the questionnaire",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const submission = {
+        user_id: session.user.id,
+        project_idea: answers[0] || '',
+        target_audience: answers[1] || '',
+        problem_solved: answers[2] || '',
+        core_features: answers[3] || '',
+        ai_integration: answers[4] || '',
+        monetization: answers[5] || '',
+        development_timeline: answers[6] || '',
+        technical_expertise: answers[7] || '',
+        tech_stack: answers[8] || '',
+        scaling_expectation: answers[9] || '',
+        answers: answers // Store all answers in the new JSON column
+      };
+
+      const { data: submissionData, error } = await supabase
+        .from('project_submissions')
+        .insert([submission])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Trigger AI analysis
+      try {
+        const { error: analysisError } = await supabase.functions.invoke('analyze-submission', {
+          body: { submissionId: submissionData.id }
+        });
+
+        if (analysisError) throw analysisError;
+
+        toast({
+          title: "Success!",
+          description: "Your project has been submitted and is being analyzed.",
+        });
+      } catch (analysisError) {
+        console.error('Error triggering analysis:', analysisError);
+        toast({
+          title: "Partial Success",
+          description: "Project saved but analysis failed. Please try analyzing later.",
           variant: "destructive",
         });
       }
+
+      // Navigate back to home page
+      navigate('/');
+    } catch (error: any) {
+      console.error('Error submitting questionnaire:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to submit questionnaire",
+        variant: "destructive",
+      });
     }
   };
 
@@ -236,6 +247,22 @@ const Questionnaire = () => {
       useQuestionStore.getState().reset();
     };
   }, []);
+
+  if (showConfirmation) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <div className="flex-1 flex items-center justify-center p-4 md:p-6">
+          <div className="w-full max-w-5xl">
+            <ConfirmationPage
+              answers={answers}
+              onSubmit={handleFinalSubmit}
+              onBack={handleConfirmationBack}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
