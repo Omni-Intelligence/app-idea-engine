@@ -8,9 +8,40 @@ import { useQuestionStore } from '@/store/questionStore';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import { ArrowLeft, Lightbulb, Sparkles } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const industries = [
+  { value: 'technology', label: 'Technology & Software' },
+  { value: 'healthcare', label: 'Healthcare & Medical' },
+  { value: 'finance', label: 'Finance & Banking' },
+  { value: 'education', label: 'Education & E-learning' },
+  { value: 'retail', label: 'Retail & E-commerce' },
+  { value: 'manufacturing', label: 'Manufacturing & Industrial' },
+  { value: 'services', label: 'Professional Services' },
+  { value: 'media', label: 'Media & Entertainment' },
+];
+
+const businessFunctions = [
+  { value: 'operations', label: 'Operations & Management' },
+  { value: 'sales', label: 'Sales & Business Development' },
+  { value: 'marketing', label: 'Marketing & Communications' },
+  { value: 'hr', label: 'Human Resources' },
+  { value: 'finance', label: 'Finance & Accounting' },
+  { value: 'it', label: 'IT & Technology' },
+  { value: 'customer-service', label: 'Customer Service' },
+  { value: 'product', label: 'Product & Development' },
+];
 
 const Ideation = () => {
   const [dailyTasks, setDailyTasks] = useState('');
+  const [industry, setIndustry] = useState('');
+  const [businessFunction, setBusinessFunction] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedIdea, setGeneratedIdea] = useState('');
   const navigate = useNavigate();
@@ -18,10 +49,10 @@ const Ideation = () => {
   const { toast } = useToast();
 
   const handleGenerateIdea = async () => {
-    if (!dailyTasks.trim()) {
+    if (!dailyTasks.trim() || !industry || !businessFunction) {
       toast({
-        title: "Input required",
-        description: "Please describe your daily tasks first.",
+        title: "All fields required",
+        description: "Please fill in all fields to generate project ideas.",
         variant: "destructive",
       });
       return;
@@ -41,7 +72,11 @@ const Ideation = () => {
     setIsGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke('generate-idea', {
-        body: { dailyTasks },
+        body: { 
+          dailyTasks,
+          industry,
+          businessFunction
+        },
       });
 
       if (error) throw error;
@@ -84,26 +119,67 @@ const Ideation = () => {
             Let's Find Your Next Project
           </h1>
           <p className="text-lg text-gray-600">
-            Tell us about your daily tasks and challenges, and we'll help you discover opportunities for innovation.
+            Tell us about your context and daily tasks, and we'll help you discover opportunities for innovation.
           </p>
         </div>
 
         <Card className="glass-card p-6 md:p-8 mb-6">
-          <div className="mb-6">
-            <label className="block text-lg font-medium text-gray-700 mb-2">
-              What tasks do you handle in your daily work?
-            </label>
-            <Textarea
-              placeholder="Describe your typical workday, tasks you frequently do, or challenges you face..."
-              value={dailyTasks}
-              onChange={(e) => setDailyTasks(e.target.value)}
-              className="min-h-[150px] text-lg bg-white/80 border-purple-100 focus:border-purple-300 focus:ring-purple-500"
-            />
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  What industry are you in?
+                </label>
+                <Select value={industry} onValueChange={setIndustry}>
+                  <SelectTrigger className="w-full bg-white/80">
+                    <SelectValue placeholder="Select your industry" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {industries.map((ind) => (
+                      <SelectItem key={ind.value} value={ind.value}>
+                        {ind.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  What's your business function?
+                </label>
+                <Select value={businessFunction} onValueChange={setBusinessFunction}>
+                  <SelectTrigger className="w-full bg-white/80">
+                    <SelectValue placeholder="Select your function" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {businessFunctions.map((func) => (
+                      <SelectItem key={func.value} value={func.value}>
+                        {func.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                What tasks do you handle in your daily work?
+              </label>
+              <Textarea
+                placeholder="Describe your typical workday, tasks you frequently do, or challenges you face..."
+                value={dailyTasks}
+                onChange={(e) => setDailyTasks(e.target.value)}
+                className="min-h-[150px] text-lg bg-white/80 border-purple-100 focus:border-purple-300 focus:ring-purple-500"
+              />
+            </div>
           </div>
+          
           <Button
             onClick={handleGenerateIdea}
-            disabled={isGenerating || !dailyTasks.trim()}
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white px-8 py-6 text-lg rounded-full transition-all duration-300 flex items-center justify-center gap-2"
+            disabled={isGenerating || !dailyTasks.trim() || !industry || !businessFunction}
+            className="w-full bg-purple-600 hover:bg-purple-700 text-white px-8 py-6 text-lg rounded-full transition-all duration-300 flex items-center justify-center gap-2 mt-6"
           >
             {isGenerating ? (
               <>
@@ -150,4 +226,3 @@ const Ideation = () => {
 };
 
 export default Ideation;
-
