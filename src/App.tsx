@@ -15,6 +15,8 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import { Navbar } from "./components/Navbar";
 
+const queryClient = new QueryClient();
+
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<boolean | null>(null);
 
@@ -39,59 +41,63 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return session ? <>{children}</> : <Navigate to="/auth" replace />;
 };
 
-const App = () => {
-  const [queryClient] = useState(() => new QueryClient());
+const AppContent = () => {
+  return (
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <div className="min-h-screen flex flex-col">
+          <Navbar />
+          <main className="flex-1">
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route
+                path="/projects"
+                element={
+                  <ProtectedRoute>
+                    <Projects />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/questionnaire"
+                element={
+                  <ProtectedRoute>
+                    <Questionnaire />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/analysis/:submissionId"
+                element={
+                  <ProtectedRoute>
+                    <AnalysisResults />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/generate-documents/:submissionId"
+                element={
+                  <ProtectedRoute>
+                    <GenerateDocuments />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </main>
+        </div>
+      </BrowserRouter>
+    </TooltipProvider>
+  );
+};
 
+const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <div className="min-h-screen flex flex-col">
-            <Navbar />
-            <main className="flex-1">
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route
-                  path="/projects"
-                  element={
-                    <ProtectedRoute>
-                      <Projects />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/questionnaire"
-                  element={
-                    <ProtectedRoute>
-                      <Questionnaire />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/analysis/:submissionId"
-                  element={
-                    <ProtectedRoute>
-                      <AnalysisResults />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/generate-documents/:submissionId"
-                  element={
-                    <ProtectedRoute>
-                      <GenerateDocuments />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </main>
-          </div>
-        </BrowserRouter>
-      </TooltipProvider>
+      <AppContent />
     </QueryClientProvider>
   );
 };
