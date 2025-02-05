@@ -30,8 +30,9 @@ serve(async (req) => {
             role: 'system',
             content: `You are a task analysis expert that helps identify common tasks and pain points in different industries and business functions. 
             Generate 5 specific, realistic daily tasks that someone in this role typically handles.
-            Format your response as a JSON array of strings, each describing a task in 10-15 words.
-            Focus on tasks that could potentially be automated or improved with software.`
+            Each task should be described in 10-15 words and start with a dash (-).
+            Focus on tasks that could potentially be automated or improved with software.
+            Do not use any JSON formatting or special characters.`
           },
           { 
             role: 'user', 
@@ -42,18 +43,13 @@ serve(async (req) => {
     });
 
     const data = await response.json();
-    let tasks: string[];
-    
-    try {
-      tasks = JSON.parse(data.choices[0].message.content);
-    } catch (e) {
-      console.error('Error parsing OpenAI response as JSON:', e);
-      // Fallback: split by newlines and clean up
-      tasks = data.choices[0].message.content
-        .split('\n')
-        .filter((line: string) => line.trim().length > 0)
-        .slice(0, 5);
-    }
+    // Split the response by newlines and clean up
+    const tasks = data.choices[0].message.content
+      .split('\n')
+      .map((line: string) => line.trim())
+      .filter((line: string) => line.startsWith('-'))
+      .map((line: string) => line.substring(1).trim()) // Remove the dash
+      .slice(0, 5);
 
     return new Response(JSON.stringify({ tasks }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
