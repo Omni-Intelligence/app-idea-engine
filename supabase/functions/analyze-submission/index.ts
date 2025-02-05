@@ -64,7 +64,7 @@ Please provide a comprehensive analysis covering:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: 'You are a technical project analyst and business consultant with expertise in software development, AI integration, and market analysis.' },
           { role: 'user', content: prompt }
