@@ -1,6 +1,6 @@
 
 import { DocumentItem } from "./DocumentItem";
-import { FileText, Users, Code, Book } from "lucide-react";
+import { FileText, Users, Code, Book, Cloud, TestTube, ShieldCheck, Tools } from "lucide-react";
 import { GeneratedDocument } from "./types";
 
 interface DocumentSectionProps {
@@ -26,6 +26,22 @@ const documentTypeConfig = {
   implementation_guide: {
     icon: Book,
     label: 'Implementation Guide',
+  },
+  deployment_guide: {
+    icon: Cloud,
+    label: 'Deployment Guide',
+  },
+  testing_strategy: {
+    icon: TestTube,
+    label: 'Testing Strategy',
+  },
+  security_guidelines: {
+    icon: ShieldCheck,
+    label: 'Security Guidelines',
+  },
+  maintenance_docs: {
+    icon: Tools,
+    label: 'Maintenance Documentation',
   },
 } as const;
 

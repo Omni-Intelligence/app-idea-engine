@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
@@ -118,6 +117,94 @@ Include:
 8. Maintenance and Troubleshooting
 
 Format as a clear implementation guide with step-by-step instructions and best practices. Use plain text formatting only.`;
+        break;
+      case 'deployment_guide':
+        prompt = `You are a DevOps engineer. Create a comprehensive deployment guide for this software project based on the proposal and its analysis.
+
+Project Details:
+${JSON.stringify(submission, null, 2)}
+
+Previous AI Analysis:
+${submission.ai_analysis}
+
+Include:
+1. Infrastructure Requirements
+2. Environment Setup
+3. Deployment Pipeline Configuration
+4. CI/CD Process
+5. Monitoring and Logging Setup
+6. Backup and Recovery Procedures
+7. Scaling Strategies
+8. Production Checklist
+
+Format as a clear deployment guide with step-by-step instructions and best practices. Use plain text formatting only.`;
+        break;
+      case 'testing_strategy':
+        prompt = `You are a QA lead. Create a comprehensive testing strategy for this software project based on the proposal and its analysis.
+
+Project Details:
+${JSON.stringify(submission, null, 2)}
+
+Previous AI Analysis:
+${submission.ai_analysis}
+
+Include:
+1. Testing Objectives and Scope
+2. Types of Testing Required
+3. Test Environment Setup
+4. Test Data Management
+5. Testing Tools and Frameworks
+6. Test Case Development Strategy
+7. Automation Strategy
+8. Performance Testing Approach
+9. Security Testing Requirements
+10. Test Reporting and Metrics
+
+Format as a clear testing strategy document with detailed sections and guidelines. Use plain text formatting only.`;
+        break;
+      case 'security_guidelines':
+        prompt = `You are a security architect. Create comprehensive security guidelines for this software project based on the proposal and its analysis.
+
+Project Details:
+${JSON.stringify(submission, null, 2)}
+
+Previous AI Analysis:
+${submission.ai_analysis}
+
+Include:
+1. Security Requirements and Compliance
+2. Authentication and Authorization
+3. Data Protection and Privacy
+4. Security Best Practices
+5. Security Testing and Auditing
+6. Incident Response Plan
+7. Security Monitoring
+8. Regular Security Maintenance
+
+Format as a clear security guidelines document with detailed sections and recommendations. Use plain text formatting only.`;
+        break;
+      case 'maintenance_docs':
+        prompt = `You are a senior software maintainer. Create comprehensive maintenance documentation for this software project based on the proposal and its analysis.
+
+Project Details:
+${JSON.stringify(submission, null, 2)}
+
+Previous AI Analysis:
+${submission.ai_analysis}
+
+Include:
+1. System Architecture Overview
+2. Regular Maintenance Tasks
+3. Troubleshooting Guidelines
+4. System Dependencies
+5. Backup and Recovery Procedures
+6. Performance Optimization
+7. Update and Upgrade Procedures
+8. Monitoring and Alerting Setup
+9. Common Issues and Solutions
+10. Contact Information and Escalation Procedures
+
+Format as a clear maintenance guide with detailed sections and practical guidelines. Use plain text formatting only.`;
         break;
       default:
         throw new Error('Invalid document type');
