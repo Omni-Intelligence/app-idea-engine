@@ -48,11 +48,11 @@ const Projects = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-8 px-4">
-        <h1 className="text-3xl font-bold mb-8">My Projects</h1>
+      <div className="container mx-auto py-8 px-4 bg-gradient-to-br from-purple-50 to-white min-h-screen">
+        <h1 className="text-3xl font-bold mb-8 purple-gradient text-gradient">My Projects</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3].map((i) => (
-            <Card key={i}>
+            <Card key={i} className="glass-card">
               <CardHeader>
                 <Skeleton className="h-6 w-2/3" />
                 <Skeleton className="h-4 w-full" />
@@ -68,19 +68,19 @@ const Projects = () => {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto py-8 px-4 bg-gradient-to-br from-purple-50 to-white min-h-screen">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">My Projects</h1>
-        <Button onClick={() => navigate('/questionnaire')}>
+        <h1 className="text-3xl font-bold purple-gradient text-gradient">My Projects</h1>
+        <Button onClick={() => navigate('/questionnaire')} className="primary-button">
           New Project
         </Button>
       </div>
       
       {projects.length === 0 ? (
-        <Card>
+        <Card className="glass-card">
           <CardContent className="flex flex-col items-center justify-center py-12">
             <p className="text-lg text-muted-foreground mb-4">You haven't created any projects yet</p>
-            <Button onClick={() => navigate('/questionnaire')}>
+            <Button onClick={() => navigate('/questionnaire')} className="primary-button">
               Create Your First Project
             </Button>
           </CardContent>
@@ -90,12 +90,12 @@ const Projects = () => {
           {projects.map((project) => (
             <Card 
               key={project.id}
-              className="cursor-pointer hover:shadow-lg transition-shadow"
+              className="glass-card cursor-pointer hover:shadow-lg transition-all duration-300"
               onClick={() => navigate(`/analysis/${project.id}`)}
             >
               <CardHeader>
-                <CardTitle>{project.title}</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-xl purple-gradient text-gradient">{project.title}</CardTitle>
+                <CardDescription className="text-gray-600">
                   {project.description || 'No description provided'}
                 </CardDescription>
               </CardHeader>

@@ -79,28 +79,36 @@ const AnalysisResults = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4">
-      <Card className="w-full max-w-4xl p-6">
-        <h2 className="text-2xl font-semibold mb-6">Your Project Analysis</h2>
-        {analysis ? (
-          <>
-            <div className="prose max-w-none mb-8">
-              <div className="whitespace-pre-wrap">{analysis}</div>
-            </div>
-            
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-purple-50 to-white">
+      <Card className="w-full max-w-4xl glass-card">
+        <div className="p-6 md:p-8">
+          <h2 className="text-2xl font-semibold mb-6 purple-gradient text-gradient">Your Project Analysis</h2>
+          {analysis ? (
+            <>
+              <div className="prose max-w-none mb-8 text-gray-700">
+                <div className="whitespace-pre-wrap">{analysis}</div>
+              </div>
+              
+              <Button 
+                onClick={handleGenerateDocuments}
+                className="primary-button mb-6"
+              >
+                <FileText className="mr-2 h-4 w-4" />
+                Generate Documentation
+              </Button>
+            </>
+          ) : (
+            <p className="text-gray-600">No analysis available. Please try again later.</p>
+          )}
+          <div className="mt-6 flex justify-end">
             <Button 
-              onClick={handleGenerateDocuments}
-              className="mb-6"
+              onClick={handleBackToHome}
+              variant="outline"
+              className="secondary-button"
             >
-              <FileText className="mr-2 h-4 w-4" />
-              Generate Documentation
+              Back to Home
             </Button>
-          </>
-        ) : (
-          <p className="text-gray-600">No analysis available. Please try again later.</p>
-        )}
-        <div className="mt-6 flex justify-end">
-          <Button onClick={handleBackToHome}>Back to Home</Button>
+          </div>
         </div>
       </Card>
     </div>

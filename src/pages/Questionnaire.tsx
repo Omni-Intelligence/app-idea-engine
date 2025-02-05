@@ -47,7 +47,6 @@ const Questionnaire = () => {
     }
   };
 
-  // Clear answers when component unmounts
   useEffect(() => {
     return () => {
       useQuestionStore.getState().reset();
@@ -56,7 +55,7 @@ const Questionnaire = () => {
 
   if (showConfirmation) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-50 to-white">
         <div className="flex-1 flex items-center justify-center p-4 md:p-6">
           <div className="w-full max-w-5xl">
             <ConfirmationPage
@@ -71,10 +70,10 @@ const Questionnaire = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-50 to-white">
       <div className="flex-1 flex items-center justify-center p-4 md:p-6">
         <div className="w-full max-w-5xl">
-          <h2 className="text-2xl md:text-3xl font-semibold mb-10 text-left">
+          <h2 className="text-2xl md:text-3xl font-semibold mb-10 text-left purple-gradient text-gradient">
             {questions[currentStep].question}
           </h2>
           <div className="mb-4">

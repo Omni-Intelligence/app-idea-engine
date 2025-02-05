@@ -26,28 +26,6 @@
     --ring: 265 89% 78%;
     --radius: 1rem;
   }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 265 89% 78%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 265 89% 78%;
-  }
 }
 
 @layer base {
@@ -60,18 +38,97 @@
   }
 }
 
+/* Glass effects */
 .glass-card {
   @apply bg-white/50 backdrop-blur-sm border border-purple-100 shadow-lg;
 }
 
+.glass-nav {
+  @apply bg-white/80 backdrop-blur-md border-b border-purple-100;
+}
+
+.glass-input {
+  @apply bg-white/80 border-purple-100 focus:border-purple-300 focus:ring-purple-500;
+}
+
+/* Custom gradients */
 .purple-gradient {
   @apply bg-gradient-to-r from-purple-600 to-violet-600;
+}
+
+.soft-gradient {
+  @apply bg-gradient-to-br from-purple-50 to-white;
 }
 
 .text-gradient {
   @apply bg-clip-text text-transparent;
 }
 
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Custom components */
+.feature-pill {
+  @apply bg-purple-100/50 backdrop-blur-sm px-6 py-3 rounded-full;
+}
+
+.feature-number {
+  @apply text-purple-600 mr-2;
+}
+
+.feature-label {
+  @apply text-gray-700;
+}
+
+/* Progress styling */
+.progress-container {
+  @apply w-full h-2 bg-purple-100 rounded-full overflow-hidden;
+}
+
+.progress-bar {
+  @apply h-full bg-primary rounded-full transition-all duration-300 ease-out;
+}
+
+/* Button variations */
+.primary-button {
+  @apply bg-purple-600 hover:bg-purple-700 text-white px-8 py-6 text-lg rounded-full 
+         transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg;
+}
+
+.secondary-button {
+  @apply border-purple-200 hover:bg-purple-50 text-purple-700 px-8 py-6 text-lg rounded-full 
+         transition-all duration-300;
+}
+
+/* Card variations */
+.analysis-card {
+  @apply glass-card p-6 rounded-2xl mb-6 transition-all duration-300 hover:shadow-lg;
+}
+
+/* Question card styling */
+.question-option {
+  @apply p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 min-h-[100px] 
+         flex items-center justify-center hover:border-primary/50;
+}
+
+.question-option.selected {
+  @apply border-primary bg-primary/5;
+}
+
+/* Transitions */
 .fade-enter {
   opacity: 0;
 }
