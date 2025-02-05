@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useQuestionStore } from '@/store/questionStore';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Lightbulb } from 'lucide-react';
 
 const Index = () => {
   const [idea, setIdea] = useState('');
@@ -74,7 +74,7 @@ const Index = () => {
             onChange={(e) => setIdea(e.target.value)}
             className="min-h-[120px] mb-6 text-lg bg-white/80 border-purple-100 focus:border-purple-300 focus:ring-purple-500"
           />
-          <div className="flex gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
               onClick={handleSubmit}
               className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-6 text-lg rounded-full transition-all duration-300 flex items-center gap-2"
@@ -88,6 +88,14 @@ const Index = () => {
               className="px-8 py-6 text-lg rounded-full border-purple-200 hover:bg-purple-50 text-purple-700"
             >
               View Projects
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate('/ideation')}
+              className="px-8 py-6 text-lg rounded-full border-purple-200 hover:bg-purple-50 text-purple-700 flex items-center gap-2"
+            >
+              <Lightbulb className="w-5 h-5" />
+              Don't know what to build?
             </Button>
           </div>
         </Card>

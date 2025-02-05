@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
+import Ideation from "./pages/Ideation";
 import Questionnaire from "./pages/Questionnaire";
 import AnalysisResults from "./pages/AnalysisResults";
 import GenerateDocuments from "./pages/GenerateDocuments";
@@ -52,6 +53,7 @@ const AppContent = () => {
           <main className="flex-1">
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/ideation" element={<Ideation />} />
               <Route
                 path="/projects"
                 element={
