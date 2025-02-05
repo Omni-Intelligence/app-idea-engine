@@ -15,6 +15,7 @@ serve(async (req) => {
 
   try {
     const { submissionId } = await req.json();
+    console.log('Processing submission:', submissionId);
     
     // Initialize Supabase client
     const supabaseClient = createClient(
@@ -30,11 +31,13 @@ serve(async (req) => {
       .single();
 
     if (fetchError || !submission) {
+      console.error('Failed to fetch submission:', fetchError);
       throw new Error('Failed to fetch submission');
     }
 
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openAIApiKey) {
+      console.error('OpenAI API key not configured');
       throw new Error('OpenAI API key not configured');
     }
 
@@ -61,7 +64,9 @@ Please provide a comprehensive analysis covering:
 6. Monetization strategy evaluation
 7. AI integration recommendations`;
 
-    // Call OpenAI API with the correct model name
+    console.log('Calling OpenAI API...');
+    
+    // Call OpenAI API
     const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -69,7 +74,7 @@ Please provide a comprehensive analysis covering:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: 'You are a technical project analyst and business consultant with expertise in software development, AI integration, and market analysis.' },
           { role: 'user', content: prompt }
@@ -78,12 +83,15 @@ Please provide a comprehensive analysis covering:
     });
 
     if (!openAIResponse.ok) {
-      console.error('OpenAI API Error:', await openAIResponse.text());
-      throw new Error('OpenAI API request failed');
+      const errorText = await openAIResponse.text();
+      console.error('OpenAI API Error:', errorText);
+      throw new Error(`OpenAI API request failed: ${errorText}`);
     }
 
     const aiResult = await openAIResponse.json();
     const analysis = aiResult.choices[0].message.content;
+
+    console.log('Analysis generated successfully, updating submission...');
 
     // Update the submission with AI analysis
     const { error: updateError } = await supabaseClient
@@ -95,8 +103,11 @@ Please provide a comprehensive analysis covering:
       .eq('id', submissionId);
 
     if (updateError) {
+      console.error('Failed to update submission:', updateError);
       throw new Error('Failed to update submission with analysis');
     }
+
+    console.log('Submission updated successfully');
 
     return new Response(
       JSON.stringify({ 
