@@ -40,7 +40,7 @@ export const QuestionCard = ({ question, placeholder, options = [], onSubmit }: 
         )}
         
         <RadioGroup
-          className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8"
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8"
           value={isCustom ? 'custom' : selectedOption}
           onValueChange={(value) => {
             if (value === 'custom') {
@@ -72,7 +72,7 @@ export const QuestionCard = ({ question, placeholder, options = [], onSubmit }: 
           ))}
           <div
             className={`p-4 md:p-6 border-2 rounded-xl cursor-pointer transition-all duration-200 min-h-[100px] flex items-center justify-center ${
-              isCustom ? 'border-primary bg-primary/5 col-span-full' : 'border-border hover:border-primary/50 col-span-full'
+              isCustom ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
             }`}
           >
             <RadioGroupItem value="custom" id="custom" className="hidden" />
