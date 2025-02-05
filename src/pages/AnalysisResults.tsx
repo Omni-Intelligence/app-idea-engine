@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useParams } from "react-router-dom";
@@ -60,7 +60,7 @@ const AnalysisResults = () => {
     }
   };
 
-  useState(() => {
+  useEffect(() => {
     if (submissionId) {
       fetchAnalysis();
     }

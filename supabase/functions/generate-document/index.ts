@@ -84,7 +84,7 @@ Include setup instructions, coding standards, and best practices.`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-o3-mini',
+        model: 'o3-mini',
         messages: [
           { 
             role: 'system', 
