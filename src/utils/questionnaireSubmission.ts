@@ -9,6 +9,7 @@ export const submitQuestionnaire = async (answers: Record<string, string>) => {
 
   const submission = {
     user_id: session.user.id,
+    initial_idea: answers.initial || '',  // Save the initial idea explicitly
     project_idea: answers[0] || '',
     target_audience: answers[1] || '',
     problem_solved: answers[2] || '',
@@ -36,8 +37,8 @@ export const submitQuestionnaire = async (answers: Record<string, string>) => {
     .from('user_projects')
     .insert([{
       user_id: session.user.id,
-      title: answers[0] || 'Untitled Project',
-      description: answers[2] || null, // Using the "problem solved" answer as description
+      title: answers.initial || answers[0] || 'Untitled Project', // Use initial idea as title if available
+      description: answers[2] || null,
     }]);
 
   if (projectError) throw projectError;

@@ -17,11 +17,18 @@ const Questionnaire = () => {
   const location = useLocation();
   const [showConfirmation, setShowConfirmation] = useState(false);
 
+  // Store the initial idea when component mounts
   useEffect(() => {
     const initialIdea = (location.state as { initialIdea?: string })?.initialIdea;
+    console.log("Initial idea from location state:", initialIdea); // Debug log
     if (initialIdea) {
       setAnswer('initial', initialIdea);
+      console.log("Setting initial idea in store:", initialIdea); // Debug log
     }
+  }, [location.state, setAnswer]);
+
+  // Cleanup effect
+  useEffect(() => {
     return () => {
       useQuestionStore.getState().reset();
     };
