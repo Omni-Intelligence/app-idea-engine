@@ -60,11 +60,11 @@ const Questionnaire = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <div className="fixed top-0 left-0 right-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="fixed top-0 left-0 right-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-2">
         <ProgressBar currentStep={currentStep} totalSteps={questions.length} />
       </div>
       
-      <div className="flex-1 flex items-center justify-center p-4 md:p-6 mt-12 md:mt-16">
+      <div className="flex-1 flex items-center justify-center p-4 md:p-6 mt-8">
         <QuestionCard
           question={questions[currentStep].question}
           placeholder={questions[currentStep].placeholder}
