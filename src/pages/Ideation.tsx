@@ -63,7 +63,7 @@ const Ideation = () => {
     if (generatedIdea) {
       reset();
       setAnswer(0, generatedIdea);
-      navigate('/questionnaire');
+      navigate('/');
     }
   };
 
@@ -150,3 +150,4 @@ const Ideation = () => {
 };
 
 export default Ideation;
+
