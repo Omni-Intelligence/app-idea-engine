@@ -42,9 +42,16 @@ export const Navbar = () => {
     <nav className="border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
-          <Link to="/" className="text-xl font-bold">
-            App Idea Engine
-          </Link>
+          <div className="flex items-center space-x-8">
+            <Link to="/" className="text-xl font-bold">
+              App Idea Engine
+            </Link>
+            {session && (
+              <Link to="/projects" className="text-sm font-medium text-muted-foreground hover:text-primary">
+                My Projects
+              </Link>
+            )}
+          </div>
           <div>
             {session ? (
               <Button variant="outline" onClick={handleSignOut}>

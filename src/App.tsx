@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import Questionnaire from "./pages/Questionnaire";
 import AnalysisResults from "./pages/AnalysisResults";
 import GenerateDocuments from "./pages/GenerateDocuments";
+import Projects from "./pages/Projects";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import { Navbar } from "./components/Navbar";
@@ -51,6 +52,14 @@ const App = () => (
           <main className="flex-1">
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route
+                path="/projects"
+                element={
+                  <ProtectedRoute>
+                    <Projects />
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path="/questionnaire"
                 element={

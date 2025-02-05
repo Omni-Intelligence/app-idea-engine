@@ -22,14 +22,27 @@ export const submitQuestionnaire = async (answers: Record<string, string>) => {
     answers: answers
   };
 
-  const { data: submissionData, error } = await supabase
+  // Create the submission
+  const { data: submissionData, error: submissionError } = await supabase
     .from('project_submissions')
     .insert([submission])
     .select()
     .single();
 
-  if (error) throw error;
+  if (submissionError) throw submissionError;
 
+  // Create a project entry
+  const { error: projectError } = await supabase
+    .from('user_projects')
+    .insert([{
+      user_id: session.user.id,
+      title: answers[0] || 'Untitled Project',
+      description: answers[2] || null, // Using the "problem solved" answer as description
+    }]);
+
+  if (projectError) throw projectError;
+
+  // Trigger the analysis
   const { error: analysisError } = await supabase.functions.invoke('analyze-submission', {
     body: { submissionId: submissionData.id }
   });
