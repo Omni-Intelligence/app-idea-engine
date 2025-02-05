@@ -1,7 +1,12 @@
+
+import { useEffect } from 'react';
 import { useQuestionStore } from '@/store/questionStore';
 import { QuestionCard } from '@/components/QuestionCard';
 import { ProgressBar } from '@/components/ProgressBar';
 import { NavigationControls } from '@/components/NavigationControls';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/components/ui/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 const questions = [
   {
@@ -147,16 +152,73 @@ const questions = [
 ];
 
 const Questionnaire = () => {
-  const { currentStep, setAnswer, nextStep, previousStep } = useQuestionStore();
+  const { currentStep, answers, setAnswer, nextStep, previousStep } = useQuestionStore();
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleSubmit = (answer: string) => {
+  const handleSubmit = async (answer: string) => {
     setAnswer(currentStep, answer);
+    
     if (currentStep < questions.length - 1) {
       nextStep();
     } else {
-      console.log('Questionnaire completed');
+      // All questions answered, prepare submission
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          toast({
+            title: "Error",
+            description: "You must be signed in to submit the questionnaire",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        const submission = {
+          user_id: session.user.id,
+          project_idea: answers[0] || '',
+          target_audience: answers[1] || '',
+          problem_solved: answers[2] || '',
+          core_features: answers[3] || '',
+          ai_integration: answers[4] || '',
+          monetization: answers[5] || '',
+          development_timeline: answers[6] || '',
+          technical_expertise: answers[7] || '',
+          tech_stack: answers[8] || '',
+          scaling_expectation: answers[9] || ''
+        };
+
+        const { error } = await supabase
+          .from('project_submissions')
+          .insert([submission]);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success!",
+          description: "Your project submission has been saved.",
+        });
+
+        // For now, navigate back to home page
+        navigate('/');
+      } catch (error: any) {
+        console.error('Error submitting questionnaire:', error);
+        toast({
+          title: "Error",
+          description: error.message || "Failed to submit questionnaire",
+          variant: "destructive",
+        });
+      }
     }
   };
+
+  // Clear answers when component unmounts
+  useEffect(() => {
+    return () => {
+      // Reset the store when leaving the questionnaire
+      useQuestionStore.getState().reset();
+    };
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col">

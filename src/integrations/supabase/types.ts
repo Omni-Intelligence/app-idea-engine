@@ -30,6 +30,60 @@ export type Database = {
         }
         Relationships: []
       }
+      project_submissions: {
+        Row: {
+          ai_analysis: string | null
+          ai_integration: string
+          core_features: string
+          created_at: string
+          development_timeline: string
+          id: string
+          monetization: string
+          problem_solved: string
+          project_idea: string
+          scaling_expectation: string
+          status: string
+          target_audience: string
+          tech_stack: string
+          technical_expertise: string
+          user_id: string | null
+        }
+        Insert: {
+          ai_analysis?: string | null
+          ai_integration: string
+          core_features: string
+          created_at?: string
+          development_timeline: string
+          id?: string
+          monetization: string
+          problem_solved: string
+          project_idea: string
+          scaling_expectation: string
+          status?: string
+          target_audience: string
+          tech_stack: string
+          technical_expertise: string
+          user_id?: string | null
+        }
+        Update: {
+          ai_analysis?: string | null
+          ai_integration?: string
+          core_features?: string
+          created_at?: string
+          development_timeline?: string
+          id?: string
+          monetization?: string
+          problem_solved?: string
+          project_idea?: string
+          scaling_expectation?: string
+          status?: string
+          target_audience?: string
+          tech_stack?: string
+          technical_expertise?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
