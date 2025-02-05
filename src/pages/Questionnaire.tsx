@@ -65,20 +65,23 @@ const Questionnaire = () => {
           <div className="mb-4">
             <ProgressBar currentStep={currentStep} totalSteps={questions.length} />
           </div>
-          <QuestionCard
-            question={questions[currentStep].question}
-            placeholder={questions[currentStep].placeholder}
-            options={questions[currentStep].options}
-            onSubmit={handleSubmit}
-          />
+          <div className="relative">
+            {currentStep > 0 && (
+              <div className="absolute -top-12 right-0">
+                <NavigationControls
+                  onBack={previousStep}
+                  showBack={currentStep > 0}
+                />
+              </div>
+            )}
+            <QuestionCard
+              question={questions[currentStep].question}
+              placeholder={questions[currentStep].placeholder}
+              options={questions[currentStep].options}
+              onSubmit={handleSubmit}
+            />
+          </div>
         </div>
-      </div>
-
-      <div className="fixed bottom-0 left-0 right-0 p-4 md:p-6">
-        <NavigationControls
-          onBack={previousStep}
-          showBack={currentStep > 0}
-        />
       </div>
     </div>
   );
