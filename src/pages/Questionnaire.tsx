@@ -2,7 +2,6 @@ import { useQuestionStore } from '@/store/questionStore';
 import { QuestionCard } from '@/components/QuestionCard';
 import { ProgressBar } from '@/components/ProgressBar';
 import { NavigationControls } from '@/components/NavigationControls';
-import { useNavigate } from 'react-router-dom';
 
 const questions = [
   {
@@ -48,7 +47,6 @@ const questions = [
 ];
 
 const Questionnaire = () => {
-  const navigate = useNavigate();
   const { currentStep, setAnswer, nextStep, previousStep } = useQuestionStore();
 
   const handleSubmit = (answer: string) => {
@@ -66,7 +64,7 @@ const Questionnaire = () => {
         <ProgressBar currentStep={currentStep} totalSteps={questions.length} />
       </div>
       
-      <div className="flex-1 flex items-center justify-center p-6 mt-16">
+      <div className="flex-1 flex items-center justify-center p-4 md:p-6 mt-12 md:mt-16">
         <QuestionCard
           question={questions[currentStep].question}
           placeholder={questions[currentStep].placeholder}
@@ -75,7 +73,7 @@ const Questionnaire = () => {
         />
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 p-6">
+      <div className="fixed bottom-0 left-0 right-0 p-4 md:p-6">
         <NavigationControls
           onBack={previousStep}
           showBack={currentStep > 0}
