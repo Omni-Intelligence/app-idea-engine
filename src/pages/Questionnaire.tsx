@@ -9,6 +9,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ConfirmationPage } from '@/components/ConfirmationPage';
 import { questions } from '@/data/questionnaireData';
 import { submitQuestionnaire } from '@/utils/questionnaireSubmission';
+import { Eye, EyeOff } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const Questionnaire = () => {
   const { currentStep, answers, setAnswer, nextStep, previousStep } = useQuestionStore();
@@ -16,6 +18,7 @@ const Questionnaire = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showFullIdea, setShowFullIdea] = useState(false);
 
   // Store the initial idea when component mounts
   useEffect(() => {
@@ -65,6 +68,35 @@ const Questionnaire = () => {
     }
   };
 
+  const renderInitialIdeaPreview = () => {
+    if (!answers.initial) return null;
+
+    const truncatedIdea = answers.initial.length > 100 
+      ? `${answers.initial.substring(0, 100)}...` 
+      : answers.initial;
+
+    return (
+      <div className="mb-6 p-4 bg-purple-50 rounded-lg border border-purple-100">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h3 className="text-sm font-medium text-purple-900 mb-1">Your Initial Project Idea:</h3>
+            <p className="text-sm text-purple-800">
+              {showFullIdea ? answers.initial : truncatedIdea}
+            </p>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-purple-600 hover:text-purple-700 hover:bg-purple-100"
+            onClick={() => setShowFullIdea(!showFullIdea)}
+          >
+            {showFullIdea ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
   if (showConfirmation) {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-50 to-white">
@@ -85,6 +117,7 @@ const Questionnaire = () => {
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-50 to-white">
       <div className="flex-1 flex items-center justify-center p-4 md:p-6">
         <div className="w-full max-w-5xl">
+          {renderInitialIdeaPreview()}
           <h2 className="text-2xl md:text-3xl font-semibold mb-10 text-left purple-gradient text-gradient">
             {questions[currentStep].question}
           </h2>

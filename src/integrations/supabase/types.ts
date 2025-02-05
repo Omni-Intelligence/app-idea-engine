@@ -80,6 +80,7 @@ export type Database = {
           created_at: string
           development_timeline: string
           id: string
+          initial_idea: string | null
           monetization: string
           problem_solved: string
           project_idea: string
@@ -98,6 +99,7 @@ export type Database = {
           created_at?: string
           development_timeline: string
           id?: string
+          initial_idea?: string | null
           monetization: string
           problem_solved: string
           project_idea: string
@@ -116,6 +118,7 @@ export type Database = {
           created_at?: string
           development_timeline?: string
           id?: string
+          initial_idea?: string | null
           monetization?: string
           problem_solved?: string
           project_idea?: string
