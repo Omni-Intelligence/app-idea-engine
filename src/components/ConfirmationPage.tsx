@@ -45,33 +45,37 @@ export const ConfirmationPage = ({ answers, onSubmit, onBack }: ConfirmationPage
   };
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-semibold">Please Review Your Answers</h2>
-      <Card className="p-6">
-        <div className="space-y-4">
+    <div className="space-y-8 max-w-4xl mx-auto">
+      <h2 className="text-3xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-[#9b87f5] to-[#7E69AB]">
+        Please Review Your Answers
+      </h2>
+      <Card className="p-8 glass-card shadow-lg border border-purple-100">
+        <div className="space-y-6">
           {Object.entries(answers).map(([key, value]) => (
-            <div key={key} className="border-b pb-4 last:border-b-0">
-              <h3 className="font-medium text-gray-900">{questionLabels[key]}</h3>
-              <p className="mt-1 text-gray-600">{value}</p>
+            <div key={key} className="border-b border-purple-100/50 pb-6 last:border-b-0">
+              <h3 className="font-medium text-lg text-[#1A1F2C] mb-2">{questionLabels[key]}</h3>
+              <p className="text-gray-600 leading-relaxed">{value}</p>
             </div>
           ))}
         </div>
       </Card>
-      <div className="flex justify-between mt-6">
+      <div className="flex justify-between mt-8 gap-4">
         <Button
           variant="outline"
           onClick={onBack}
           disabled={isSubmitting}
+          className="px-8 py-6 text-base border-purple-200 hover:bg-purple-50 text-purple-700"
         >
           Back to Questions
         </Button>
         <Button
           onClick={handleSubmit}
           disabled={isSubmitting}
+          className="px-8 py-6 text-base bg-[#9b87f5] hover:bg-[#9b87f5]/90 text-white"
         >
           {isSubmitting ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
               Analyzing...
             </>
           ) : (
@@ -82,3 +86,4 @@ export const ConfirmationPage = ({ answers, onSubmit, onBack }: ConfirmationPage
     </div>
   );
 };
+
