@@ -5,7 +5,7 @@ import { QuestionCard } from '@/components/QuestionCard';
 import { ProgressBar } from '@/components/ProgressBar';
 import { NavigationControls } from '@/components/NavigationControls';
 import { useToast } from '@/components/ui/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ConfirmationPage } from '@/components/ConfirmationPage';
 import { questions } from '@/data/questionnaireData';
 import { submitQuestionnaire } from '@/utils/questionnaireSubmission';
@@ -14,7 +14,18 @@ const Questionnaire = () => {
   const { currentStep, answers, setAnswer, nextStep, previousStep } = useQuestionStore();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   const [showConfirmation, setShowConfirmation] = useState(false);
+
+  useEffect(() => {
+    const initialIdea = (location.state as { initialIdea?: string })?.initialIdea;
+    if (initialIdea) {
+      setAnswer('initial', initialIdea);
+    }
+    return () => {
+      useQuestionStore.getState().reset();
+    };
+  }, []);
 
   const handleSubmit = async (answer: string) => {
     setAnswer(currentStep, answer);
@@ -46,12 +57,6 @@ const Questionnaire = () => {
       throw error;
     }
   };
-
-  useEffect(() => {
-    return () => {
-      useQuestionStore.getState().reset();
-    };
-  }, []);
 
   if (showConfirmation) {
     return (

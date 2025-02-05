@@ -1,9 +1,10 @@
+
 import { create } from 'zustand';
 
 interface QuestionState {
   currentStep: number;
   answers: Record<string, string>;
-  setAnswer: (step: number, answer: string) => void;
+  setAnswer: (step: number | string, answer: string) => void;
   nextStep: () => void;
   previousStep: () => void;
   reset: () => void;

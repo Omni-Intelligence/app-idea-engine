@@ -32,7 +32,8 @@ export const ConfirmationPage = ({ answers, onSubmit, onBack }: ConfirmationPage
   };
 
   const questionLabels: Record<string, string> = {
-    0: "Project Idea",
+    initial: "Initial Project Idea",
+    0: "Project Type",
     1: "Target Audience",
     2: "Problem Solved",
     3: "Core Features",
@@ -51,7 +52,13 @@ export const ConfirmationPage = ({ answers, onSubmit, onBack }: ConfirmationPage
       </h2>
       <Card className="p-8 glass-card shadow-lg border border-purple-100">
         <div className="space-y-6">
-          {Object.entries(answers).map(([key, value]) => (
+          {/* Initial project idea from homepage */}
+          <div className="border-b border-purple-100/50 pb-6">
+            <h3 className="font-medium text-lg text-[#1A1F2C] mb-2">{questionLabels.initial}</h3>
+            <p className="text-gray-600 leading-relaxed">{answers.initial}</p>
+          </div>
+          {/* Questionnaire answers */}
+          {Object.entries(answers).filter(([key]) => key !== 'initial').map(([key, value]) => (
             <div key={key} className="border-b border-purple-100/50 pb-6 last:border-b-0">
               <h3 className="font-medium text-lg text-[#1A1F2C] mb-2">{questionLabels[key]}</h3>
               <p className="text-gray-600 leading-relaxed">{value}</p>
@@ -86,4 +93,3 @@ export const ConfirmationPage = ({ answers, onSubmit, onBack }: ConfirmationPage
     </div>
   );
 };
-
