@@ -20,6 +20,10 @@ interface GeneratedDocument {
   document_type: DocumentType;
   content: string;
   status: 'pending' | 'completed';
+  created_at?: string;
+  updated_at?: string;
+  submission_id?: string;
+  user_id?: string;
 }
 
 const AnalysisResults = () => {
@@ -41,7 +45,20 @@ const AnalysisResults = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setDocuments(data || []);
+      
+      // Cast the data to ensure it matches our GeneratedDocument type
+      const typedDocuments: GeneratedDocument[] = data?.map(doc => ({
+        id: doc.id,
+        document_type: doc.document_type as DocumentType,
+        content: doc.content,
+        status: doc.status as 'pending' | 'completed',
+        created_at: doc.created_at,
+        updated_at: doc.updated_at,
+        submission_id: doc.submission_id,
+        user_id: doc.user_id
+      })) || [];
+      
+      setDocuments(typedDocuments);
     } catch (error) {
       console.error('Error fetching documents:', error);
       toast({
@@ -168,7 +185,7 @@ const AnalysisResults = () => {
       icon: Book,
       label: 'Implementation Guide',
     },
-  };
+  } as const;
 
   if (isLoading) {
     return (
