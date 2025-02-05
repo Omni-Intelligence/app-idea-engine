@@ -35,7 +35,9 @@ export const QuestionCard = ({ question, placeholder, options = [], onSubmit }: 
   return (
     <Card className="w-full max-w-5xl mx-auto">
       <CardContent className="p-6 md:p-8">
-        <h2 className="text-2xl md:text-3xl font-semibold mb-6 md:mb-8 text-center">{question}</h2>
+        {question && (
+          <h2 className="text-2xl md:text-3xl font-semibold mb-6 md:mb-8 text-center">{question}</h2>
+        )}
         
         <RadioGroup
           className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8"

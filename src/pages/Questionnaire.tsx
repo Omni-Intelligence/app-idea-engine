@@ -62,6 +62,9 @@ const Questionnaire = () => {
     <div className="min-h-screen flex flex-col">
       <div className="flex-1 flex items-center justify-center p-4 md:p-6">
         <div className="w-full max-w-5xl">
+          <h2 className="text-2xl md:text-3xl font-semibold mb-6 md:mb-8 text-center">
+            {questions[currentStep].question}
+          </h2>
           <div className="mb-4">
             <ProgressBar currentStep={currentStep} totalSteps={questions.length} />
           </div>
@@ -75,7 +78,7 @@ const Questionnaire = () => {
               </div>
             )}
             <QuestionCard
-              question={questions[currentStep].question}
+              question=""
               placeholder={questions[currentStep].placeholder}
               options={questions[currentStep].options}
               onSubmit={handleSubmit}
