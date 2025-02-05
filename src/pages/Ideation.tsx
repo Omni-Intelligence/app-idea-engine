@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
@@ -7,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useQuestionStore } from '@/store/questionStore';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
-import { ArrowLeft, Lightbulb, Sparkles } from 'lucide-react';
+import { ArrowLeft, Lightbulb, Sparkles, ListPlus } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -44,6 +43,8 @@ const Ideation = () => {
   const [businessFunction, setBusinessFunction] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedIdea, setGeneratedIdea] = useState('');
+  const [suggestedTasks, setSuggestedTasks] = useState<string[]>([]);
+  const [isLoadingTasks, setIsLoadingTasks] = useState(false);
   const navigate = useNavigate();
   const { setAnswer, reset } = useQuestionStore();
   const { toast } = useToast();
@@ -99,6 +100,43 @@ const Ideation = () => {
       reset();
       setAnswer(0, generatedIdea);
       navigate('/');
+    }
+  };
+
+  const handleGenerateTasks = async () => {
+    if (!industry || !businessFunction) {
+      toast({
+        title: "Selection required",
+        description: "Please select both an industry and business function first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoadingTasks(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-tasks', {
+        body: { industry, businessFunction },
+      });
+
+      if (error) throw error;
+      
+      setSuggestedTasks(data.tasks);
+      setDailyTasks(dailyTasks ? `${dailyTasks}\n\n${data.tasks.join('\n')}` : data.tasks.join('\n'));
+      
+      toast({
+        title: "Tasks generated",
+        description: "Common tasks have been added to your description.",
+      });
+    } catch (error) {
+      console.error('Error generating tasks:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate task suggestions. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingTasks(false);
     }
   };
 
@@ -164,9 +202,30 @@ const Ideation = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                What tasks do you handle in your daily work?
-              </label>
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  What tasks do you handle in your daily work?
+                </label>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleGenerateTasks}
+                  disabled={isLoadingTasks || !industry || !businessFunction}
+                  className="ml-2"
+                >
+                  {isLoadingTasks ? (
+                    <>
+                      <Sparkles className="w-4 h-4 mr-2 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <ListPlus className="w-4 h-4 mr-2" />
+                      Suggest Tasks
+                    </>
+                  )}
+                </Button>
+              </div>
               <Textarea
                 placeholder="Describe your typical workday, tasks you frequently do, or challenges you face..."
                 value={dailyTasks}
