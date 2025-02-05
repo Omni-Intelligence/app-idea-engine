@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import Questionnaire from "./pages/Questionnaire";
 import AnalysisResults from "./pages/AnalysisResults";
+import GenerateDocuments from "./pages/GenerateDocuments";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import { Navbar } from "./components/Navbar";
@@ -63,6 +64,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <AnalysisResults />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/generate-documents/:submissionId"
+                element={
+                  <ProtectedRoute>
+                    <GenerateDocuments />
                   </ProtectedRoute>
                 }
               />
