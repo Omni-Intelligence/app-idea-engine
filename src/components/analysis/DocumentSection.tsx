@@ -1,6 +1,6 @@
 
 import { DocumentItem } from "./DocumentItem";
-import { FileText, Users, Code, Book, Cloud, TestTube, ShieldCheck, Tools } from "lucide-react";
+import { FileText, Users, Code, Book, Cloud, TestTube, ShieldCheck, Wrench } from "lucide-react";
 import { GeneratedDocument } from "./types";
 
 interface DocumentSectionProps {
@@ -40,7 +40,7 @@ const documentTypeConfig = {
     label: 'Security Guidelines',
   },
   maintenance_docs: {
-    icon: Tools,
+    icon: Wrench,
     label: 'Maintenance Documentation',
   },
 } as const;
