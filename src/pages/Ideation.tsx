@@ -40,19 +40,15 @@ const Ideation = () => {
 
     setIsGenerating(true);
     try {
-      const response = await fetch('/api/generate-idea', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ dailyTasks }),
+      const { data, error } = await supabase.functions.invoke('generate-idea', {
+        body: { dailyTasks },
       });
 
-      if (!response.ok) throw new Error('Failed to generate idea');
+      if (error) throw error;
       
-      const data = await response.json();
       setGeneratedIdea(data.generatedText);
     } catch (error) {
+      console.error('Error generating idea:', error);
       toast({
         title: "Error",
         description: "Failed to generate project idea. Please try again.",
