@@ -10,6 +10,7 @@ import { DocumentViewer } from "@/components/analysis/DocumentViewer";
 import { GeneratedDocument, DocumentType } from "@/components/analysis/types";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { NavigationControls } from "@/components/NavigationControls";
 
 const GenerateDocuments = () => {
   const [documents, setDocuments] = useState<GeneratedDocument[]>([]);
@@ -120,6 +121,13 @@ const GenerateDocuments = () => {
           onGenerate={handleGenerateDocument}
           onView={setSelectedDocument}
         />
+
+        <div className="mt-6">
+          <NavigationControls 
+            onBack={handleBack}
+            showBack={true}
+          />
+        </div>
       </Card>
 
       <DocumentViewer
