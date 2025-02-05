@@ -7,7 +7,7 @@ import { useState } from "react";
 
 interface ConfirmationPageProps {
   answers: Record<string, string>;
-  onSubmit: () => Promise<void>;
+  onSubmit: () => Promise<string>;
   onBack: () => void;
 }
 
@@ -18,7 +18,8 @@ export const ConfirmationPage = ({ answers, onSubmit, onBack }: ConfirmationPage
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      await onSubmit();
+      const submissionId = await onSubmit();
+      return submissionId;
     } catch (error) {
       toast({
         title: "Error",

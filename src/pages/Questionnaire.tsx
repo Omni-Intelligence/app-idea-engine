@@ -1,4 +1,4 @@
-
+```typescript
 import { useEffect, useState } from 'react';
 import { useQuestionStore } from '@/store/questionStore';
 import { QuestionCard } from '@/components/QuestionCard';
@@ -197,7 +197,7 @@ const Questionnaire = () => {
         technical_expertise: answers[7] || '',
         tech_stack: answers[8] || '',
         scaling_expectation: answers[9] || '',
-        answers: answers // Store all answers in the new JSON column
+        answers: answers
       };
 
       const { data: submissionData, error } = await supabase
@@ -216,10 +216,9 @@ const Questionnaire = () => {
 
         if (analysisError) throw analysisError;
 
-        toast({
-          title: "Success!",
-          description: "Your project has been submitted and is being analyzed.",
-        });
+        // Navigate to analysis results page
+        navigate(`/analysis/${submissionData.id}`);
+        return submissionData.id;
       } catch (analysisError) {
         console.error('Error triggering analysis:', analysisError);
         toast({
@@ -227,10 +226,8 @@ const Questionnaire = () => {
           description: "Project saved but analysis failed. Please try analyzing later.",
           variant: "destructive",
         });
+        throw analysisError;
       }
-
-      // Navigate back to home page
-      navigate('/');
     } catch (error: any) {
       console.error('Error submitting questionnaire:', error);
       toast({
@@ -238,6 +235,7 @@ const Questionnaire = () => {
         description: error.message || "Failed to submit questionnaire",
         variant: "destructive",
       });
+      throw error;
     }
   };
 
@@ -295,3 +293,4 @@ const Questionnaire = () => {
 };
 
 export default Questionnaire;
+```

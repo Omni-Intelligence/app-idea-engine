@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import Questionnaire from "./pages/Questionnaire";
+import AnalysisResults from "./pages/AnalysisResults";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import { Navbar } from "./components/Navbar";
@@ -54,6 +55,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Questionnaire />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/analysis/:submissionId"
+                element={
+                  <ProtectedRoute>
+                    <AnalysisResults />
                   </ProtectedRoute>
                 }
               />
