@@ -41,41 +41,90 @@ serve(async (req) => {
     let prompt = '';
     switch (documentType) {
       case 'technical_specs':
-        prompt = `Based on this software project proposal, create detailed technical specifications document. Include architecture, data models, APIs, and implementation details.
+        prompt = `You are a senior technical architect. Based on this software project proposal and its analysis, create detailed technical specifications. Include system architecture, data models, APIs, security considerations, and implementation details.
 
 Project Details:
 ${JSON.stringify(submission, null, 2)}
 
-Format the response as a detailed technical specification document with clear sections.`;
+Previous AI Analysis:
+${submission.ai_analysis}
+
+Focus on:
+1. System Architecture Overview
+2. Database Schema and Data Models
+3. API Specifications and Endpoints
+4. Security Implementation Details
+5. Integration Requirements
+6. Performance Considerations
+7. Technical Dependencies
+
+Format the response as a detailed technical specification document with clear sections and subsections. Use plain text formatting only.`;
         break;
       case 'user_stories':
-        prompt = `Create detailed user stories and acceptance criteria for this software project.
+        prompt = `You are a product manager. Create comprehensive user stories and acceptance criteria based on this software project proposal and its analysis.
 
 Project Details:
 ${JSON.stringify(submission, null, 2)}
 
-Format as a list of user stories with acceptance criteria for each feature.`;
+Previous AI Analysis:
+${submission.ai_analysis}
+
+For each core feature:
+1. Write detailed user stories in the format "As a [user type], I want [action] so that [benefit]"
+2. Include acceptance criteria for each story
+3. Add priority levels and effort estimates
+4. Consider edge cases and error scenarios
+
+Format as a structured list of user stories with clear acceptance criteria for each feature. Use plain text formatting only.`;
         break;
       case 'api_docs':
-        prompt = `Create comprehensive API documentation for this software project.
+        prompt = `You are an API documentation specialist. Create comprehensive API documentation for this software project based on the proposal and analysis.
 
 Project Details:
 ${JSON.stringify(submission, null, 2)}
 
-Include endpoints, request/response formats, authentication, and examples.`;
+Previous AI Analysis:
+${submission.ai_analysis}
+
+Include:
+1. API Overview and Architecture
+2. Authentication and Authorization
+3. Detailed Endpoint Documentation
+4. Request/Response Formats
+5. Error Handling
+6. Rate Limiting and Usage Guidelines
+7. Code Examples
+8. Security Considerations
+
+Format as a clear API documentation with examples and specifications. Use plain text formatting only.`;
         break;
       case 'implementation_guide':
-        prompt = `Create a detailed implementation guide for developers building this software project.
+        prompt = `You are a senior software developer. Create a detailed implementation guide for developers building this software project, based on the proposal and its analysis.
 
 Project Details:
 ${JSON.stringify(submission, null, 2)}
 
-Include setup instructions, coding standards, and best practices.`;
+Previous AI Analysis:
+${submission.ai_analysis}
+
+Include:
+1. Development Environment Setup
+2. Project Structure and Organization
+3. Coding Standards and Best Practices
+4. Build and Deployment Procedures
+5. Testing Strategy
+6. Performance Optimization Guidelines
+7. Security Implementation Guidelines
+8. Maintenance and Troubleshooting
+
+Format as a clear implementation guide with step-by-step instructions and best practices. Use plain text formatting only.`;
         break;
       default:
         throw new Error('Invalid document type');
     }
 
+    console.log('Calling OpenAI API for document type:', documentType);
+    
     // Call OpenAI API
     const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -88,21 +137,23 @@ Include setup instructions, coding standards, and best practices.`;
         messages: [
           { 
             role: 'system', 
-            content: 'You are a technical documentation expert. Generate clear, detailed documentation based on project requirements.' 
+            content: 'You are a technical documentation expert. Generate clear, detailed documentation based on project requirements. Use plain text formatting only.' 
           },
           { role: 'user', content: prompt }
-        ],
-        temperature: 0.7,
+        ]
       }),
     });
 
     if (!openAIResponse.ok) {
       const errorText = await openAIResponse.text();
+      console.error('OpenAI API Error:', errorText);
       throw new Error(`OpenAI API request failed: ${errorText}`);
     }
 
     const aiResult = await openAIResponse.json();
     const documentContent = aiResult.choices[0].message.content;
+
+    console.log('Document generated successfully, saving to database...');
 
     // Save the generated document
     const { data: document, error: insertError } = await supabaseClient
@@ -118,6 +169,7 @@ Include setup instructions, coding standards, and best practices.`;
       .single();
 
     if (insertError) {
+      console.error('Error saving document:', insertError);
       throw new Error('Failed to save generated document');
     }
 
