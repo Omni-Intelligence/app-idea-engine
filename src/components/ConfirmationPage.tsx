@@ -45,6 +45,8 @@ export const ConfirmationPage = ({ answers, onSubmit, onBack }: ConfirmationPage
     9: "Scaling Expectation"
   };
 
+  console.log("Answers received in ConfirmationPage:", answers); // Debug log
+
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
       <h2 className="text-3xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-[#9b87f5] to-[#7E69AB]">
@@ -52,15 +54,26 @@ export const ConfirmationPage = ({ answers, onSubmit, onBack }: ConfirmationPage
       </h2>
       <Card className="p-8 glass-card shadow-lg border border-purple-100">
         <div className="space-y-6">
-          {/* Display all answers, starting with initial project idea if it exists */}
-          {Object.entries(answers).map(([key, value]) => (
-            <div key={key} className="border-b border-purple-100/50 pb-6 last:border-b-0">
+          {/* First display initial project idea if it exists */}
+          {answers.initial && (
+            <div className="border-b border-purple-100/50 pb-6">
               <h3 className="font-medium text-lg text-[#1A1F2C] mb-2">
-                {questionLabels[key] || `Question ${key}`}
+                {questionLabels.initial}
               </h3>
-              <p className="text-gray-600 leading-relaxed">{value}</p>
+              <p className="text-gray-600 leading-relaxed">{answers.initial}</p>
             </div>
-          ))}
+          )}
+          {/* Then display all other answers */}
+          {Object.entries(answers)
+            .filter(([key]) => key !== 'initial')
+            .map(([key, value]) => (
+              <div key={key} className="border-b border-purple-100/50 pb-6 last:border-b-0">
+                <h3 className="font-medium text-lg text-[#1A1F2C] mb-2">
+                  {questionLabels[key] || `Question ${key}`}
+                </h3>
+                <p className="text-gray-600 leading-relaxed">{value}</p>
+              </div>
+            ))}
         </div>
       </Card>
       <div className="flex justify-between mt-8 gap-4">
@@ -90,4 +103,3 @@ export const ConfirmationPage = ({ answers, onSubmit, onBack }: ConfirmationPage
     </div>
   );
 };
-
