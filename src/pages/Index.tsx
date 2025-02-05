@@ -8,10 +8,11 @@ import { useQuestionStore } from '@/store/questionStore';
 const Index = () => {
   const [idea, setIdea] = useState('');
   const navigate = useNavigate();
-  const { setAnswer } = useQuestionStore();
+  const { setAnswer, resetStep } = useQuestionStore();
 
   const handleSubmit = () => {
     if (idea.trim()) {
+      resetStep(); // Reset to first question
       setAnswer(0, idea);
       navigate('/questionnaire');
     }
