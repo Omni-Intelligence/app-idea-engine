@@ -20,24 +20,20 @@ const Questionnaire = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showFullIdea, setShowFullIdea] = useState(false);
 
-  // Store the initial idea when component mounts
   useEffect(() => {
     const initialIdea = (location.state as { initialIdea?: string })?.initialIdea;
-    console.log("Initial idea from location state:", initialIdea); // Debug log
     if (initialIdea) {
       setAnswer('initial', initialIdea);
-      console.log("Setting initial idea in store:", initialIdea); // Debug log
     }
   }, [location.state, setAnswer]);
 
-  // Cleanup effect
   useEffect(() => {
     return () => {
       useQuestionStore.getState().reset();
     };
   }, []);
 
-  const handleSubmit = async (answer: string) => {
+  const handleSubmit = async (answer: string | string[]) => {
     setAnswer(currentStep, answer);
     
     if (currentStep < questions.length - 1) {
@@ -69,11 +65,12 @@ const Questionnaire = () => {
   };
 
   const renderInitialIdeaPreview = () => {
-    if (!answers.initial) return null;
+    const initialAnswer = answers.initial;
+    if (!initialAnswer) return null;
 
-    const truncatedIdea = answers.initial.length > 100 
-      ? `${answers.initial.substring(0, 100)}...` 
-      : answers.initial;
+    const displayText = typeof initialAnswer === 'string' 
+      ? (initialAnswer.length > 100 ? `${initialAnswer.substring(0, 100)}...` : initialAnswer)
+      : initialAnswer.join(', ');
 
     return (
       <div className="mb-6 p-4 bg-purple-50 rounded-lg border border-purple-100">
@@ -81,7 +78,7 @@ const Questionnaire = () => {
           <div>
             <h3 className="text-sm font-medium text-purple-900 mb-1">Your Initial Project Idea:</h3>
             <p className="text-sm text-purple-800">
-              {showFullIdea ? answers.initial : truncatedIdea}
+              {showFullIdea ? (typeof initialAnswer === 'string' ? initialAnswer : initialAnswer.join(', ')) : displayText}
             </p>
           </div>
           <Button
@@ -128,6 +125,8 @@ const Questionnaire = () => {
             question=""
             placeholder={questions[currentStep].placeholder}
             options={questions[currentStep].options}
+            type={questions[currentStep].type}
+            allowMultiple={questions[currentStep].allowMultiple}
             onSubmit={handleSubmit}
           />
           {currentStep > 0 && (
@@ -145,3 +144,4 @@ const Questionnaire = () => {
 };
 
 export default Questionnaire;
+
