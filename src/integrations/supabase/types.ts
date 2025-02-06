@@ -9,6 +9,47 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      dynamic_questions: {
+        Row: {
+          created_at: string | null
+          id: string
+          options: Json | null
+          order_index: number
+          placeholder: string | null
+          question: string
+          submission_id: string | null
+          type: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          options?: Json | null
+          order_index: number
+          placeholder?: string | null
+          question: string
+          submission_id?: string | null
+          type?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          options?: Json | null
+          order_index?: number
+          placeholder?: string | null
+          question?: string
+          submission_id?: string | null
+          type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dynamic_questions_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "project_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       generated_documents: {
         Row: {
           content: string
@@ -84,6 +125,7 @@ export type Database = {
           monetization: string
           problem_solved: string
           project_idea: string
+          questions_generated: boolean | null
           scaling_expectation: string
           status: string
           target_audience: string
@@ -103,6 +145,7 @@ export type Database = {
           monetization: string
           problem_solved: string
           project_idea: string
+          questions_generated?: boolean | null
           scaling_expectation: string
           status?: string
           target_audience: string
@@ -122,6 +165,7 @@ export type Database = {
           monetization?: string
           problem_solved?: string
           project_idea?: string
+          questions_generated?: boolean | null
           scaling_expectation?: string
           status?: string
           target_audience?: string

@@ -1,9 +1,23 @@
 
 import { create } from 'zustand';
 
+interface DynamicQuestion {
+  id: string;
+  question: string;
+  type: 'text' | 'multiple';
+  placeholder?: string;
+  options?: Array<{
+    value: string;
+    label: string;
+  }>;
+  order_index: number;
+}
+
 interface QuestionState {
   currentStep: number;
   answers: Record<string | number, string | string[]>;
+  dynamicQuestions: DynamicQuestion[];
+  setDynamicQuestions: (questions: DynamicQuestion[]) => void;
   setAnswer: (step: number | string, answer: string | string[]) => void;
   nextStep: () => void;
   previousStep: () => void;
@@ -13,6 +27,8 @@ interface QuestionState {
 export const useQuestionStore = create<QuestionState>((set) => ({
   currentStep: 0,
   answers: {},
+  dynamicQuestions: [],
+  setDynamicQuestions: (questions) => set({ dynamicQuestions: questions }),
   setAnswer: (step, answer) =>
     set((state) => ({
       answers: { ...state.answers, [step]: answer },
@@ -29,5 +45,6 @@ export const useQuestionStore = create<QuestionState>((set) => ({
     set({
       currentStep: 0,
       answers: {},
+      dynamicQuestions: [],
     }),
 }));
