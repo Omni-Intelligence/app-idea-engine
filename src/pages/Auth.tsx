@@ -1,13 +1,12 @@
 
-import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuestionStore } from "@/store/questionStore";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -15,17 +14,7 @@ const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
   const { toast } = useToast();
-  const { answers } = useQuestionStore();
-
-  // If there's a project idea in the store, we should let users continue without auth
-  useEffect(() => {
-    // Only redirect if we're coming from the homepage
-    if (answers[0] && location.state?.from === '/') {
-      navigate('/questionnaire', { replace: true });
-    }
-  }, []);  // Empty dependency array since we only want this to run once
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +37,7 @@ const Auth = () => {
           password,
         });
         if (error) throw error;
-        navigate("/");
+        navigate("/projects");
       }
     } catch (error: any) {
       toast({
@@ -61,10 +50,6 @@ const Auth = () => {
     }
   };
 
-  const handleContinueWithoutAuth = () => {
-    navigate('/questionnaire', { replace: true });
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
@@ -72,27 +57,6 @@ const Auth = () => {
           <h1 className="text-2xl font-bold text-center mb-6">
             {isSignUp ? "Create an Account" : "Welcome Back"}
           </h1>
-          {answers[0] && (
-            <div className="mb-6">
-              <Button
-                onClick={handleContinueWithoutAuth}
-                variant="secondary"
-                className="w-full mb-4"
-              >
-                Continue Without Account
-              </Button>
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    Or sign in to save your progress
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
           <form onSubmit={handleAuth} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
