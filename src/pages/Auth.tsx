@@ -21,10 +21,11 @@ const Auth = () => {
 
   // If there's a project idea in the store, we should let users continue without auth
   useEffect(() => {
-    if (answers[0]) {
-      navigate('/questionnaire');
+    // Only redirect if we're coming from the homepage
+    if (answers[0] && location.state?.from === '/') {
+      navigate('/questionnaire', { replace: true });
     }
-  }, [answers, navigate]);
+  }, []);  // Empty dependency array since we only want this to run once
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,7 +62,7 @@ const Auth = () => {
   };
 
   const handleContinueWithoutAuth = () => {
-    navigate('/questionnaire');
+    navigate('/questionnaire', { replace: true });
   };
 
   return (
