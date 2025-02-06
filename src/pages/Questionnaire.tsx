@@ -126,6 +126,7 @@ const Questionnaire = () => {
     }
 
     try {
+      // Process answers to ensure all values are strings
       const processedAnswers: Record<string, string> = {};
       Object.entries(answers).forEach(([key, value]) => {
         processedAnswers[key] = Array.isArray(value) ? value.join(', ') : String(value);
