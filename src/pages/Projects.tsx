@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from 'date-fns';
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
+import { Trash2 } from 'lucide-react';
 
 interface Project {
   id: string;
@@ -59,6 +60,33 @@ const Projects = () => {
     }
   };
 
+  const handleDeleteProject = async (e: React.MouseEvent, projectId: string) => {
+    e.stopPropagation(); // Prevent triggering the card click
+    
+    try {
+      const { error } = await supabase
+        .from('user_projects')
+        .delete()
+        .eq('id', projectId);
+
+      if (error) throw error;
+
+      // Update local state
+      setProjects(projects.filter(project => project.id !== projectId));
+      
+      toast({
+        title: "Project deleted",
+        description: "The project has been successfully deleted.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error deleting project",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto py-8 px-4 bg-gradient-to-br from-purple-50 to-white min-h-screen">
@@ -103,11 +131,21 @@ const Projects = () => {
           {projects.map((project) => (
             <Card 
               key={project.id}
-              className="glass-card cursor-pointer hover:shadow-lg transition-all duration-300"
+              className="glass-card cursor-pointer hover:shadow-lg transition-all duration-300 relative"
               onClick={() => handleProjectClick(project)}
             >
               <CardHeader>
-                <CardTitle className="text-xl purple-gradient text-gradient">{project.title}</CardTitle>
+                <div className="flex justify-between items-start">
+                  <CardTitle className="text-xl purple-gradient text-gradient">{project.title}</CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-2 right-2 text-gray-500 hover:text-red-500 hover:bg-red-50"
+                    onClick={(e) => handleDeleteProject(e, project.id)}
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </Button>
+                </div>
                 <CardDescription className="text-gray-600">
                   {project.description || 'No description provided'}
                 </CardDescription>
