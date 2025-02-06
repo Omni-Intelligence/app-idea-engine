@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
@@ -14,7 +15,7 @@ const Index = () => {
 
   // Set the idea from the store when component mounts
   useEffect(() => {
-    const storedAnswer = answers[0];
+    const storedAnswer = answers.initial;
     if (storedAnswer) {
       setIdea(Array.isArray(storedAnswer) ? storedAnswer.join(', ') : storedAnswer);
     }
@@ -23,8 +24,7 @@ const Index = () => {
   const handleSubmit = () => {
     if (idea.trim()) {
       reset();
-      setAnswer(0, idea);
-      navigate('/questionnaire');
+      navigate('/questionnaire', { state: { initialIdea: idea.trim() } });
     }
   };
 

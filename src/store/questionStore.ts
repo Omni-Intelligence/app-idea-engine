@@ -28,7 +28,10 @@ export const useQuestionStore = create<QuestionState>((set) => ({
   currentStep: 0,
   answers: {},
   dynamicQuestions: [],
-  setDynamicQuestions: (questions) => set({ dynamicQuestions: questions }),
+  setDynamicQuestions: (questions) => set({ dynamicQuestions: questions.map(q => ({
+    ...q,
+    type: q.type === 'multiple' ? 'multiple' : 'text' // Ensure type is either 'text' or 'multiple'
+  }))}),
   setAnswer: (step, answer) =>
     set((state) => ({
       answers: { ...state.answers, [step]: answer },

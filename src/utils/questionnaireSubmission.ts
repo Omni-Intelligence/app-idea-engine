@@ -7,7 +7,7 @@ export const submitQuestionnaire = async (answers: Record<string | number, strin
   // Convert any array answers to strings for storage
   const processedAnswers: Record<string, string> = {};
   Object.entries(answers).forEach(([key, value]) => {
-    processedAnswers[key] = Array.isArray(value) ? value.join(', ') : value;
+    processedAnswers[key] = Array.isArray(value) ? value.join(', ') : String(value);
   });
 
   // Extract initial idea
