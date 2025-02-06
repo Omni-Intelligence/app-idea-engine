@@ -1,7 +1,7 @@
 
 import { create } from 'zustand';
 
-interface DynamicQuestion {
+export interface DynamicQuestion {
   id: string;
   question: string;
   type: 'text' | 'multiple';

@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { useQuestionStore } from '@/store/questionStore';
+import { useQuestionStore, DynamicQuestion } from '@/store/questionStore';
 import { useToast } from '@/components/ui/use-toast';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ConfirmationPage } from '@/components/ConfirmationPage';
@@ -80,10 +80,11 @@ const Questionnaire = () => {
 
       if (fetchError) throw fetchError;
       
-      const typedQuestions = questions.map(q => ({
+      const typedQuestions = questions?.map(q => ({
         ...q,
-        type: q.type === 'multiple' ? 'multiple' : 'text' as const
-      }));
+        type: q.type === 'multiple' ? 'multiple' : 'text',
+        options: q.options as Array<{ value: string; label: string; }> | undefined
+      })) as DynamicQuestion[];
       
       setDynamicQuestions(typedQuestions);
 
