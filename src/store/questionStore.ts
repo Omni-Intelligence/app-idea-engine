@@ -3,8 +3,8 @@ import { create } from 'zustand';
 
 interface QuestionState {
   currentStep: number;
-  answers: Record<string, string>;
-  setAnswer: (step: number | string, answer: string) => void;
+  answers: Record<string | number, string | string[]>;
+  setAnswer: (step: number | string, answer: string | string[]) => void;
   nextStep: () => void;
   previousStep: () => void;
   reset: () => void;

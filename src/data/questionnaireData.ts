@@ -2,153 +2,257 @@
 export interface QuestionOption {
   value: string;
   label: string;
+  description?: string;
 }
 
 export interface Question {
   question: string;
   placeholder: string;
   options: QuestionOption[];
+  allowMultiple?: boolean;
+  required?: boolean;
+  type?: 'single' | 'multiple' | 'text';
 }
 
 export const questions: Question[] = [
   {
-    question: "Let's start with your project idea. What do you want to build?",
-    placeholder: "Describe your project idea in detail...",
+    question: "What type of application do you want to build?",
+    placeholder: "Select all that apply to your project...",
+    type: 'multiple',
+    allowMultiple: true,
     options: [
-      { value: "web-app", label: "Web Application" },
-      { value: "mobile-app", label: "Mobile Application" },
-      { value: "ai-tool", label: "AI-powered Tool" },
-      { value: "automation", label: "Automation Solution" },
-      { value: "saas", label: "SaaS Platform" },
-      { value: "marketplace", label: "Online Marketplace" },
-      { value: "social", label: "Social Platform" },
-      { value: "analytics", label: "Analytics Dashboard" }
+      { 
+        value: "web-app", 
+        label: "Web Application",
+        description: "A full-featured application accessible through web browsers"
+      },
+      { 
+        value: "mobile-app", 
+        label: "Mobile Application",
+        description: "An app optimized for mobile devices"
+      },
+      { 
+        value: "ai-tool", 
+        label: "AI-powered Tool",
+        description: "Application leveraging artificial intelligence capabilities"
+      },
+      { 
+        value: "automation", 
+        label: "Automation Solution",
+        description: "Tool to automate repetitive tasks or workflows"
+      },
+      { 
+        value: "saas", 
+        label: "SaaS Platform",
+        description: "Software as a Service with subscription-based model"
+      },
+      { 
+        value: "marketplace", 
+        label: "Online Marketplace",
+        description: "Platform connecting buyers and sellers"
+      },
+      { 
+        value: "dashboard", 
+        label: "Analytics Dashboard",
+        description: "Data visualization and reporting interface"
+      },
+      { 
+        value: "api", 
+        label: "API Service",
+        description: "Backend service providing data through APIs"
+      }
     ]
   },
   {
-    question: "Who is your target audience?",
-    placeholder: "Describe who will use your application...",
+    question: "What specific features or modules do you need?",
+    placeholder: "Select all the features that your application requires...",
+    type: 'multiple',
+    allowMultiple: true,
     options: [
-      { value: "businesses", label: "Businesses (B2B)" },
-      { value: "consumers", label: "Consumers (B2C)" },
-      { value: "developers", label: "Developers" },
-      { value: "professionals", label: "Industry Professionals" },
-      { value: "students", label: "Students & Education" },
-      { value: "creators", label: "Content Creators" },
-      { value: "enterprise", label: "Enterprise Companies" },
-      { value: "startups", label: "Startups & Small Businesses" }
+      {
+        value: "auth",
+        label: "User Authentication",
+        description: "Login, registration, password reset functionality"
+      },
+      {
+        value: "user-profiles",
+        label: "User Profiles",
+        description: "Customizable user profiles and settings"
+      },
+      {
+        value: "data-analytics",
+        label: "Data Analytics",
+        description: "Data processing, visualization, and reporting"
+      },
+      {
+        value: "file-management",
+        label: "File Management",
+        description: "Upload, storage, and file organization"
+      },
+      {
+        value: "notifications",
+        label: "Notifications System",
+        description: "Email, push, or in-app notifications"
+      },
+      {
+        value: "search",
+        label: "Search Functionality",
+        description: "Advanced search and filtering capabilities"
+      },
+      {
+        value: "admin-panel",
+        label: "Admin Dashboard",
+        description: "Administrative interface for management"
+      },
+      {
+        value: "api-integration",
+        label: "Third-party Integrations",
+        description: "Connection with external services and APIs"
+      }
     ]
   },
   {
-    question: "What problem does your application solve?",
-    placeholder: "Describe the main problem your application addresses...",
+    question: "What type of data will your application handle?",
+    placeholder: "Select all relevant data types...",
+    type: 'multiple',
+    allowMultiple: true,
     options: [
-      { value: "efficiency", label: "Improves Efficiency" },
-      { value: "automation", label: "Automates Tasks" },
-      { value: "communication", label: "Enhances Communication" },
-      { value: "analysis", label: "Provides Better Insights" },
-      { value: "productivity", label: "Boosts Productivity" },
-      { value: "collaboration", label: "Facilitates Collaboration" },
-      { value: "cost-reduction", label: "Reduces Costs" },
-      { value: "decision-making", label: "Improves Decision Making" }
+      {
+        value: "user-data",
+        label: "User Data",
+        description: "Personal information and user preferences"
+      },
+      {
+        value: "financial-data",
+        label: "Financial Data",
+        description: "Payment information, transactions, invoices"
+      },
+      {
+        value: "content",
+        label: "Content Management",
+        description: "Articles, posts, media files"
+      },
+      {
+        value: "analytics-data",
+        label: "Analytics Data",
+        description: "Usage statistics, metrics, performance data"
+      },
+      {
+        value: "real-time-data",
+        label: "Real-time Data",
+        description: "Live updates and streaming information"
+      },
+      {
+        value: "location-data",
+        label: "Location Data",
+        description: "Geographic information and mapping"
+      },
+      {
+        value: "product-data",
+        label: "Product Data",
+        description: "Product information, inventory, pricing"
+      },
+      {
+        value: "communication-data",
+        label: "Communication Data",
+        description: "Messages, comments, chat history"
+      }
     ]
   },
   {
-    question: "What are the core features you need?",
-    placeholder: "List the main features your application should have...",
+    question: "What are your integration requirements?",
+    placeholder: "Select all integrations you need...",
+    type: 'multiple',
+    allowMultiple: true,
     options: [
-      { value: "auth", label: "User Authentication & Profiles" },
-      { value: "data", label: "Data Processing & Analytics" },
-      { value: "collab", label: "Collaboration Tools" },
-      { value: "integration", label: "Third-party Integrations" },
-      { value: "realtime", label: "Real-time Updates" },
-      { value: "messaging", label: "Messaging & Chat" },
-      { value: "payments", label: "Payment Processing" },
-      { value: "automation", label: "Workflow Automation" }
+      {
+        value: "payment-processing",
+        label: "Payment Processing",
+        description: "Stripe, PayPal, or other payment gateways"
+      },
+      {
+        value: "email-service",
+        label: "Email Service",
+        description: "SendGrid, Mailchimp, or other email providers"
+      },
+      {
+        value: "social-media",
+        label: "Social Media",
+        description: "Facebook, Twitter, LinkedIn integration"
+      },
+      {
+        value: "cloud-storage",
+        label: "Cloud Storage",
+        description: "AWS S3, Google Cloud Storage, etc."
+      },
+      {
+        value: "analytics-tools",
+        label: "Analytics Tools",
+        description: "Google Analytics, Mixpanel, etc."
+      },
+      {
+        value: "crm",
+        label: "CRM Systems",
+        description: "Salesforce, HubSpot, etc."
+      },
+      {
+        value: "communication-apis",
+        label: "Communication APIs",
+        description: "Twilio, SendBird, etc."
+      },
+      {
+        value: "ai-services",
+        label: "AI Services",
+        description: "OpenAI, Google AI, etc."
+      }
     ]
   },
   {
-    question: "How would you like to integrate AI into your project?",
-    placeholder: "Describe how AI could enhance your application...",
+    question: "What are your security requirements?",
+    placeholder: "Select all security features needed...",
+    type: 'multiple',
+    allowMultiple: true,
     options: [
-      { value: "nlp", label: "Natural Language Processing" },
-      { value: "cv", label: "Computer Vision" },
-      { value: "recommendation", label: "Recommendation System" },
-      { value: "automation", label: "Process Automation" },
-      { value: "chatbot", label: "AI Chatbot" },
-      { value: "prediction", label: "Predictive Analytics" },
-      { value: "personalization", label: "Content Personalization" },
-      { value: "voice", label: "Voice Recognition" }
-    ]
-  },
-  {
-    question: "What's your preferred monetization strategy?",
-    placeholder: "Describe how you plan to generate revenue...",
-    options: [
-      { value: "subscription", label: "Subscription Model" },
-      { value: "freemium", label: "Freemium with Premium Features" },
-      { value: "ads", label: "Advertisement Based" },
-      { value: "pay-per-use", label: "Pay Per Use" },
-      { value: "marketplace", label: "Marketplace Commission" },
-      { value: "enterprise", label: "Enterprise Licensing" },
-      { value: "affiliate", label: "Affiliate Marketing" },
-      { value: "sponsorship", label: "Sponsorships & Partnerships" }
-    ]
-  },
-  {
-    question: "What's your development timeline?",
-    placeholder: "Describe your expected development timeline...",
-    options: [
-      { value: "quick", label: "1-3 Months (MVP)" },
-      { value: "medium", label: "3-6 Months" },
-      { value: "long", label: "6-12 Months" },
-      { value: "ongoing", label: "Continuous Development" },
-      { value: "phased", label: "Phased Release (12+ Months)" },
-      { value: "agile", label: "Agile Sprints" },
-      { value: "rapid", label: "Rapid Prototyping" },
-      { value: "iterative", label: "Iterative Development" }
-    ]
-  },
-  {
-    question: "What's your technical expertise level?",
-    placeholder: "Describe your technical background...",
-    options: [
-      { value: "beginner", label: "Beginner (New to Development)" },
-      { value: "intermediate", label: "Intermediate (Some Experience)" },
-      { value: "advanced", label: "Advanced (Experienced Developer)" },
-      { value: "expert", label: "Expert (Professional Developer)" },
-      { value: "manager", label: "Technical Manager" },
-      { value: "architect", label: "Solution Architect" },
-      { value: "consultant", label: "Technical Consultant" },
-      { value: "founder", label: "Technical Founder" }
-    ]
-  },
-  {
-    question: "What's your preferred tech stack?",
-    placeholder: "Describe your preferred technologies...",
-    options: [
-      { value: "modern-web", label: "Modern Web Stack (React, Node.js)" },
-      { value: "traditional", label: "Traditional Stack (PHP, MySQL)" },
-      { value: "cloud-native", label: "Cloud Native (AWS, Azure)" },
-      { value: "mobile", label: "Mobile Development (React Native)" },
-      { value: "jamstack", label: "JAMstack (Next.js, Gatsby)" },
-      { value: "microsoft", label: ".NET Ecosystem" },
-      { value: "python", label: "Python Stack (Django, Flask)" },
-      { value: "java", label: "Java Enterprise Stack" }
-    ]
-  },
-  {
-    question: "What's your scaling expectation?",
-    placeholder: "Describe your expected user base growth...",
-    options: [
-      { value: "small", label: "Small Scale (< 1000 users)" },
-      { value: "medium", label: "Medium Scale (1000-10000 users)" },
-      { value: "large", label: "Large Scale (10000-100000 users)" },
-      { value: "enterprise", label: "Enterprise Scale (100000+ users)" },
-      { value: "viral", label: "Viral Growth Expected" },
-      { value: "global", label: "Global Scale" },
-      { value: "regional", label: "Regional Focus" },
-      { value: "niche", label: "Niche Market Focus" }
+      {
+        value: "user-auth",
+        label: "User Authentication",
+        description: "Secure login and registration system"
+      },
+      {
+        value: "data-encryption",
+        label: "Data Encryption",
+        description: "Encryption at rest and in transit"
+      },
+      {
+        value: "access-control",
+        label: "Access Control",
+        description: "Role-based access control (RBAC)"
+      },
+      {
+        value: "audit-logging",
+        label: "Audit Logging",
+        description: "Activity tracking and audit trails"
+      },
+      {
+        value: "compliance",
+        label: "Compliance",
+        description: "GDPR, HIPAA, or other regulations"
+      },
+      {
+        value: "backup-recovery",
+        label: "Backup & Recovery",
+        description: "Data backup and disaster recovery"
+      },
+      {
+        value: "security-monitoring",
+        label: "Security Monitoring",
+        description: "Threat detection and monitoring"
+      },
+      {
+        value: "api-security",
+        label: "API Security",
+        description: "Secure API authentication and authorization"
+      }
     ]
   }
 ];
