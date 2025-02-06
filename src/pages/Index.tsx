@@ -24,7 +24,7 @@ const Index = () => {
     if (idea.trim()) {
       reset();
       setAnswer(0, idea);
-      navigate('/questionnaire');
+      navigate('/questionnaire');  // Direct navigation to questionnaire
     }
   };
 
