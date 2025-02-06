@@ -21,11 +21,25 @@ export const submitQuestionnaire = async (answers: Record<string | number, strin
     processedAnswers[key] = Array.isArray(value) ? value.join(', ') : value;
   });
 
+  // Extract or set default values for required fields
+  const initialIdea = processedAnswers.initial || processedAnswers[0] || '';
+  
   // For authenticated users, store the data and create a project
   const submission = {
     user_id: session.user.id,
-    initial_idea: processedAnswers.initial || '',
-    answers: processedAnswers
+    initial_idea: initialIdea,
+    answers: processedAnswers,
+    // Required fields with default values if not provided
+    project_idea: initialIdea, // Use initial idea as project idea
+    target_audience: processedAnswers[1] || 'Not specified',
+    problem_solved: processedAnswers[2] || 'Not specified',
+    core_features: processedAnswers[3] || 'Not specified',
+    ai_integration: processedAnswers[4] || 'Not specified',
+    monetization: processedAnswers[5] || 'Not specified',
+    development_timeline: processedAnswers[6] || 'Not specified',
+    technical_expertise: processedAnswers[7] || 'Not specified',
+    tech_stack: processedAnswers[8] || 'Not specified',
+    scaling_expectation: processedAnswers[9] || 'Not specified'
   };
 
   // Create the submission
@@ -42,7 +56,7 @@ export const submitQuestionnaire = async (answers: Record<string | number, strin
     .from('user_projects')
     .insert([{
       user_id: session.user.id,
-      title: processedAnswers.initial || processedAnswers[0] || 'Untitled Project',
+      title: initialIdea || 'Untitled Project',
       description: processedAnswers[2] || null,
       submission_id: submissionData.id
     }]);
@@ -58,4 +72,3 @@ export const submitQuestionnaire = async (answers: Record<string | number, strin
 
   return submissionData.id;
 };
-
