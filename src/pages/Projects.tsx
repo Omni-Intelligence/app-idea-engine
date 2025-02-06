@@ -14,6 +14,7 @@ interface Project {
   description: string | null;
   created_at: string;
   status: string;
+  submission_id: string | null;
 }
 
 const Projects = () => {
@@ -43,6 +44,18 @@ const Projects = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleProjectClick = (project: Project) => {
+    if (project.submission_id) {
+      navigate(`/analysis/${project.submission_id}`);
+    } else {
+      toast({
+        title: "Project Analysis Unavailable",
+        description: "This project doesn't have an associated analysis yet.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -91,7 +104,7 @@ const Projects = () => {
             <Card 
               key={project.id}
               className="glass-card cursor-pointer hover:shadow-lg transition-all duration-300"
-              onClick={() => navigate(`/analysis/${project.id}`)}
+              onClick={() => handleProjectClick(project)}
             >
               <CardHeader>
                 <CardTitle className="text-xl purple-gradient text-gradient">{project.title}</CardTitle>

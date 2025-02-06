@@ -137,6 +137,7 @@ export type Database = {
           description: string | null
           id: string
           status: string | null
+          submission_id: string | null
           title: string
           updated_at: string
           user_id: string
@@ -146,6 +147,7 @@ export type Database = {
           description?: string | null
           id?: string
           status?: string | null
+          submission_id?: string | null
           title: string
           updated_at?: string
           user_id: string
@@ -155,11 +157,20 @@ export type Database = {
           description?: string | null
           id?: string
           status?: string | null
+          submission_id?: string | null
           title?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_projects_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "project_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
