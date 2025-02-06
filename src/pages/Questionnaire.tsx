@@ -115,9 +115,9 @@ const Questionnaire = () => {
     previousStep();
   };
 
-  type SubmissionAnswers = {
+  interface SubmissionAnswers {
     [key: string]: string;
-  };
+  }
 
   const handleFinalSubmit = async () => {
     if (!submissionId) {
@@ -130,10 +130,12 @@ const Questionnaire = () => {
     }
 
     try {
-      // Process answers to ensure all values are strings
+      // Create a new object with only string values
       const processedAnswers: SubmissionAnswers = {};
       Object.entries(answers).forEach(([key, value]) => {
-        processedAnswers[key] = Array.isArray(value) ? value.join(', ') : String(value);
+        // Convert number keys to strings and ensure all values are strings
+        const stringKey = String(key);
+        processedAnswers[stringKey] = Array.isArray(value) ? value.join(', ') : String(value);
       });
 
       const { error: updateError } = await supabase
@@ -198,3 +200,4 @@ const Questionnaire = () => {
 };
 
 export default Questionnaire;
+
