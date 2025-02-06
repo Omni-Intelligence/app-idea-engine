@@ -1,15 +1,25 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/components/ui/use-toast';
 
 export const submitQuestionnaire = async (answers: Record<string, string>) => {
   const { data: { session } } = await supabase.auth.getSession();
+  
+  // If user is not signed in, proceed with analysis only
   if (!session) {
-    throw new Error("You must be signed in to submit the questionnaire");
+    // Just trigger the analysis without storing data
+    const { error: analysisError } = await supabase.functions.invoke('analyze-submission', {
+      body: { answers }
+    });
+
+    if (analysisError) throw analysisError;
+    return 'temporary';  // Return a temporary ID for non-authenticated users
   }
 
+  // For authenticated users, store the data and create a project
   const submission = {
     user_id: session.user.id,
-    initial_idea: answers.initial || '',  // Save the initial idea explicitly
+    initial_idea: answers.initial || '',
     project_idea: answers[0] || '',
     target_audience: answers[1] || '',
     problem_solved: answers[2] || '',
@@ -37,8 +47,9 @@ export const submitQuestionnaire = async (answers: Record<string, string>) => {
     .from('user_projects')
     .insert([{
       user_id: session.user.id,
-      title: answers.initial || answers[0] || 'Untitled Project', // Use initial idea as title if available
+      title: answers.initial || answers[0] || 'Untitled Project',
       description: answers[2] || null,
+      submission_id: submissionData.id
     }]);
 
   if (projectError) throw projectError;
