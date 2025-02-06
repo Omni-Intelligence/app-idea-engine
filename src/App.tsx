@@ -54,19 +54,13 @@ const AppContent = () => {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/ideation" element={<Ideation />} />
+              <Route path="/questionnaire" element={<Questionnaire />} />
+              <Route path="/auth" element={<Auth />} />
               <Route
                 path="/projects"
                 element={
                   <ProtectedRoute>
                     <Projects />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/questionnaire"
-                element={
-                  <ProtectedRoute>
-                    <Questionnaire />
                   </ProtectedRoute>
                 }
               />
@@ -86,7 +80,6 @@ const AppContent = () => {
                   </ProtectedRoute>
                 }
               />
-              <Route path="/auth" element={<Auth />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
