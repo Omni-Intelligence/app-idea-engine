@@ -24,9 +24,12 @@ export const useQuestionnaireSubmission = () => {
     }
 
     try {
+      // Convert all answers to strings, ensuring arrays are joined with commas
       const processedAnswers: SubmissionAnswers = {};
       Object.entries(answers).forEach(([key, value]) => {
+        // Convert number keys to strings
         const stringKey = String(key);
+        // Convert array values to comma-separated strings
         processedAnswers[stringKey] = Array.isArray(value) ? value.join(', ') : String(value);
       });
 
