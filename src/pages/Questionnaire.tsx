@@ -40,7 +40,7 @@ const Questionnaire = () => {
       setAnswer('initial', initialIdea);
       generateQuestions(initialIdea);
     }
-  }, [location.state, setAnswer]);
+  }, [location.state, setAnswer, generateQuestions]);
 
   useEffect(() => {
     return () => {
