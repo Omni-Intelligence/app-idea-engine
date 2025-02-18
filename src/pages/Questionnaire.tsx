@@ -7,7 +7,6 @@ import { LoadingState } from '@/components/questionnaire/LoadingState';
 import { ErrorState } from '@/components/questionnaire/ErrorState';
 import { QuestionnaireContent } from '@/components/questionnaire/QuestionnaireContent';
 import { useQuestionGeneration } from '@/hooks/useQuestionGeneration';
-import { useQuestionnaireSubmission } from '@/hooks/useQuestionnaireSubmission';
 
 const Questionnaire = () => {
   const { 
@@ -22,17 +21,13 @@ const Questionnaire = () => {
   } = useQuestionStore();
 
   const location = useLocation();
+  const navigate = useNavigate();
   const { 
     generateQuestions, 
-    isGeneratingQuestions, 
-    submissionId 
+    isGeneratingQuestions
   } = useQuestionGeneration(setDynamicQuestions);
 
-  const {
-    showConfirmation,
-    setShowConfirmation,
-    handleSubmit: handleFinalSubmit
-  } = useQuestionnaireSubmission();
+  const showConfirmation = currentStep >= dynamicQuestions.length;
 
   useEffect(() => {
     const initialIdea = (location.state as { initialIdea?: string })?.initialIdea;
@@ -50,17 +45,17 @@ const Questionnaire = () => {
 
   const handleSubmit = async (answer: string | string[]) => {
     setAnswer(currentStep, answer);
-    
-    if (currentStep < dynamicQuestions.length) {
-      nextStep();
-    } else {
-      setShowConfirmation(true);
-    }
+    nextStep();
   };
 
   const handleConfirmationBack = () => {
-    setShowConfirmation(false);
     previousStep();
+  };
+
+  const handleFinalSubmit = async () => {
+    console.log('Final answers:', answers);
+    navigate('/');
+    return 'success';
   };
 
   if (isGeneratingQuestions) {
@@ -74,7 +69,7 @@ const Questionnaire = () => {
           <div className="w-full max-w-5xl">
             <ConfirmationPage
               answers={answers}
-              onSubmit={() => submissionId ? handleFinalSubmit(submissionId, answers) : Promise.reject()}
+              onSubmit={handleFinalSubmit}
               onBack={handleConfirmationBack}
             />
           </div>
