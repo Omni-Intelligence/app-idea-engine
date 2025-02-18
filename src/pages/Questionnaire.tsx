@@ -18,9 +18,22 @@ const Questionnaire = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const { appIdea } = location.state as LocationState;
+  
+  // Safe access to location state with fallback
+  const appIdea = (location.state as LocationState)?.appIdea;
 
   useEffect(() => {
+    // Redirect if no app idea is provided
+    if (!appIdea) {
+      toast({
+        title: "Error",
+        description: "No app idea provided. Please start from the home page.",
+        variant: "destructive",
+      });
+      navigate('/');
+      return;
+    }
+
     const generateQuestions = async () => {
       try {
         const { data, error } = await supabase.functions.invoke('generate-questions', {
@@ -50,7 +63,7 @@ const Questionnaire = () => {
     };
 
     generateQuestions();
-  }, [appIdea, toast]);
+  }, [appIdea, toast, navigate]);
 
   const handleAnswerChange = (index: number, value: string) => {
     setAnswers(prev => ({ ...prev, [index]: value }));

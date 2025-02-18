@@ -21,6 +21,10 @@ serve(async (req) => {
       throw new Error('OpenAI API key is not configured');
     }
 
+    if (!appIdea) {
+      throw new Error('App idea is required');
+    }
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -32,27 +36,34 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: 'You are an expert product manager who helps gather requirements for app development. Generate 7 specific questions that will help understand the app idea better. Return ONLY an array of 7 questions without any additional text or formatting.'
+            content: 'You are an expert product manager. Generate 7 detailed questions about the app idea. Each question should focus on different aspects like target users, core features, technical requirements, etc. Format your response as a simple array of strings, one question per line.'
           },
           {
             role: 'user',
             content: `Generate 7 questions to gather more information about this app idea: ${appIdea}`
           }
         ],
+        temperature: 0.7,
       }),
     });
 
-    const data = await response.json();
-    
     if (!response.ok) {
-      throw new Error(data.error?.message || 'Failed to generate questions');
+      const error = await response.json();
+      throw new Error(error.error?.message || 'Failed to generate questions');
     }
 
-    // Extract just the content from the response
+    const data = await response.json();
+    
+    // Clean up the response to ensure we get an array of questions
     const questions = data.choices[0].message.content
       .split('\n')
-      .filter(q => q.trim())
+      .map(q => q.trim())
+      .filter(q => q && !q.startsWith('[') && !q.startsWith(']') && !q.startsWith('"'))
       .slice(0, 7);
+
+    if (questions.length !== 7) {
+      throw new Error('Failed to generate the correct number of questions');
+    }
 
     return new Response(JSON.stringify({ questions }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
