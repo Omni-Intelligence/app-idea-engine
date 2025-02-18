@@ -1,7 +1,6 @@
 
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -15,12 +14,11 @@ serve(async (req) => {
   }
 
   try {
-    const { initialIdea, submissionId } = await req.json();
+    const { initialIdea } = await req.json();
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     
     console.log('Generating questions for idea:', initialIdea);
 
-    // Generate questions using OpenAI
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -32,58 +30,57 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are an expert project consultant. Your task is to generate relevant questions that will help gather important information about a software project idea. Focus on key aspects like target audience, problem solved, core features, AI integration possibilities, monetization strategy, development timeline, technical expertise required, tech stack, and scaling expectations.
-
-            Generate the questions in a structured JSON format with the following schema:
+            content: `Generate 10 specific questions to help gather details about a software project idea. The questions should be returned in this exact JSON format:
             {
-              questions: [
+              "questions": [
                 {
-                  question: string,
-                  type: "text" | "multiple",
-                  placeholder?: string,
-                  options?: Array<{value: string, label: string}>,
-                  order_index: number
+                  "id": "q1",
+                  "question": "What type of application is this? (Web, Mobile, Desktop)",
+                  "type": "text",
+                  "placeholder": "Enter the type of application",
+                  "order_index": 0
                 }
               ]
-            }`
+            }
+            
+            Include questions about:
+            1. Project type/platform
+            2. Target audience
+            3. Problem being solved
+            4. Core features
+            5. AI integration plans
+            6. Monetization strategy
+            7. Development timeline
+            8. Technical expertise needed
+            9. Tech stack preferences
+            10. Scaling expectations
+            
+            For each question:
+            - Keep questions clear and specific
+            - Use 'text' type for all questions initially
+            - Include a helpful placeholder
+            - Use order_index from 0 to 9
+            - Generate an id like 'q1', 'q2', etc.`
           },
           {
             role: 'user',
-            content: `Generate specific and relevant questions for this project idea: ${initialIdea}`
+            content: `Generate questions for this project idea: ${initialIdea}`
           }
         ],
       }),
     });
 
     const data = await response.json();
+    console.log('OpenAI response:', data);
+
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      throw new Error('Invalid response from OpenAI');
+    }
+
     const questionsData = JSON.parse(data.choices[0].message.content);
+    console.log('Parsed questions:', questionsData);
 
-    // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    // Store questions in the database
-    const { error: insertError } = await supabase
-      .from('dynamic_questions')
-      .insert(
-        questionsData.questions.map((q: any) => ({
-          ...q,
-          submission_id: submissionId
-        }))
-      );
-
-    if (insertError) throw insertError;
-
-    // Update submission status
-    const { error: updateError } = await supabase
-      .from('project_submissions')
-      .update({ questions_generated: true })
-      .eq('id', submissionId);
-
-    if (updateError) throw updateError;
-
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify(questionsData), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
