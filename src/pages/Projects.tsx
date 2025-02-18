@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -49,15 +48,7 @@ const Projects = () => {
   };
 
   const handleProjectClick = (project: Project) => {
-    if (project.submission_id) {
-      navigate(`/analysis/${project.submission_id}`);
-    } else {
-      toast({
-        title: "Project Analysis Unavailable",
-        description: "This project doesn't have an associated analysis yet.",
-        variant: "destructive",
-      });
-    }
+    navigate(`/project/${project.id}`);
   };
 
   const handleDeleteProject = async (e: React.MouseEvent, projectId: string) => {
