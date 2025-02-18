@@ -36,14 +36,14 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: 'You are an expert product manager. Generate 7 detailed questions about the app idea. Each question should focus on different aspects like target users, core features, technical requirements, etc. Format your response as a simple array of strings, one question per line.'
+            content: 'You are a product manager helping to gather requirements. Please generate exactly 7 questions to better understand an app idea. Each question should be on a new line. Do not include any numbers, bullet points, or extra formatting. Do not include any introductory or closing text.'
           },
           {
             role: 'user',
-            content: `Generate 7 questions to gather more information about this app idea: ${appIdea}`
+            content: `Generate 7 questions about this app idea: ${appIdea}`
           }
         ],
-        temperature: 0.7,
+        temperature: 0.5, // Lower temperature for more consistent formatting
       }),
     });
 
@@ -53,16 +53,51 @@ serve(async (req) => {
     }
 
     const data = await response.json();
+    console.log('OpenAI response:', data.choices[0].message.content);
     
-    // Clean up the response to ensure we get an array of questions
-    const questions = data.choices[0].message.content
+    // Clean up and parse the response
+    let questions = data.choices[0].message.content
       .split('\n')
       .map(q => q.trim())
-      .filter(q => q && !q.startsWith('[') && !q.startsWith(']') && !q.startsWith('"'))
-      .slice(0, 7);
+      .filter(q => {
+        // Remove empty lines and common formatting characters
+        return q && 
+          !q.startsWith('[') && 
+          !q.startsWith(']') && 
+          !q.startsWith('-') && 
+          !q.startsWith('*') && 
+          !q.startsWith('#') &&
+          !q.startsWith('"') &&
+          !q.startsWith('1.') &&
+          !q.startsWith('2.') &&
+          !q.startsWith('3.') &&
+          !q.startsWith('4.') &&
+          !q.startsWith('5.') &&
+          !q.startsWith('6.') &&
+          !q.startsWith('7.');
+      });
 
-    if (questions.length !== 7) {
-      throw new Error('Failed to generate the correct number of questions');
+    // If we have more than 7 questions, take the first 7
+    // If we have less, use what we have
+    questions = questions.slice(0, 7);
+
+    // If we didn't get any valid questions, throw an error
+    if (questions.length === 0) {
+      throw new Error('Failed to generate any valid questions');
+    }
+
+    // If we got less than 7 questions, generate some generic ones to fill the gap
+    while (questions.length < 7) {
+      const genericQuestions = [
+        "Who is the target audience for this app?",
+        "What are the most important features you want to include?",
+        "How do you envision users interacting with the app?",
+        "What problem does this app solve for users?",
+        "What makes this app different from existing solutions?",
+        "What technical requirements do you anticipate?",
+        "How do you plan to monetize this app?"
+      ];
+      questions.push(genericQuestions[questions.length]);
     }
 
     return new Response(JSON.stringify({ questions }), {
