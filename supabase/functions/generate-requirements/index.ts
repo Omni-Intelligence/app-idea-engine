@@ -32,7 +32,7 @@ Project Idea:
 ${appIdea}
 
 Requirements Gathering Session:
-${questions.map((q, i) => `Q: ${q}\nA: ${answers[i]}`).join('\n\n')}
+${questions.map((q: string, i: number) => `Q: ${q}\nA: ${answers[i]}`).join('\n\n')}
 
 Please create a detailed SRS document with the following sections:
 
@@ -94,7 +94,7 @@ Format this as a professional, well-structured document that will serve as a cle
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini',
         messages: [
           { 
             role: 'system', 
