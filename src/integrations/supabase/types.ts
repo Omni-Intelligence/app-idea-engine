@@ -9,6 +9,33 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      app_questionnaires: {
+        Row: {
+          answers: Json
+          created_at: string
+          generated_questions: Json
+          id: string
+          initial_idea: string
+          user_id: string | null
+        }
+        Insert: {
+          answers?: Json
+          created_at?: string
+          generated_questions?: Json
+          id?: string
+          initial_idea: string
+          user_id?: string | null
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          generated_questions?: Json
+          id?: string
+          initial_idea?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       dynamic_questions: {
         Row: {
           created_at: string | null

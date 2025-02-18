@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
@@ -7,6 +8,7 @@ import { useToast } from "@/components/ui/use-toast";
 const Index = () => {
   const [idea, setIdea] = useState("");
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,12 +22,7 @@ const Index = () => {
       return;
     }
 
-    toast({
-      title: "Success!",
-      description: "Your idea has been received.",
-    });
-    
-    setIdea("");
+    navigate('/questionnaire', { state: { appIdea: idea } });
   };
 
   return (
