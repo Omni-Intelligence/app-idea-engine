@@ -8,6 +8,7 @@ interface DocumentGenerationData {
   appIdea: string;
   questions: string[];
   answers: Record<number, string>;
+  projectId: string;
 }
 
 const GenerateDocuments = () => {
@@ -15,10 +16,9 @@ const GenerateDocuments = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Validate the location state
   const data = location.state as DocumentGenerationData;
 
-  if (!data?.appIdea || !data?.questions || !data?.answers) {
+  if (!data?.appIdea || !data?.questions || !data?.answers || !data?.projectId) {
     toast({
       title: "Error",
       description: "Missing required data. Please start over.",

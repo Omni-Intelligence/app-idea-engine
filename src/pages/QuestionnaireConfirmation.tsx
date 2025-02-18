@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface QuestionnaireData {
   appIdea: string;
@@ -17,10 +18,8 @@ const QuestionnaireConfirmation = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Validate the location state
   const questionnaireData = location.state as QuestionnaireData;
 
-  // Redirect if no data is provided
   if (!questionnaireData?.appIdea || !questionnaireData?.questions || !questionnaireData?.answers) {
     toast({
       title: "Error",
@@ -34,25 +33,74 @@ const QuestionnaireConfirmation = () => {
   const { appIdea, questions, answers } = questionnaireData;
 
   const handleEdit = () => {
-    navigate('/questionnaire', { state: { appIdea, editMode: true, questions, answers } });
+    navigate('/questionnaire', { 
+      state: { 
+        appIdea, 
+        editMode: true, 
+        questions, 
+        answers 
+      } 
+    });
   };
 
   const handleConfirm = async () => {
     setIsSubmitting(true);
     try {
-      // Navigate to document generation page with the questionnaire data
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error('No authenticated user found');
+      }
+
+      // Create a user project
+      const { data: project, error: projectError } = await supabase
+        .from('user_projects')
+        .insert({
+          user_id: user.id,
+          title: appIdea.substring(0, 100), // Take first 100 chars as title
+          description: appIdea,
+          status: 'active'
+        })
+        .select()
+        .single();
+
+      if (projectError) throw projectError;
+
+      if (!project) {
+        throw new Error('Failed to create project');
+      }
+
+      // Save the questionnaire responses
+      const { error: questionnaireError } = await supabase
+        .from('app_questionnaires')
+        .insert({
+          user_id: user.id,
+          initial_idea: appIdea,
+          generated_questions: questions,
+          answers: answers,
+        });
+
+      if (questionnaireError) throw questionnaireError;
+
+      toast({
+        title: "Success",
+        description: "Project saved successfully!",
+      });
+
+      // Navigate to document generation with all data
       navigate('/generate-documents', { 
         state: { 
           appIdea,
           questions,
-          answers
+          answers,
+          projectId: project.id
         } 
       });
     } catch (error) {
       console.error('Error:', error);
       toast({
         title: "Error",
-        description: "Failed to proceed. Please try again.",
+        description: "Failed to save project. Please try again.",
         variant: "destructive",
       });
       setIsSubmitting(false);

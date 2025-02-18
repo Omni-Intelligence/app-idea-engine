@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -9,6 +8,9 @@ import { Sparkles } from "lucide-react";
 
 interface LocationState {
   appIdea: string;
+  editMode?: boolean;
+  questions?: string[];
+  answers?: Record<number, string>;
 }
 
 const Questionnaire = () => {
@@ -21,7 +23,9 @@ const Questionnaire = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  const appIdea = (location.state as LocationState)?.appIdea;
+  const locationState = location.state as LocationState;
+  const appIdea = locationState?.appIdea;
+  const isEditMode = locationState?.editMode;
 
   useEffect(() => {
     if (!appIdea) {
@@ -31,6 +35,13 @@ const Questionnaire = () => {
         variant: "destructive",
       });
       navigate('/');
+      return;
+    }
+
+    if (isEditMode && locationState.questions && locationState.answers) {
+      setQuestions(locationState.questions);
+      setAnswers(locationState.answers);
+      setIsLoading(false);
       return;
     }
 
@@ -63,7 +74,7 @@ const Questionnaire = () => {
     };
 
     generateQuestions();
-  }, [appIdea, toast, navigate]);
+  }, [appIdea, isEditMode, locationState, toast, navigate]);
 
   const handleAnswerChange = (index: number, value: string) => {
     setAnswers(prev => ({ ...prev, [index]: value }));
@@ -124,17 +135,6 @@ const Questionnaire = () => {
         });
         return;
       }
-
-      const { error } = await supabase
-        .from('app_questionnaires')
-        .insert({
-          user_id: user.id,
-          initial_idea: appIdea,
-          generated_questions: questions,
-          answers: answers,
-        });
-
-      if (error) throw error;
 
       navigate('/questionnaire-confirmation', {
         state: {
