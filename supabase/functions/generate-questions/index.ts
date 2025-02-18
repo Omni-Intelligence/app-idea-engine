@@ -17,6 +17,10 @@ serve(async (req) => {
   try {
     const { appIdea } = await req.json();
 
+    if (!openAIApiKey) {
+      throw new Error('OpenAI API key is not configured');
+    }
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -28,7 +32,7 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: 'You are an expert product manager who helps gather requirements for app development. Generate 7 specific questions that will help understand the app idea better. Return ONLY an array of 7 questions in JSON format. Each question should focus on different aspects like target users, core features, technical requirements, etc.'
+            content: 'You are an expert product manager who helps gather requirements for app development. Generate 7 specific questions that will help understand the app idea better. Return ONLY an array of 7 questions without any additional text or formatting.'
           },
           {
             role: 'user',
@@ -39,13 +43,22 @@ serve(async (req) => {
     });
 
     const data = await response.json();
-    const questions = JSON.parse(data.choices[0].message.content);
+    
+    if (!response.ok) {
+      throw new Error(data.error?.message || 'Failed to generate questions');
+    }
+
+    // Extract just the content from the response
+    const questions = data.choices[0].message.content
+      .split('\n')
+      .filter(q => q.trim())
+      .slice(0, 7);
 
     return new Response(JSON.stringify({ questions }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error in generate-questions function:', error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

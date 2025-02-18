@@ -27,7 +27,15 @@ const Questionnaire = () => {
           body: { appIdea },
         });
 
-        if (error) throw error;
+        if (error) {
+          console.error('Function error:', error);
+          throw error;
+        }
+
+        if (!data?.questions || !Array.isArray(data.questions)) {
+          throw new Error('Invalid response format from question generation');
+        }
+
         setQuestions(data.questions);
       } catch (error) {
         console.error('Error:', error);
@@ -53,6 +61,13 @@ const Questionnaire = () => {
     setIsSaving(true);
 
     try {
+      // Get the current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error('No authenticated user found');
+      }
+
       // Validate all questions are answered
       const unansweredQuestions = questions.some((_, index) => !answers[index]?.trim());
       if (unansweredQuestions) {
@@ -67,6 +82,7 @@ const Questionnaire = () => {
       const { error } = await supabase
         .from('app_questionnaires')
         .insert({
+          user_id: user.id,
           initial_idea: appIdea,
           generated_questions: questions,
           answers: answers,
