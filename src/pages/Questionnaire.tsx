@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Sparkles } from "lucide-react";
 
 interface LocationState {
   appIdea: string;
@@ -15,15 +16,14 @@ const Questionnaire = () => {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [generatingAnswers, setGeneratingAnswers] = useState<Record<number, boolean>>({});
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Safe access to location state with fallback
   const appIdea = (location.state as LocationState)?.appIdea;
 
   useEffect(() => {
-    // Redirect if no app idea is provided
     if (!appIdea) {
       toast({
         title: "Error",
@@ -69,19 +69,52 @@ const Questionnaire = () => {
     setAnswers(prev => ({ ...prev, [index]: value }));
   };
 
+  const generateAnswer = async (index: number) => {
+    setGeneratingAnswers(prev => ({ ...prev, [index]: true }));
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-answer', {
+        body: { 
+          appIdea,
+          question: questions[index],
+        },
+      });
+
+      if (error) throw error;
+
+      if (!data?.answer) {
+        throw new Error('No answer generated');
+      }
+
+      setAnswers(prev => ({ ...prev, [index]: data.answer }));
+      
+      toast({
+        title: "Success",
+        description: "AI suggestion generated! Feel free to edit it.",
+      });
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate AI suggestion. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setGeneratingAnswers(prev => ({ ...prev, [index]: false }));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
 
     try {
-      // Get the current user
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
         throw new Error('No authenticated user found');
       }
 
-      // Validate all questions are answered
       const unansweredQuestions = questions.some((_, index) => !answers[index]?.trim());
       if (unansweredQuestions) {
         toast({
@@ -103,7 +136,6 @@ const Questionnaire = () => {
 
       if (error) throw error;
 
-      // Navigate to confirmation page instead of projects page
       navigate('/questionnaire-confirmation', {
         state: {
           appIdea,
@@ -142,16 +174,32 @@ const Questionnaire = () => {
           
           <form onSubmit={handleSubmit} className="space-y-6">
             {questions.map((question, index) => (
-              <div key={index}>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+              <div key={index} className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
                   {question}
                 </label>
-                <Textarea
-                  value={answers[index] || ''}
-                  onChange={(e) => handleAnswerChange(index, e.target.value)}
-                  placeholder="Type your answer here..."
-                  className="min-h-[100px]"
-                />
+                <div className="relative">
+                  <Textarea
+                    value={answers[index] || ''}
+                    onChange={(e) => handleAnswerChange(index, e.target.value)}
+                    placeholder="Type your answer here..."
+                    className="min-h-[100px] pr-12"
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    className="absolute right-2 top-2 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                    onClick={() => generateAnswer(index)}
+                    disabled={generatingAnswers[index]}
+                  >
+                    {generatingAnswers[index] ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
+                    ) : (
+                      <Sparkles className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
               </div>
             ))}
             
