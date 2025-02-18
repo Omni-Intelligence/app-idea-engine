@@ -15,7 +15,6 @@ interface ProjectDetails {
   description: string | null;
   created_at: string;
   status: string | null;
-  submission_id: string | null;
 }
 
 interface DocumentDetails {
@@ -24,6 +23,7 @@ interface DocumentDetails {
   content: string;
   created_at: string;
   status: string;
+  submission_id: string | null;
 }
 
 const ProjectDetails = () => {
@@ -46,17 +46,17 @@ const ProjectDetails = () => {
     try {
       const { data: projectData, error: projectError } = await supabase
         .from('user_projects')
-        .select()
+        .select('id, title, description, created_at, status')
         .eq('id', projectId)
-        .maybeSingle();
+        .single();
 
       if (projectError) throw projectError;
       setProject(projectData);
 
       const { data: documentsData, error: documentsError } = await supabase
         .from('generated_documents')
-        .select()
-        .eq('project_id', projectId)
+        .select('id, document_type, content, created_at, status, submission_id')
+        .eq('submission_id', projectId)
         .order('created_at', { ascending: false });
 
       if (documentsError) throw documentsError;

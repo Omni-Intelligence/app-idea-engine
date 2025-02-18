@@ -16,17 +16,23 @@ serve(async (req) => {
   try {
     const { appIdea, questions, answers, projectId } = await req.json();
     
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
-
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-    if (!openAIApiKey) {
-      throw new Error('OpenAI API key not configured');
+    if (!appIdea || !questions || !answers || !projectId) {
+      throw new Error('Missing required parameters');
     }
 
-    const prompt = `As a senior business analyst with extensive experience in software requirements gathering, create a comprehensive software requirements specification (SRS) document for this project.
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+
+    if (!supabaseUrl || !supabaseKey || !openAIApiKey) {
+      throw new Error('Missing required environment variables');
+    }
+
+    const supabaseClient = createClient(supabaseUrl, supabaseKey);
+
+    console.log('Starting requirements generation for project:', projectId);
+
+    const prompt = `As a senior business analyst, create a comprehensive software requirements specification (SRS) document for this project.
 
 Project Idea:
 ${appIdea}
@@ -34,58 +40,17 @@ ${appIdea}
 Requirements Gathering Session:
 ${questions.map((q: string, i: number) => `Q: ${q}\nA: ${answers[i]}`).join('\n\n')}
 
-Please create a detailed SRS document with the following sections:
-
+Create a detailed SRS document with these sections:
 1. Executive Summary
-   - Project purpose
-   - Key stakeholders
-   - Project scope
-
 2. Project Overview
-   - Business context
-   - Project objectives
-   - Target users
-   - System overview
-
 3. Functional Requirements
-   - Core features
-   - User interactions
-   - System behaviors
-   - Data handling
-   - Integration requirements
-
 4. Non-Functional Requirements
-   - Performance requirements 
-   - Security requirements
-   - Scalability requirements
-   - Reliability requirements
-   - Usability requirements
-   - Compliance requirements
-
 5. User Stories
-   - Detailed user personas
-   - User journey maps
-   - Acceptance criteria
-
 6. System Constraints
-   - Technical limitations
-   - Business constraints
-   - Regulatory constraints
-   - Resource constraints
-
 7. Assumptions and Dependencies
-   - Technical assumptions
-   - Business assumptions
-   - External dependencies
+8. Success Criteria`;
 
-8. Success Criteria
-   - Performance metrics
-   - Quality metrics
-   - Business metrics
-
-Format this as a professional, well-structured document that will serve as a clear guide for development teams.`;
-
-    console.log('Generating requirements document...');
+    console.log('Calling OpenAI API...');
     
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -102,6 +67,8 @@ Format this as a professional, well-structured document that will serve as a cle
           },
           { role: 'user', content: prompt }
         ],
+        temperature: 0.7,
+        max_tokens: 2000,
       }),
     });
 
@@ -112,25 +79,60 @@ Format this as a professional, well-structured document that will serve as a cle
     }
 
     const aiResult = await response.json();
+    if (!aiResult.choices?.[0]?.message?.content) {
+      throw new Error('Invalid response from OpenAI API');
+    }
+
     const documentContent = aiResult.choices[0].message.content;
+    console.log('Successfully generated requirements document');
 
-    console.log('Requirements document generated successfully, saving to database...');
-
-    const { data: document, error: insertError } = await supabaseClient
+    // First, check if a document already exists
+    const { data: existingDoc, error: checkError } = await supabaseClient
       .from('generated_documents')
-      .insert({
-        content: documentContent,
-        document_type: 'requirements',
-        project_id: projectId,
-        status: 'completed'
-      })
-      .select()
+      .select('id')
+      .eq('submission_id', projectId)
+      .eq('document_type', 'requirements')
       .single();
 
-    if (insertError) {
-      console.error('Error saving document:', insertError);
-      throw new Error('Failed to save generated document');
+    if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is the "not found" error code
+      console.error('Error checking existing document:', checkError);
+      throw checkError;
     }
+
+    let document;
+    if (existingDoc) {
+      // Update existing document
+      const { data, error: updateError } = await supabaseClient
+        .from('generated_documents')
+        .update({
+          content: documentContent,
+          status: 'completed',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', existingDoc.id)
+        .select()
+        .single();
+
+      if (updateError) throw updateError;
+      document = data;
+    } else {
+      // Insert new document
+      const { data, error: insertError } = await supabaseClient
+        .from('generated_documents')
+        .insert({
+          content: documentContent,
+          document_type: 'requirements',
+          submission_id: projectId,
+          status: 'completed',
+        })
+        .select()
+        .single();
+
+      if (insertError) throw insertError;
+      document = data;
+    }
+
+    console.log('Successfully saved document to database');
 
     return new Response(
       JSON.stringify({ success: true, document }),
@@ -140,7 +142,10 @@ Format this as a professional, well-structured document that will serve as a cle
   } catch (error) {
     console.error('Error in generate-requirements function:', error);
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ 
+        success: false, 
+        error: error instanceof Error ? error.message : 'An unknown error occurred'
+      }),
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
