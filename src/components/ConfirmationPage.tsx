@@ -6,7 +6,7 @@ import { Loader2 } from "lucide-react";
 import { useState } from "react";
 
 interface ConfirmationPageProps {
-  answers: Record<string, string>;
+  answers: Record<string | number, string | string[]>;
   onSubmit: () => Promise<string>;
   onBack: () => void;
 }
@@ -45,6 +45,10 @@ export const ConfirmationPage = ({ answers, onSubmit, onBack }: ConfirmationPage
     9: "Scaling Expectation"
   };
 
+  const formatAnswer = (value: string | string[]): string => {
+    return Array.isArray(value) ? value.join(', ') : value;
+  };
+
   console.log("Answers received in ConfirmationPage:", answers); // Debug log
 
   return (
@@ -60,7 +64,7 @@ export const ConfirmationPage = ({ answers, onSubmit, onBack }: ConfirmationPage
               <h3 className="font-medium text-lg text-[#1A1F2C] mb-2">
                 {questionLabels.initial}
               </h3>
-              <p className="text-gray-600 leading-relaxed">{answers.initial}</p>
+              <p className="text-gray-600 leading-relaxed">{formatAnswer(answers.initial)}</p>
             </div>
           )}
           {/* Then display all other answers */}
@@ -71,7 +75,7 @@ export const ConfirmationPage = ({ answers, onSubmit, onBack }: ConfirmationPage
                 <h3 className="font-medium text-lg text-[#1A1F2C] mb-2">
                   {questionLabels[key] || `Question ${key}`}
                 </h3>
-                <p className="text-gray-600 leading-relaxed">{value}</p>
+                <p className="text-gray-600 leading-relaxed">{formatAnswer(value)}</p>
               </div>
             ))}
         </div>
