@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface UseQuestionnaireLogicProps {
   appIdea: string | undefined;
-  isEditMode: boolean;
+  isEditMode: boolean | undefined;
   initialQuestions?: string[];
   initialAnswers?: Record<number, string>;
 }
@@ -118,7 +118,13 @@ export const useQuestionnaireLogic = ({
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
-        throw new Error('No authenticated user found');
+        toast({
+          title: "Error",
+          description: "Please sign in to continue.",
+          variant: "destructive",
+        });
+        navigate('/auth');
+        return;
       }
 
       const unansweredQuestions = questions.some((_, index) => !answers[index]?.trim());
@@ -128,6 +134,7 @@ export const useQuestionnaireLogic = ({
           description: "Please answer all questions before submitting.",
           variant: "destructive",
         });
+        setIsSaving(false);
         return;
       }
 

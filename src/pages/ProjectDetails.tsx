@@ -8,37 +8,54 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistanceToNow } from 'date-fns';
 import { FileText, ChevronLeft } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
-import type { Database } from '@/integrations/supabase/types';
 
-type ProjectType = Database['public']['Tables']['user_projects']['Row'];
-type DocumentType = Database['public']['Tables']['generated_documents']['Row'];
+interface ProjectDetails {
+  id: string;
+  title: string;
+  description: string | null;
+  created_at: string;
+  status: string | null;
+  submission_id: string | null;
+}
+
+interface DocumentDetails {
+  id: string;
+  document_type: string;
+  content: string;
+  created_at: string;
+  status: string;
+}
 
 const ProjectDetails = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [project, setProject] = useState<ProjectType | null>(null);
-  const [documents, setDocuments] = useState<DocumentType[]>([]);
+  const [project, setProject] = useState<ProjectDetails | null>(null);
+  const [documents, setDocuments] = useState<DocumentDetails[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchProjectDetails();
+    if (projectId) {
+      fetchProjectDetails();
+    }
   }, [projectId]);
 
   const fetchProjectDetails = async () => {
+    if (!projectId) return;
+    
     try {
       const { data: projectData, error: projectError } = await supabase
         .from('user_projects')
-        .select('*')
+        .select()
         .eq('id', projectId)
-        .single();
+        .maybeSingle();
 
       if (projectError) throw projectError;
       setProject(projectData);
 
       const { data: documentsData, error: documentsError } = await supabase
         .from('generated_documents')
-        .select('*')
+        .select()
         .eq('project_id', projectId)
         .order('created_at', { ascending: false });
 
