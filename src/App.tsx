@@ -8,7 +8,6 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import Ideation from "./pages/Ideation";
-import Questionnaire from "./pages/Questionnaire";
 import AnalysisResults from "./pages/AnalysisResults";
 import GenerateDocuments from "./pages/GenerateDocuments";
 import Projects from "./pages/Projects";
@@ -54,7 +53,6 @@ const AppContent = () => {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/ideation" element={<Ideation />} />
-              <Route path="/questionnaire" element={<Questionnaire />} />
               <Route path="/auth" element={<Auth />} />
               <Route
                 path="/projects"
