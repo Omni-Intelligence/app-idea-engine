@@ -95,9 +95,9 @@ const GenerateDocuments = () => {
 
     setGeneratingDoc(docType.id);
     try {
-      const { data: generatedDoc, error } = await supabase.functions.invoke('generate-document', {
+      const functionName = `generate-${docType.id.replace('_', '-')}`;
+      const { data: generatedDoc, error } = await supabase.functions.invoke(functionName, {
         body: {
-          documentType: docType.id,
           appIdea: data.appIdea,
           questions: data.questions,
           answers: data.answers,
