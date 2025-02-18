@@ -103,12 +103,14 @@ const Questionnaire = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Success!",
-        description: "Your responses have been saved.",
+      // Navigate to confirmation page instead of projects page
+      navigate('/questionnaire-confirmation', {
+        state: {
+          appIdea,
+          questions,
+          answers,
+        },
       });
-
-      navigate('/projects');
     } catch (error) {
       console.error('Error:', error);
       toast({

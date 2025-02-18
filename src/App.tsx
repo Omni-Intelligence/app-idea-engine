@@ -8,6 +8,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import Questionnaire from "./pages/Questionnaire";
+import QuestionnaireConfirmation from "./pages/QuestionnaireConfirmation";
+import GenerateDocuments from "./pages/GenerateDocuments";
 import Projects from "./pages/Projects";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
@@ -55,6 +57,22 @@ const AppContent = () => {
                 element={
                   <ProtectedRoute>
                     <Questionnaire />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/questionnaire-confirmation" 
+                element={
+                  <ProtectedRoute>
+                    <QuestionnaireConfirmation />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/generate-documents" 
+                element={
+                  <ProtectedRoute>
+                    <GenerateDocuments />
                   </ProtectedRoute>
                 } 
               />
