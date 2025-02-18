@@ -44,25 +44,25 @@ const documentTypes: DocumentType[] = [
     id: "frontend_guidelines",
     title: "Frontend Guidelines Document",
     description: "Frontend development standards and best practices",
-    available: false
+    available: true
   },
   {
     id: "backend_structure",
     title: "Backend Structure Document",
     description: "Backend architecture and API design",
-    available: false
+    available: true
   },
   {
     id: "file_structure",
     title: "File Structure Document",
     description: "Project file organization and naming conventions",
-    available: false
+    available: true
   },
   {
     id: "implementation_plan",
     title: "Implementation Plan",
     description: "Step-by-step development and deployment plan",
-    available: false
+    available: true
   }
 ];
 
