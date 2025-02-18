@@ -12,9 +12,10 @@ import { supabase } from "@/integrations/supabase/client";
 interface Project {
   id: string;
   title: string;
-  description: string;
+  description: string | null;
   created_at: string;
   status: string;
+  submission_id: string | null;
 }
 
 interface Document {

@@ -9,7 +9,7 @@ import Projects from "@/pages/Projects";
 import ProjectDetails from "@/pages/ProjectDetails";
 import NotFound from "@/pages/NotFound";
 import { Toaster } from "@/components/ui/toaster";
-import Navbar from "@/components/Navbar";
+import { Navbar } from "@/components/Navbar";
 
 function App() {
   return (
