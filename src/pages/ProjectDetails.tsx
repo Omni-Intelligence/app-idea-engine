@@ -8,30 +8,17 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistanceToNow } from 'date-fns';
 import { FileText, ChevronLeft } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from '@/integrations/supabase/types';
 
-interface Project {
-  id: string;
-  title: string;
-  description: string | null;
-  created_at: string;
-  status: string;
-  submission_id: string | null;
-}
-
-interface Document {
-  id: string;
-  document_type: string;
-  content: string;
-  created_at: string;
-  status: string;
-}
+type ProjectType = Database['public']['Tables']['user_projects']['Row'];
+type DocumentType = Database['public']['Tables']['generated_documents']['Row'];
 
 const ProjectDetails = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [project, setProject] = useState<Project | null>(null);
-  const [documents, setDocuments] = useState<Document[]>([]);
+  const [project, setProject] = useState<ProjectType | null>(null);
+  const [documents, setDocuments] = useState<DocumentType[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -40,7 +27,6 @@ const ProjectDetails = () => {
 
   const fetchProjectDetails = async () => {
     try {
-      // Fetch project details
       const { data: projectData, error: projectError } = await supabase
         .from('user_projects')
         .select('*')
@@ -50,7 +36,6 @@ const ProjectDetails = () => {
       if (projectError) throw projectError;
       setProject(projectData);
 
-      // Fetch generated documents
       const { data: documentsData, error: documentsError } = await supabase
         .from('generated_documents')
         .select('*')
@@ -73,11 +58,9 @@ const ProjectDetails = () => {
   };
 
   const handleGenerateMore = () => {
-    // Navigate to document generation with project context
     navigate('/generate-documents', { 
       state: { 
         projectId,
-        // You might want to pass more context here
       } 
     });
   };
