@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useToast } from "@/components/ui/use-toast";
@@ -19,12 +20,21 @@ interface ProjectData {
   user_id: string;
 }
 
+interface GeneratedDocument {
+  id: string;
+  content: string;
+  document_type: string;
+  status: string;
+  created_at: string;
+}
+
 const ProjectDetailsPage = () => {
   const { projectId } = useParams();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [project, setProject] = useState<ProjectData | null>(null);
+  const [documents, setDocuments] = useState<GeneratedDocument[]>([]);
   const [questionnaireResponses, setQuestionnaireResponses] = useState<Array<{
     question: string;
     answer: string;
@@ -41,8 +51,6 @@ const ProjectDetailsPage = () => {
     if (!projectId) return;
     
     try {
-      console.log('Fetching project with ID:', projectId);
-      
       // Fetch project details
       const { data: projectData, error: projectError } = await supabase
         .from('user_projects')
@@ -50,13 +58,8 @@ const ProjectDetailsPage = () => {
         .eq('id', projectId)
         .single();
 
-      if (projectError) {
-        console.error('Project fetch error:', projectError);
-        throw projectError;
-      }
-
+      if (projectError) throw projectError;
       if (!projectData) {
-        console.log('No project found with ID:', projectId);
         toast({
           title: "Project not found",
           description: "This project may have been deleted or you may not have access to it.",
@@ -75,12 +78,18 @@ const ProjectDetailsPage = () => {
         .eq('project_id', projectId)
         .order('question_order');
 
-      if (responsesError) {
-        console.error('Responses fetch error:', responsesError);
-        throw responsesError;
-      }
-
+      if (responsesError) throw responsesError;
       setQuestionnaireResponses(responsesData || []);
+
+      // Fetch generated documents
+      const { data: documentsData, error: documentsError } = await supabase
+        .from('generated_documents')
+        .select('*')
+        .eq('project_id', projectId)
+        .order('created_at', { ascending: false });
+
+      if (documentsError) throw documentsError;
+      setDocuments(documentsData || []);
       
     } catch (error: any) {
       console.error('Error in fetchProjectDetails:', error);
@@ -170,6 +179,30 @@ const ProjectDetailsPage = () => {
           Generate Documents
         </Button>
       </div>
+
+      {/* Generated Documents */}
+      {documents.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Generated Documents</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {documents.map((doc) => (
+              <div key={doc.id} className="p-4 border rounded-lg">
+                <h3 className="font-semibold mb-2 text-purple-900 capitalize">
+                  {doc.document_type.replace('_', ' ')}
+                </h3>
+                <div className="whitespace-pre-wrap bg-gray-50 p-4 rounded-md text-sm">
+                  {doc.content}
+                </div>
+                <div className="text-xs text-gray-500 mt-2">
+                  Generated on {new Date(doc.created_at).toLocaleString()}
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Project Basic Info */}
       <Card>
