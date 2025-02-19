@@ -12,3 +12,12 @@ verify_jwt = false
 
 [functions.generate-frontend-guidelines]
 verify_jwt = false
+
+[functions.generate-backend-structure]
+verify_jwt = false
+
+[functions.generate-file-structure]
+verify_jwt = false
+
+[functions.generate-implementation-plan]
+verify_jwt = false

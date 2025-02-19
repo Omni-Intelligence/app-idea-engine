@@ -14,86 +14,93 @@ serve(async (req) => {
   }
 
   try {
-    const { appIdea, questions, answers, projectId } = await req.json();
+    const { projectId } = await req.json();
     
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-    if (!openAIApiKey) {
-      throw new Error('OpenAI API key not configured');
-    }
+    // Fetch project details
+    const { data: project, error: projectError } = await supabaseClient
+      .from('user_projects')
+      .select('*')
+      .eq('id', projectId)
+      .single();
 
-    const prompt = `As a technical project manager with expertise in software development, create a comprehensive implementation plan for this project.
+    if (projectError) throw projectError;
+    if (!project) throw new Error('Project not found');
+
+    // Fetch questionnaire responses
+    const { data: responses, error: responsesError } = await supabaseClient
+      .from('questionnaire_responses')
+      .select('*')
+      .eq('project_id', projectId)
+      .order('question_order');
+
+    if (responsesError) throw responsesError;
+
+    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    if (!openAIApiKey) throw new Error('OpenAI API key not configured');
+
+    const prompt = `As a technical project manager, create a comprehensive implementation plan for this project.
 
 Project Idea:
-${appIdea}
+${project.project_idea}
 
 Project Context:
-${questions.map((q, i) => `Q: ${q}\nA: ${answers[i]}`).join('\n\n')}
+${responses.map(r => `Q: ${r.question}\nA: ${r.answer}`).join('\n\n')}
 
 Create a detailed implementation plan with these sections:
 
 1. Project Phases
-   - Discovery phase
-   - Design phase
-   - Development phase
-   - Testing phase
-   - Deployment phase
-   - Post-launch phase
+   - Initial setup
+   - Core development
+   - Testing phases
+   - Deployment stages
+   - Post-launch activities
 
-2. Timeline & Milestones
-   - Major milestones
-   - Dependencies
-   - Critical path
-   - Resource allocation
-   - Risk factors
-
-3. Development Roadmap
-   - Feature prioritization
+2. Development Roadmap
    - Sprint planning
-   - Release strategy
-   - Version control
-   - Code review process
+   - Feature prioritization
+   - Dependencies mapping
+   - Resource allocation
+   - Timeline estimates
 
-4. Resource Requirements
-   - Team composition
-   - Technical resources
-   - Infrastructure needs
-   - Third-party services
-   - Development tools
-
-5. Quality Assurance
+3. Technical Implementation
+   - Development environment setup
+   - Core features implementation
+   - Integration points
    - Testing strategy
-   - Quality metrics
-   - Code coverage
-   - Performance benchmarks
-   - Security audits
-
-6. Deployment Strategy
-   - Environment setup
    - Deployment process
-   - Rollback procedures
-   - Monitoring setup
-   - Maintenance plan
 
-7. Risk Management
-   - Potential risks
+4. Quality Assurance
+   - Testing phases
+   - Code review process
+   - Performance testing
+   - Security testing
+   - User acceptance testing
+
+5. Deployment Strategy
+   - Environment setup
+   - Database migrations
+   - Service deployment
+   - Monitoring setup
+   - Rollback plans
+
+6. Risk Management
+   - Technical risks
+   - Resource risks
+   - Timeline risks
    - Mitigation strategies
    - Contingency plans
-   - Change management
-   - Issue resolution
 
-8. Success Metrics
-   - Performance KPIs
-   - Quality metrics
-   - User adoption
-   - Business metrics
-   - Technical debt
-
-Format this as a comprehensive plan that will guide the team through successful implementation of the project.`;
+For each section, provide:
+- Detailed steps
+- Time estimates
+- Resource requirements
+- Dependencies
+- Success criteria`;
 
     console.log('Generating implementation plan document...');
     
@@ -104,11 +111,11 @@ Format this as a comprehensive plan that will guide the team through successful 
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini',
         messages: [
           { 
             role: 'system', 
-            content: 'You are a technical project manager specializing in software development implementation. Create detailed, practical implementation plans.' 
+            content: 'You are a technical project manager specializing in software development projects. Create detailed, practical implementation plans.' 
           },
           { role: 'user', content: prompt }
         ],

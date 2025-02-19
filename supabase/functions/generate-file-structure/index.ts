@@ -14,92 +14,93 @@ serve(async (req) => {
   }
 
   try {
-    const { appIdea, questions, answers, projectId } = await req.json();
+    const { projectId } = await req.json();
     
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-    if (!openAIApiKey) {
-      throw new Error('OpenAI API key not configured');
-    }
+    // Fetch project details
+    const { data: project, error: projectError } = await supabaseClient
+      .from('user_projects')
+      .select('*')
+      .eq('id', projectId)
+      .single();
 
-    const prompt = `As a software architect with expertise in project organization, create a comprehensive file structure and organization document for this project.
+    if (projectError) throw projectError;
+    if (!project) throw new Error('Project not found');
+
+    // Fetch questionnaire responses
+    const { data: responses, error: responsesError } = await supabaseClient
+      .from('questionnaire_responses')
+      .select('*')
+      .eq('project_id', projectId)
+      .order('question_order');
+
+    if (responsesError) throw responsesError;
+
+    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    if (!openAIApiKey) throw new Error('OpenAI API key not configured');
+
+    const prompt = `As a software architect, create a comprehensive file structure and organization document for this project.
 
 Project Idea:
-${appIdea}
+${project.project_idea}
 
 Project Context:
-${questions.map((q, i) => `Q: ${q}\nA: ${answers[i]}`).join('\n\n')}
+${responses.map(r => `Q: ${r.question}\nA: ${r.answer}`).join('\n\n')}
 
 Create a detailed file structure document with these sections:
 
-1. Project Organization
-   - Root directory structure
-   - Main directories
+1. Project Root Structure
+   - Directory organization
    - Configuration files
+   - Build files
+   - Documentation files
    - Environment files
-   - Build artifacts
 
-2. Frontend Structure
-   - Components organization
+2. Source Code Organization
+   - Components structure
+   - Features organization
+   - Shared utilities
+   - Type definitions
    - Assets management
-   - Styles organization
-   - State management
-   - Route management
 
-3. Backend Structure
-   - API routes
-   - Middleware
-   - Services
-   - Models
-   - Utils
-
-4. Testing Structure
+3. Test File Structure
    - Unit tests
    - Integration tests
    - E2E tests
    - Test utilities
    - Test data
 
-5. Documentation Structure
+4. Documentation Structure
    - API documentation
    - Component documentation
    - Setup guides
+   - Development guides
    - Deployment guides
-   - Contributing guidelines
 
-6. Build System
-   - Build scripts
-   - Development tools
-   - Production builds
-   - Development builds
-   - CI/CD configuration
+5. Build and Deploy
+   - Build configuration
+   - Environment configs
+   - CI/CD files
+   - Docker files
+   - Deploy scripts
 
-7. Resource Organization
-   - Static assets
-   - Media files
-   - Configuration files
-   - Environment variables
-   - Third-party resources
-
-8. Naming Conventions
+6. Naming Conventions
    - File naming
    - Directory naming
    - Component naming
-   - Variable naming
-   - Function naming
+   - Test file naming
+   - Asset naming
 
 For each section, provide:
 - Detailed structure
 - Purpose of each directory
 - File naming conventions
 - Organization rules
-- Best practices
-
-Format this as a comprehensive guide that will ensure consistent project organization across the development team.`;
+- Best practices`;
 
     console.log('Generating file structure document...');
     
@@ -110,7 +111,7 @@ Format this as a comprehensive guide that will ensure consistent project organiz
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini',
         messages: [
           { 
             role: 'system', 

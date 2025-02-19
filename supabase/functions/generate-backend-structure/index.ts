@@ -14,85 +14,93 @@ serve(async (req) => {
   }
 
   try {
-    const { appIdea, questions, answers, projectId } = await req.json();
+    const { projectId } = await req.json();
     
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-    if (!openAIApiKey) {
-      throw new Error('OpenAI API key not configured');
-    }
+    // Fetch project details
+    const { data: project, error: projectError } = await supabaseClient
+      .from('user_projects')
+      .select('*')
+      .eq('id', projectId)
+      .single();
 
-    const prompt = `As a backend architect with expertise in scalable systems, create a comprehensive backend architecture document for this project.
+    if (projectError) throw projectError;
+    if (!project) throw new Error('Project not found');
+
+    // Fetch questionnaire responses
+    const { data: responses, error: responsesError } = await supabaseClient
+      .from('questionnaire_responses')
+      .select('*')
+      .eq('project_id', projectId)
+      .order('question_order');
+
+    if (responsesError) throw responsesError;
+
+    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    if (!openAIApiKey) throw new Error('OpenAI API key not configured');
+
+    const prompt = `As a backend architect, design a comprehensive backend structure for this project.
 
 Project Idea:
-${appIdea}
+${project.project_idea}
 
 Project Context:
-${questions.map((q, i) => `Q: ${q}\nA: ${answers[i]}`).join('\n\n')}
+${responses.map(r => `Q: ${r.question}\nA: ${r.answer}`).join('\n\n')}
 
 Create a detailed backend architecture document with these sections:
 
 1. System Architecture
    - Service architecture
-   - API design
-   - Data flow
+   - API design principles
+   - Data flow patterns
+   - System boundaries
    - Integration points
-   - Scalability considerations
 
-2. Database Design
+2. API Structure
+   - Endpoint design
+   - Authentication/Authorization
+   - Rate limiting
+   - Error handling
+   - API versioning
+
+3. Database Design
    - Schema design
    - Data models
    - Relationships
    - Indexing strategy
-   - Migration strategy
-
-3. API Documentation
-   - REST/GraphQL endpoints
-   - Authentication
-   - Rate limiting
-   - Versioning
-   - Error handling
+   - Query optimization
 
 4. Security Architecture
    - Authentication system
    - Authorization framework
    - Data encryption
    - Security protocols
-   - Compliance measures
+   - Input validation
 
-5. Performance Optimization
+5. Performance Considerations
    - Caching strategy
-   - Query optimization
-   - Background jobs
-   - Rate limiting
+   - Load balancing
+   - Database optimization
    - Resource management
+   - Scalability plans
 
-6. Development Standards
-   - Code organization
-   - Error handling
-   - Logging
-   - Testing requirements
-   - Documentation
-
-7. Infrastructure
-   - Deployment architecture
-   - Scaling strategy
-   - Monitoring
-   - Backup systems
-   - Disaster recovery
-
-8. Integration Guidelines
+6. Integration Points
    - Third-party services
    - External APIs
    - Message queues
    - Event handling
-   - Webhook management
+   - Webhooks
 
-Format this as a comprehensive technical document that will guide the backend development team in implementing a robust and scalable system.`;
+For each section, provide:
+- Detailed implementation guidelines
+- Best practices
+- Security considerations
+- Scalability factors
+- Maintenance recommendations`;
 
     console.log('Generating backend structure document...');
     
@@ -103,11 +111,11 @@ Format this as a comprehensive technical document that will guide the backend de
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini',
         messages: [
           { 
             role: 'system', 
-            content: 'You are a backend architect specializing in scalable system design. Create detailed, practical backend architecture documentation.' 
+            content: 'You are a senior backend architect. Create detailed, practical backend architecture documentation.' 
           },
           { role: 'user', content: prompt }
         ],
