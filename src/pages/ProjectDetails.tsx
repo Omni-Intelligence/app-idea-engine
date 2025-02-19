@@ -26,12 +26,24 @@ interface DocumentDetails {
   submission_id: string | null;
 }
 
+interface ProjectSubmission {
+  id: string;
+  project_idea: string;
+  answers: Record<string, string>;
+  core_features: string;
+  target_audience: string;
+  problem_solved: string;
+  tech_stack: string;
+  development_timeline: string;
+}
+
 const ProjectDetails = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [project, setProject] = useState<ProjectDetails | null>(null);
   const [documents, setDocuments] = useState<DocumentDetails[]>([]);
+  const [submission, setSubmission] = useState<ProjectSubmission | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -44,6 +56,7 @@ const ProjectDetails = () => {
     if (!projectId) return;
     
     try {
+      // Fetch project details
       const { data: projectData, error: projectError } = await supabase
         .from('user_projects')
         .select('id, title, description, created_at, status')
@@ -53,9 +66,20 @@ const ProjectDetails = () => {
       if (projectError) throw projectError;
       setProject(projectData);
 
+      // Fetch project submission details
+      const { data: submissionData, error: submissionError } = await supabase
+        .from('project_submissions')
+        .select('*')
+        .eq('id', projectId)
+        .single();
+
+      if (submissionError && submissionError.code !== 'PGRST116') throw submissionError;
+      if (submissionData) setSubmission(submissionData);
+
+      // Fetch generated documents
       const { data: documentsData, error: documentsError } = await supabase
         .from('generated_documents')
-        .select('id, document_type, content, created_at, status, submission_id')
+        .select('*')
         .eq('submission_id', projectId)
         .order('created_at', { ascending: false });
 
@@ -75,9 +99,21 @@ const ProjectDetails = () => {
   };
 
   const handleGenerateMore = () => {
+    if (!submission) {
+      toast({
+        title: "Error",
+        description: "Project submission data not found.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     navigate('/generate-documents', { 
       state: { 
         projectId,
+        appIdea: submission.project_idea,
+        questions: Object.keys(submission.answers),
+        answers: submission.answers
       } 
     });
   };
@@ -137,6 +173,34 @@ const ProjectDetails = () => {
           </CardHeader>
           <CardContent>
             <p className="text-gray-600 whitespace-pre-wrap">{project.description}</p>
+            
+            {submission && (
+              <div className="mt-6 space-y-4">
+                <h3 className="text-lg font-semibold text-purple-800">Project Details</h3>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <h4 className="font-medium text-gray-700">Core Features</h4>
+                    <p className="text-gray-600">{submission.core_features}</p>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-700">Target Audience</h4>
+                    <p className="text-gray-600">{submission.target_audience}</p>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-700">Problem Solved</h4>
+                    <p className="text-gray-600">{submission.problem_solved}</p>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-700">Tech Stack</h4>
+                    <p className="text-gray-600">{submission.tech_stack}</p>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-700">Development Timeline</h4>
+                    <p className="text-gray-600">{submission.development_timeline}</p>
+                  </div>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
