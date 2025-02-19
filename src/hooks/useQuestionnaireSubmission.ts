@@ -13,38 +13,45 @@ export const useQuestionnaireSubmission = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const handleSubmit = async (submissionId: string, answers: Record<string | number, string | string[]>) => {
-    if (!submissionId) {
-      toast({
-        title: "Error",
-        description: "No submission ID found",
-        variant: "destructive",
-      });
-      return;
-    }
-
+  const handleSubmit = async (answers: Record<string | number, string | string[]>) => {
     try {
-      // Convert all answers to strings, ensuring arrays are joined with commas
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "No user found",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Convert all answers to strings
       const processedAnswers: SubmissionAnswers = {};
       Object.entries(answers).forEach(([key, value]) => {
-        // Convert number keys to strings
-        const stringKey = String(key);
-        // Convert array values to comma-separated strings
-        processedAnswers[stringKey] = Array.isArray(value) ? value.join(', ') : String(value);
+        processedAnswers[key] = Array.isArray(value) ? value.join(', ') : String(value);
       });
 
-      const { error: updateError } = await supabase
-        .from('project_submissions')
-        .update({ 
-          answers: processedAnswers,
-          status: 'completed'
-        })
-        .eq('id', submissionId);
+      const { data: project, error: projectError } = await supabase
+        .from('user_projects')
+        .insert([
+          {
+            user_id: user.id,
+            status: 'draft',
+            ...processedAnswers
+          }
+        ])
+        .select()
+        .single();
 
-      if (updateError) throw updateError;
+      if (projectError) throw projectError;
 
-      navigate(`/analysis/${submissionId}`);
-      return submissionId;
+      if (!project) {
+        throw new Error('Failed to create project');
+      }
+
+      navigate(`/project/${project.id}`);
+      return project.id;
     } catch (error: any) {
       console.error('Error submitting questionnaire:', error);
       toast({
