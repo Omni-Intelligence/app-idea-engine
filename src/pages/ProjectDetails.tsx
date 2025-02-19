@@ -15,6 +15,7 @@ interface ProjectDetails {
   description: string | null;
   created_at: string;
   status: string | null;
+  submission_id: string | null;
 }
 
 interface DocumentDetails {
@@ -29,7 +30,7 @@ interface DocumentDetails {
 interface ProjectSubmission {
   id: string;
   project_idea: string;
-  answers: Record<string, string>;
+  answers: Record<string, any>; // Changed from Record<string, string> to handle JSON
   core_features: string;
   target_audience: string;
   problem_solved: string;
@@ -56,25 +57,40 @@ const ProjectDetails = () => {
     if (!projectId) return;
     
     try {
-      // Fetch project details
+      // Fetch project details including submission_id
       const { data: projectData, error: projectError } = await supabase
         .from('user_projects')
-        .select('id, title, description, created_at, status')
+        .select('id, title, description, created_at, status, submission_id')
         .eq('id', projectId)
         .single();
 
       if (projectError) throw projectError;
       setProject(projectData);
 
-      // Fetch project submission details
-      const { data: submissionData, error: submissionError } = await supabase
-        .from('project_submissions')
-        .select('*')
-        .eq('id', projectId)
-        .single();
+      // Only fetch submission if we have a submission_id
+      if (projectData.submission_id) {
+        const { data: submissionData, error: submissionError } = await supabase
+          .from('project_submissions')
+          .select('*')
+          .eq('id', projectData.submission_id)
+          .single();
 
-      if (submissionError && submissionError.code !== 'PGRST116') throw submissionError;
-      if (submissionData) setSubmission(submissionData);
+        if (submissionError && submissionError.code !== 'PGRST116') throw submissionError;
+        if (submissionData) {
+          // Ensure type safety by transforming the data
+          const transformedSubmission: ProjectSubmission = {
+            id: submissionData.id,
+            project_idea: submissionData.project_idea,
+            answers: submissionData.answers as Record<string, any>,
+            core_features: submissionData.core_features,
+            target_audience: submissionData.target_audience,
+            problem_solved: submissionData.problem_solved,
+            tech_stack: submissionData.tech_stack,
+            development_timeline: submissionData.development_timeline
+          };
+          setSubmission(transformedSubmission);
+        }
+      }
 
       // Fetch generated documents
       const { data: documentsData, error: documentsError } = await supabase
