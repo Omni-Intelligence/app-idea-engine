@@ -1,14 +1,47 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatDistanceToNow } from 'date-fns';
+import { FileText, ChevronLeft, Loader2 } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
-import { ProjectHeader } from "@/components/project/ProjectHeader";
-import { ProjectInfo } from "@/components/project/ProjectInfo";
-import { DocumentsList } from "@/components/project/DocumentsList";
-import type { ProjectDetails, DocumentDetails, ProjectSubmission } from '@/types/project';
-import { Card, CardContent } from "@/components/ui/card";
+import type { Json } from '@/integrations/supabase/types';
+
+interface ProjectDetails {
+  id: string;
+  title: string;
+  description: string | null;
+  created_at: string;
+  status: string | null;
+  submission_id: string | null;
+}
+
+interface DocumentDetails {
+  id: string;
+  document_type: string;
+  content: string;
+  created_at: string;
+  status: string;
+  submission_id: string | null;
+}
+
+interface ProjectSubmission {
+  id: string;
+  project_idea: string;
+  answers: Json;
+  core_features: string;
+  target_audience: string;
+  problem_solved: string;
+  tech_stack: string;
+  development_timeline: string;
+  monetization: string;
+  ai_integration: string;
+  technical_expertise: string;
+  scaling_expectation: string;
+}
 
 const ProjectDetailsPage = () => {
   const { projectId } = useParams();
@@ -18,6 +51,7 @@ const ProjectDetailsPage = () => {
   const [documents, setDocuments] = useState<DocumentDetails[]>([]);
   const [submission, setSubmission] = useState<ProjectSubmission | null>(null);
   const [loading, setLoading] = useState(true);
+  const [generatingDoc, setGeneratingDoc] = useState(false);
 
   useEffect(() => {
     if (projectId) {
@@ -86,6 +120,7 @@ const ProjectDetailsPage = () => {
       return;
     }
 
+    setGeneratingDoc(true);
     const answers = submission.answers as Record<string, any>;
     
     navigate('/generate-documents', { 
@@ -101,9 +136,11 @@ const ProjectDetailsPage = () => {
   if (loading) {
     return (
       <div className="container mx-auto py-8 px-4">
-        <Skeleton className="h-8 w-48 mb-6" />
-        <Skeleton className="h-[200px] w-full mb-6" />
-        <Skeleton className="h-[400px] w-full" />
+        <div className="max-w-5xl mx-auto">
+          <Skeleton className="h-8 w-48 mb-6" />
+          <Skeleton className="h-[200px] w-full mb-6" />
+          <Skeleton className="h-[400px] w-full" />
+        </div>
       </div>
     );
   }
@@ -111,17 +148,19 @@ const ProjectDetailsPage = () => {
   if (!project) {
     return (
       <div className="container mx-auto py-8 px-4">
-        <Card>
-          <CardContent className="py-12">
-            <div className="text-center">
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">Project Not Found</h2>
-              <p className="text-gray-600 mb-4">The project you're looking for doesn't exist or you don't have access to it.</p>
-              <Button onClick={() => navigate('/projects')}>
-                Back to Projects
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="max-w-5xl mx-auto">
+          <Card>
+            <CardContent className="py-12">
+              <div className="text-center">
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">Project Not Found</h2>
+                <p className="text-gray-600 mb-4">The project you're looking for doesn't exist or you don't have access to it.</p>
+                <Button onClick={() => navigate('/projects')}>
+                  Back to Projects
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
@@ -129,15 +168,136 @@ const ProjectDetailsPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white py-8">
       <div className="container mx-auto px-4">
-        <ProjectHeader />
-        <ProjectInfo project={project} submission={submission} />
-        <DocumentsList 
-          documents={documents} 
-          onGenerateClick={handleGenerateDocuments}
-        />
+        <div className="max-w-5xl mx-auto">
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/projects')}
+            className="mb-6 hover:bg-white/50"
+          >
+            <ChevronLeft className="mr-2 h-4 w-4" />
+            Back to Projects
+          </Button>
+
+          <Card className="mb-8 shadow-lg hover:shadow-xl transition-shadow">
+            <CardHeader>
+              <div className="flex items-start justify-between">
+                <div>
+                  <CardTitle className="text-3xl font-bold text-purple-900">{project.title}</CardTitle>
+                  <CardDescription className="mt-2">
+                    Created {formatDistanceToNow(new Date(project.created_at))} ago
+                  </CardDescription>
+                </div>
+                <Button 
+                  onClick={handleGenerateDocuments}
+                  className="bg-purple-600 hover:bg-purple-700 text-white shadow-md"
+                  disabled={generatingDoc}
+                >
+                  {generatingDoc ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>Generate Documents</>
+                  )}
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600 whitespace-pre-wrap mb-8 text-lg">{project.description}</p>
+              
+              {submission && (
+                <div className="space-y-6">
+                  <h3 className="text-xl font-semibold text-purple-800 border-b pb-2">Project Details</h3>
+                  <div className="grid gap-8 md:grid-cols-2">
+                    <DetailItem label="Project Idea" value={submission.project_idea} />
+                    <DetailItem label="Core Features" value={submission.core_features} />
+                    <DetailItem label="Target Audience" value={submission.target_audience} />
+                    <DetailItem label="Problem Solved" value={submission.problem_solved} />
+                    <DetailItem label="Tech Stack" value={submission.tech_stack} />
+                    <DetailItem label="Development Timeline" value={submission.development_timeline} />
+                    <DetailItem label="Monetization Strategy" value={submission.monetization} />
+                    <DetailItem label="AI Integration" value={submission.ai_integration} />
+                    <DetailItem label="Technical Expertise" value={submission.technical_expertise} />
+                    <DetailItem label="Scaling Expectations" value={submission.scaling_expectation} />
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <div className="space-y-4">
+            <h2 className="text-2xl font-semibold text-purple-900 mb-6">Generated Documents</h2>
+            
+            {documents.length === 0 ? (
+              <Card className="bg-white/50 backdrop-blur-sm border-dashed">
+                <CardContent className="py-12">
+                  <div className="text-center">
+                    <FileText className="mx-auto h-12 w-12 text-purple-400 mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">No Documents Yet</h3>
+                    <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                      Start generating comprehensive documentation for your project with our AI-powered tools.
+                    </p>
+                    <Button 
+                      onClick={handleGenerateDocuments} 
+                      className="bg-purple-600 hover:bg-purple-700 text-white shadow-md"
+                      disabled={generatingDoc}
+                    >
+                      {generatingDoc ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>Generate Your First Document</>
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-6">
+                {documents.map((doc) => (
+                  <Card key={doc.id} className="hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle className="text-xl font-semibold text-purple-900">
+                            {doc.document_type.split('_')
+                              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                              .join(' ')}
+                          </CardTitle>
+                          <CardDescription>
+                            Generated {formatDistanceToNow(new Date(doc.created_at))} ago
+                          </CardDescription>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="prose max-w-none">
+                        {doc.content.split('\n').map((paragraph, index) => (
+                          <p key={index} className="text-gray-600 mb-4 text-lg leading-relaxed">
+                            {paragraph}
+                          </p>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
 };
+
+const DetailItem = ({ label, value }: { label: string; value: string }) => (
+  <div className="bg-white/50 backdrop-blur-sm rounded-lg p-4 hover:shadow-md transition-shadow">
+    <h4 className="font-semibold text-purple-900 mb-2">{label}</h4>
+    <p className="text-gray-600">{value}</p>
+  </div>
+);
 
 export default ProjectDetailsPage;
