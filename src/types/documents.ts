@@ -24,19 +24,19 @@ export const documentTypes: DocumentType[] = [
     id: "app_flow",
     title: "App Flow Document",
     description: "User journey and application flow documentation",
-    available: true // Changed to true
+    available: true
   },
   {
     id: "tech_stack",
     title: "Tech Stack Document",
     description: "Recommended technology stack and architecture",
-    available: false
+    available: true // Changed to true
   },
   {
     id: "frontend_guidelines",
     title: "Frontend Guidelines Document",
     description: "Frontend development standards and best practices",
-    available: false
+    available: true // Changed to true
   },
   {
     id: "backend_structure",

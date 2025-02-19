@@ -82,45 +82,13 @@ Create a detailed technology stack recommendation document with these sections:
    - Documentation tools
    - Collaboration tools
 
-5. Third-party Services
-   - Authentication
-   - Analytics
-   - Payment processing
-   - Email/Messaging
-   - File storage
-
-6. Performance Optimization
-   - Caching solutions
-   - CDN setup
-   - Database optimization
-   - Asset optimization
-   - Load balancing
-
-7. Security Considerations
-   - Authentication methods
-   - Authorization framework
-   - Data encryption
-   - API security
-   - Compliance tools
-
-8. Scalability Strategy
-   - Horizontal scaling
-   - Vertical scaling
-   - Database scaling
-   - Caching strategy
-   - Load distribution
-
 For each technology recommended, include:
 - Justification for selection
 - Pros and cons
 - Alternative options
 - Implementation considerations
-- Cost implications
+- Cost implications`;
 
-Format this as a comprehensive guide that will help the development team make informed technology choices.`;
-
-    console.log('Generating tech stack document...');
-    
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -128,11 +96,11 @@ Format this as a comprehensive guide that will help the development team make in
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini',
         messages: [
           { 
             role: 'system', 
-            content: 'You are a software architect specializing in technology stack selection. Create detailed, practical technology recommendations.' 
+            content: 'You are a senior software architect. Create detailed, practical technology recommendations.' 
           },
           { role: 'user', content: prompt }
         ],

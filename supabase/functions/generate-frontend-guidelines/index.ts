@@ -14,25 +14,42 @@ serve(async (req) => {
   }
 
   try {
-    const { appIdea, questions, answers, projectId } = await req.json();
+    const { projectId } = await req.json();
     
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-    if (!openAIApiKey) {
-      throw new Error('OpenAI API key not configured');
-    }
+    // Fetch project details
+    const { data: project, error: projectError } = await supabaseClient
+      .from('user_projects')
+      .select('*')
+      .eq('id', projectId)
+      .single();
 
-    const prompt = `As a senior frontend architect with expertise in modern web development, create comprehensive frontend development guidelines for this project.
+    if (projectError) throw projectError;
+    if (!project) throw new Error('Project not found');
+
+    // Fetch questionnaire responses
+    const { data: responses, error: responsesError } = await supabaseClient
+      .from('questionnaire_responses')
+      .select('*')
+      .eq('project_id', projectId)
+      .order('question_order');
+
+    if (responsesError) throw responsesError;
+
+    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    if (!openAIApiKey) throw new Error('OpenAI API key not configured');
+
+    const prompt = `As a senior frontend architect, create comprehensive frontend development guidelines for this project.
 
 Project Idea:
-${appIdea}
+${project.project_idea}
 
 Project Context:
-${questions.map((q, i) => `Q: ${q}\nA: ${answers[i]}`).join('\n\n')}
+${responses.map(q => `Q: ${q.question}\nA: ${q.answer}`).join('\n\n')}
 
 Create detailed frontend guidelines with these sections:
 
@@ -77,20 +94,6 @@ Create detailed frontend guidelines with these sections:
    - Form handling
    - Error handling
 
-7. Security Best Practices
-   - Input validation
-   - XSS prevention
-   - CSRF protection
-   - Secure data handling
-   - API security
-
-8. Development Workflow
-   - Git workflow
-   - Code review process
-   - Documentation requirements
-   - Build process
-   - Deployment guidelines
-
 Format this as a comprehensive guide that will ensure consistency and quality across the frontend development team.`;
 
     console.log('Generating frontend guidelines document...');
@@ -102,7 +105,7 @@ Format this as a comprehensive guide that will ensure consistency and quality ac
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini',
         messages: [
           { 
             role: 'system', 
