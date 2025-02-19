@@ -12,23 +12,16 @@ interface ProjectData {
   status: string | null;
   created_at: string;
   updated_at: string;
-  project_submissions: ProjectSubmission | null;
-}
-
-interface ProjectSubmission {
-  id: string;
-  project_idea: string;
-  core_features: string;
-  target_audience: string;
-  problem_solved: string;
-  tech_stack: string;
-  development_timeline: string;
-  monetization: string;
-  ai_integration: string;
-  technical_expertise: string;
-  scaling_expectation: string;
-  created_at: string;
-  status: string;
+  project_idea: string | null;
+  core_features: string | null;
+  target_audience: string | null;
+  problem_solved: string | null;
+  tech_stack: string | null;
+  development_timeline: string | null;
+  monetization: string | null;
+  ai_integration: string | null;
+  technical_expertise: string | null;
+  scaling_expectation: string | null;
 }
 
 const ProjectDetailsPage = () => {
@@ -51,10 +44,7 @@ const ProjectDetailsPage = () => {
       
       const { data: projectData, error: projectError } = await supabase
         .from('user_projects')
-        .select(`
-          *,
-          project_submissions (*)
-        `)
+        .select('*')
         .eq('id', projectId)
         .maybeSingle();
 
@@ -135,64 +125,54 @@ const ProjectDetailsPage = () => {
         </CardContent>
       </Card>
 
-      {/* Project Submission Details */}
-      {project.project_submissions && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Project Submission Details</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <h3 className="font-semibold">Project Idea</h3>
-              <p>{project.project_submissions.project_idea}</p>
-            </div>
-            <div>
-              <h3 className="font-semibold">Core Features</h3>
-              <p>{project.project_submissions.core_features}</p>
-            </div>
-            <div>
-              <h3 className="font-semibold">Target Audience</h3>
-              <p>{project.project_submissions.target_audience}</p>
-            </div>
-            <div>
-              <h3 className="font-semibold">Problem Solved</h3>
-              <p>{project.project_submissions.problem_solved}</p>
-            </div>
-            <div>
-              <h3 className="font-semibold">Tech Stack</h3>
-              <p>{project.project_submissions.tech_stack}</p>
-            </div>
-            <div>
-              <h3 className="font-semibold">Development Timeline</h3>
-              <p>{project.project_submissions.development_timeline}</p>
-            </div>
-            <div>
-              <h3 className="font-semibold">Monetization Strategy</h3>
-              <p>{project.project_submissions.monetization}</p>
-            </div>
-            <div>
-              <h3 className="font-semibold">AI Integration</h3>
-              <p>{project.project_submissions.ai_integration}</p>
-            </div>
-            <div>
-              <h3 className="font-semibold">Technical Expertise</h3>
-              <p>{project.project_submissions.technical_expertise}</p>
-            </div>
-            <div>
-              <h3 className="font-semibold">Scaling Expectations</h3>
-              <p>{project.project_submissions.scaling_expectation}</p>
-            </div>
-            <div>
-              <h3 className="font-semibold">Submission Status</h3>
-              <p>{project.project_submissions.status}</p>
-            </div>
-            <div>
-              <h3 className="font-semibold">Submitted At</h3>
-              <p>{new Date(project.project_submissions.created_at).toLocaleString()}</p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Project Details */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Project Information</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <h3 className="font-semibold">Project Idea</h3>
+            <p>{project.project_idea || 'Not specified'}</p>
+          </div>
+          <div>
+            <h3 className="font-semibold">Core Features</h3>
+            <p>{project.core_features || 'Not specified'}</p>
+          </div>
+          <div>
+            <h3 className="font-semibold">Target Audience</h3>
+            <p>{project.target_audience || 'Not specified'}</p>
+          </div>
+          <div>
+            <h3 className="font-semibold">Problem Solved</h3>
+            <p>{project.problem_solved || 'Not specified'}</p>
+          </div>
+          <div>
+            <h3 className="font-semibold">Tech Stack</h3>
+            <p>{project.tech_stack || 'Not specified'}</p>
+          </div>
+          <div>
+            <h3 className="font-semibold">Development Timeline</h3>
+            <p>{project.development_timeline || 'Not specified'}</p>
+          </div>
+          <div>
+            <h3 className="font-semibold">Monetization Strategy</h3>
+            <p>{project.monetization || 'Not specified'}</p>
+          </div>
+          <div>
+            <h3 className="font-semibold">AI Integration</h3>
+            <p>{project.ai_integration || 'Not specified'}</p>
+          </div>
+          <div>
+            <h3 className="font-semibold">Technical Expertise</h3>
+            <p>{project.technical_expertise || 'Not specified'}</p>
+          </div>
+          <div>
+            <h3 className="font-semibold">Scaling Expectations</h3>
+            <p>{project.scaling_expectation || 'Not specified'}</p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

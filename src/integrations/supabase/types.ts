@@ -9,82 +9,14 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      app_questionnaires: {
-        Row: {
-          answers: Json
-          created_at: string
-          generated_questions: Json
-          id: string
-          initial_idea: string
-          user_id: string | null
-        }
-        Insert: {
-          answers?: Json
-          created_at?: string
-          generated_questions?: Json
-          id?: string
-          initial_idea: string
-          user_id?: string | null
-        }
-        Update: {
-          answers?: Json
-          created_at?: string
-          generated_questions?: Json
-          id?: string
-          initial_idea?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      dynamic_questions: {
-        Row: {
-          created_at: string | null
-          id: string
-          options: Json | null
-          order_index: number
-          placeholder: string | null
-          question: string
-          submission_id: string | null
-          type: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          options?: Json | null
-          order_index: number
-          placeholder?: string | null
-          question: string
-          submission_id?: string | null
-          type?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          options?: Json | null
-          order_index?: number
-          placeholder?: string | null
-          question?: string
-          submission_id?: string | null
-          type?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "dynamic_questions_submission_id_fkey"
-            columns: ["submission_id"]
-            isOneToOne: false
-            referencedRelation: "project_submissions"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       generated_documents: {
         Row: {
           content: string
           created_at: string
           document_type: string
           id: string
+          project_id: string | null
           status: string
-          submission_id: string | null
           updated_at: string
           user_id: string | null
         }
@@ -93,8 +25,8 @@ export type Database = {
           created_at?: string
           document_type: string
           id?: string
+          project_id?: string | null
           status?: string
-          submission_id?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -103,17 +35,17 @@ export type Database = {
           created_at?: string
           document_type?: string
           id?: string
+          project_id?: string | null
           status?: string
-          submission_id?: string | null
           updated_at?: string
           user_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "generated_documents_submission_id_fkey"
-            columns: ["submission_id"]
+            foreignKeyName: "generated_documents_project_id_fkey"
+            columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: "project_submissions"
+            referencedRelation: "user_projects"
             referencedColumns: ["id"]
           },
         ]
@@ -139,109 +71,65 @@ export type Database = {
         }
         Relationships: []
       }
-      project_submissions: {
-        Row: {
-          ai_analysis: string | null
-          ai_integration: string
-          answers: Json
-          core_features: string
-          created_at: string
-          development_timeline: string
-          id: string
-          initial_idea: string | null
-          monetization: string
-          problem_solved: string
-          project_idea: string
-          questions_generated: boolean | null
-          scaling_expectation: string
-          status: string
-          target_audience: string
-          tech_stack: string
-          technical_expertise: string
-          user_id: string | null
-        }
-        Insert: {
-          ai_analysis?: string | null
-          ai_integration: string
-          answers?: Json
-          core_features: string
-          created_at?: string
-          development_timeline: string
-          id?: string
-          initial_idea?: string | null
-          monetization: string
-          problem_solved: string
-          project_idea: string
-          questions_generated?: boolean | null
-          scaling_expectation: string
-          status?: string
-          target_audience: string
-          tech_stack: string
-          technical_expertise: string
-          user_id?: string | null
-        }
-        Update: {
-          ai_analysis?: string | null
-          ai_integration?: string
-          answers?: Json
-          core_features?: string
-          created_at?: string
-          development_timeline?: string
-          id?: string
-          initial_idea?: string | null
-          monetization?: string
-          problem_solved?: string
-          project_idea?: string
-          questions_generated?: boolean | null
-          scaling_expectation?: string
-          status?: string
-          target_audience?: string
-          tech_stack?: string
-          technical_expertise?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
       user_projects: {
         Row: {
+          ai_integration: string | null
+          core_features: string | null
           created_at: string
           description: string | null
+          development_timeline: string | null
           id: string
+          monetization: string | null
+          problem_solved: string | null
+          project_idea: string | null
+          scaling_expectation: string | null
           status: string | null
-          submission_id: string | null
+          target_audience: string | null
+          tech_stack: string | null
+          technical_expertise: string | null
           title: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          ai_integration?: string | null
+          core_features?: string | null
           created_at?: string
           description?: string | null
+          development_timeline?: string | null
           id?: string
+          monetization?: string | null
+          problem_solved?: string | null
+          project_idea?: string | null
+          scaling_expectation?: string | null
           status?: string | null
-          submission_id?: string | null
+          target_audience?: string | null
+          tech_stack?: string | null
+          technical_expertise?: string | null
           title: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          ai_integration?: string | null
+          core_features?: string | null
           created_at?: string
           description?: string | null
+          development_timeline?: string | null
           id?: string
+          monetization?: string | null
+          problem_solved?: string | null
+          project_idea?: string | null
+          scaling_expectation?: string | null
           status?: string | null
-          submission_id?: string | null
+          target_audience?: string | null
+          tech_stack?: string | null
+          technical_expertise?: string | null
           title?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_projects_submission_id_fkey"
-            columns: ["submission_id"]
-            isOneToOne: false
-            referencedRelation: "project_submissions"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
