@@ -52,14 +52,25 @@ const QuestionnaireConfirmation = () => {
         throw new Error('No authenticated user found');
       }
 
-      // Create a user project
+      // Create a user project with the questionnaire data
       const { data: project, error: projectError } = await supabase
         .from('user_projects')
         .insert({
           user_id: user.id,
           title: appIdea.substring(0, 100), // Take first 100 chars as title
           description: appIdea,
-          status: 'active'
+          project_idea: appIdea,
+          status: 'draft',
+          // Map specific answers to their corresponding fields
+          core_features: answers[0] || null,
+          target_audience: answers[1] || null,
+          problem_solved: answers[2] || null,
+          tech_stack: answers[3] || null,
+          development_timeline: answers[4] || null,
+          monetization: answers[5] || null,
+          ai_integration: answers[6] || null,
+          technical_expertise: answers[7] || null,
+          scaling_expectation: answers[8] || null
         })
         .select()
         .single();
@@ -69,18 +80,6 @@ const QuestionnaireConfirmation = () => {
       if (!project) {
         throw new Error('Failed to create project');
       }
-
-      // Save the questionnaire responses
-      const { error: questionnaireError } = await supabase
-        .from('app_questionnaires')
-        .insert({
-          user_id: user.id,
-          initial_idea: appIdea,
-          generated_questions: questions,
-          answers: answers,
-        });
-
-      if (questionnaireError) throw questionnaireError;
 
       toast({
         title: "Success",
@@ -96,7 +95,7 @@ const QuestionnaireConfirmation = () => {
           projectId: project.id
         } 
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error:', error);
       toast({
         title: "Error",
