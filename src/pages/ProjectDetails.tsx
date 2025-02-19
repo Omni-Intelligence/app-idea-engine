@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
@@ -31,7 +30,7 @@ interface DocumentDetails {
 interface ProjectSubmission {
   id: string;
   project_idea: string;
-  answers: Record<string, Json>;
+  answers: Json;
   core_features: string;
   target_audience: string;
   problem_solved: string;
@@ -62,7 +61,6 @@ const ProjectDetails = () => {
     if (!projectId) return;
     
     try {
-      // First, get the project details including submission_id
       const { data: projectData, error: projectError } = await supabase
         .from('user_projects')
         .select('*')
@@ -75,35 +73,18 @@ const ProjectDetails = () => {
       }
       
       setProject(projectData);
-      console.log('Project data:', projectData); // Debug log
 
-      // Then, if we have a submission_id, get the submission details
       if (projectData.submission_id) {
         const { data: submissionData, error: submissionError } = await supabase
           .from('project_submissions')
-          .select(`
-            id,
-            project_idea,
-            answers,
-            core_features,
-            target_audience,
-            problem_solved,
-            tech_stack,
-            development_timeline,
-            monetization,
-            ai_integration,
-            technical_expertise,
-            scaling_expectation
-          `)
+          .select('*')
           .eq('id', projectData.submission_id)
           .maybeSingle();
 
         if (submissionError) throw submissionError;
         if (submissionData) {
-          console.log('Submission data:', submissionData); // Debug log
           setSubmission(submissionData);
 
-          // Finally, get documents associated with this submission
           const { data: documentsData, error: documentsError } = await supabase
             .from('generated_documents')
             .select('*')
@@ -137,12 +118,14 @@ const ProjectDetails = () => {
       return;
     }
 
+    const answers = submission.answers as Record<string, any>;
+    
     navigate('/generate-documents', { 
       state: { 
         projectId: submission.id,
         appIdea: submission.project_idea,
-        questions: Object.keys(submission.answers),
-        answers: submission.answers
+        questions: Object.keys(answers),
+        answers: answers
       } 
     });
   };
@@ -175,12 +158,6 @@ const ProjectDetails = () => {
     );
   }
 
-  const getDocumentTitle = (type: string) => {
-    return type.split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white py-8">
       <div className="container mx-auto px-4">
@@ -195,13 +172,13 @@ const ProjectDetails = () => {
 
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-purple-900">{project.title}</CardTitle>
+            <CardTitle className="text-2xl font-bold text-purple-900">{project?.title}</CardTitle>
             <CardDescription>
-              Created {formatDistanceToNow(new Date(project.created_at))} ago
+              Created {formatDistanceToNow(new Date(project?.created_at || ''))} ago
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-600 whitespace-pre-wrap mb-6">{project.description}</p>
+            <p className="text-gray-600 whitespace-pre-wrap mb-6">{project?.description}</p>
             
             {submission && (
               <div className="mt-6 space-y-4">
@@ -257,7 +234,7 @@ const ProjectDetails = () => {
           <h2 className="text-xl font-semibold text-purple-900">Generated Documents</h2>
           <Button 
             onClick={handleGenerateDocuments} 
-            className="bg-purple-600 hover:bg-purple-700"
+            className="bg-purple-600 hover:bg-purple-700 text-white"
           >
             Generate Documents
           </Button>
@@ -273,7 +250,7 @@ const ProjectDetails = () => {
                   <p className="text-gray-600 mb-4">Start generating documents for your project!</p>
                   <Button 
                     onClick={handleGenerateDocuments} 
-                    className="bg-purple-600 hover:bg-purple-700"
+                    className="bg-purple-600 hover:bg-purple-700 text-white"
                   >
                     Generate Documents
                   </Button>
@@ -285,7 +262,9 @@ const ProjectDetails = () => {
               <Card key={doc.id} className="hover:shadow-md transition-shadow">
                 <CardHeader>
                   <CardTitle className="text-lg font-semibold text-purple-900">
-                    {getDocumentTitle(doc.document_type)}
+                    {doc.document_type.split('_')
+                      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                      .join(' ')}
                   </CardTitle>
                   <CardDescription>
                     Generated {formatDistanceToNow(new Date(doc.created_at))} ago
