@@ -96,20 +96,14 @@ const GenerateDocuments = () => {
     setGeneratingDoc(docType.id);
     try {
       // Convert dash to underscore for function name
-      const functionName = `generate_${docType.id}`;
+      const functionName = `generate_${docType.id.replace('-', '_')}`;
       
       console.log('Calling edge function:', functionName, {
-        appIdea: data.appIdea,
-        questions: data.questions,
-        answers: data.answers,
         projectId: data.projectId
       });
 
       const { data: generatedDoc, error } = await supabase.functions.invoke(functionName, {
         body: {
-          appIdea: data.appIdea,
-          questions: data.questions,
-          answers: data.answers,
           projectId: data.projectId
         },
       });
@@ -124,18 +118,6 @@ const GenerateDocuments = () => {
       }
 
       console.log('Generated document:', generatedDoc);
-
-      // Save the generated document to the database
-      const { error: saveError } = await supabase
-        .from('generated_documents')
-        .insert({
-          document_type: docType.id,
-          content: generatedDoc.content,
-          submission_id: data.projectId,
-          status: 'completed'
-        });
-
-      if (saveError) throw saveError;
 
       toast({
         title: "Success",
