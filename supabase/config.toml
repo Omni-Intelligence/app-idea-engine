@@ -21,3 +21,7 @@ verify_jwt = false
 
 [functions.generate-implementation-plan]
 verify_jwt = false
+
+[functions.generate-app-outline]
+verify_jwt = false
+
