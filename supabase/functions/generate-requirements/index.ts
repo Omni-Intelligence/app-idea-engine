@@ -2,11 +2,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { OPENAI_CONFIG, corsHeaders } from "../_shared/openai-config.ts";
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -113,14 +109,14 @@ Format this as a clear, actionable document that will guide the development team
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
+        ...OPENAI_CONFIG.headers,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: OPENAI_CONFIG.model,
         messages: [
           { 
             role: 'system', 
-            content: 'You are a software requirements specialist. Create detailed, practical requirements documentation.' 
+            content: OPENAI_CONFIG.defaultSystemPrompt 
           },
           { role: 'user', content: prompt }
         ]
