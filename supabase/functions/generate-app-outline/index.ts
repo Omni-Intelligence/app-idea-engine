@@ -1,13 +1,9 @@
 
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { OPENAI_CONFIG } from "../_shared/openai-config.ts";
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
 
 const systemPrompt = `You are a senior software architect and product strategist. When given a type of application to build, generate a comprehensive project outline including:
 
@@ -42,7 +38,7 @@ Be specific and practical in your recommendations, focusing on modern, productio
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { OPENAI_CONFIG.corsHeaders });
   }
 
   try {
@@ -61,12 +57,12 @@ The outline should help a development team understand the scope and requirements
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: OPENAI_CONFIG.model,
         messages: [
+          { role: 'system', content: OPENAI_CONFIG.defaultSystemPrompt },
           { role: 'system', content: systemPrompt },
           { role: 'user', content: prompt }
         ],
-        temperature: 0.7,
       }),
     });
 
@@ -80,13 +76,13 @@ The outline should help a development team understand the scope and requirements
     const generatedOutline = data.choices[0].message.content;
 
     return new Response(JSON.stringify({ outline: generatedOutline }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...OPENAI_CONFIG.corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
     console.error('Error in generate-app-outline function:', error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...OPENAI_CONFIG.corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 });
