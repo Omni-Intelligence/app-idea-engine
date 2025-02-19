@@ -14,14 +14,18 @@ serve(async (req) => {
   }
 
   try {
-    const { projectId } = await req.json();
-    
+    const { projectId, userId } = await req.json();
+    console.log('Function called with projectId:', projectId, 'userId:', userId);
+
+    if (!projectId || !userId) {
+      throw new Error('Project ID and User ID are required');
+    }
+
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Fetch project details
     const { data: project, error: projectError } = await supabaseClient
       .from('user_projects')
       .select('*')
@@ -31,7 +35,6 @@ serve(async (req) => {
     if (projectError) throw projectError;
     if (!project) throw new Error('Project not found');
 
-    // Fetch questionnaire responses
     const { data: responses, error: responsesError } = await supabaseClient
       .from('questionnaire_responses')
       .select('*')
@@ -43,67 +46,30 @@ serve(async (req) => {
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openAIApiKey) throw new Error('OpenAI API key not configured');
 
-    const prompt = `As a technical project manager, create a comprehensive implementation plan for this project.
+    const prompt = `Create a detailed implementation plan for this software project:
 
-Project Idea:
-${project.project_idea}
+Project Title: ${project.title}
+Project Description: ${project.description || 'Not provided'}
+Project Idea: ${project.project_idea || 'Not provided'}
 
-Project Context:
-${responses.map(r => `Q: ${r.question}\nA: ${r.answer}`).join('\n\n')}
+Context from questionnaire:
+${responses?.map(r => `Q: ${r.question}\nA: ${r.answer}`).join('\n\n') || 'No additional context provided'}
 
-Create a detailed implementation plan with these sections:
-
+Please provide a comprehensive implementation plan that includes:
 1. Project Phases
-   - Initial setup
-   - Core development
-   - Testing phases
-   - Deployment stages
-   - Post-launch activities
+2. Sprint Planning
+3. Task Breakdown
+4. Resource Allocation
+5. Timeline Estimates
+6. Dependencies
+7. Risk Management
+8. Quality Assurance Steps
+9. Deployment Strategy
 
-2. Development Roadmap
-   - Sprint planning
-   - Feature prioritization
-   - Dependencies mapping
-   - Resource allocation
-   - Timeline estimates
+Format this as a clear, structured document with milestones and deliverables.`;
 
-3. Technical Implementation
-   - Development environment setup
-   - Core features implementation
-   - Integration points
-   - Testing strategy
-   - Deployment process
+    console.log('Sending request to OpenAI...');
 
-4. Quality Assurance
-   - Testing phases
-   - Code review process
-   - Performance testing
-   - Security testing
-   - User acceptance testing
-
-5. Deployment Strategy
-   - Environment setup
-   - Database migrations
-   - Service deployment
-   - Monitoring setup
-   - Rollback plans
-
-6. Risk Management
-   - Technical risks
-   - Resource risks
-   - Timeline risks
-   - Mitigation strategies
-   - Contingency plans
-
-For each section, provide:
-- Detailed steps
-- Time estimates
-- Resource requirements
-- Dependencies
-- Success criteria`;
-
-    console.log('Generating implementation plan document...');
-    
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -113,12 +79,9 @@ For each section, provide:
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
-          { 
-            role: 'system', 
-            content: 'You are a technical project manager specializing in software development projects. Create detailed, practical implementation plans.' 
-          },
+          { role: 'system', content: 'You are a senior project manager creating detailed implementation plans.' },
           { role: 'user', content: prompt }
-        ],
+        ]
       }),
     });
 
@@ -128,17 +91,18 @@ For each section, provide:
       throw new Error(`OpenAI API request failed: ${errorText}`);
     }
 
-    const aiResult = await response.json();
-    const documentContent = aiResult.choices[0].message.content;
+    const result = await response.json();
+    const content = result.choices[0].message.content;
 
-    console.log('Implementation plan document generated successfully, saving to database...');
+    console.log('Saving document to database...');
 
     const { data: document, error: insertError } = await supabaseClient
       .from('generated_documents')
       .insert({
-        content: documentContent,
-        document_type: 'implementation_plan',
+        content,
+        document_type: 'Implementation Plan',
         project_id: projectId,
+        user_id: userId,
         status: 'completed'
       })
       .select()
@@ -146,7 +110,7 @@ For each section, provide:
 
     if (insertError) {
       console.error('Error saving document:', insertError);
-      throw new Error('Failed to save generated document');
+      throw insertError;
     }
 
     return new Response(
@@ -157,10 +121,10 @@ For each section, provide:
   } catch (error) {
     console.error('Error in generate-implementation-plan function:', error);
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ error: error.message }),
       { 
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
     );
   }

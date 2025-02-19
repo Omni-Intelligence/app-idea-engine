@@ -15,17 +15,17 @@ serve(async (req) => {
 
   try {
     const { projectId, userId } = await req.json();
-    
-    if (!userId) {
-      throw new Error('User ID is required');
+    console.log('Function called with projectId:', projectId, 'userId:', userId);
+
+    if (!projectId || !userId) {
+      throw new Error('Project ID and User ID are required');
     }
-    
+
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Fetch project details
     const { data: project, error: projectError } = await supabaseClient
       .from('user_projects')
       .select('*')
@@ -35,7 +35,6 @@ serve(async (req) => {
     if (projectError) throw projectError;
     if (!project) throw new Error('Project not found');
 
-    // Fetch questionnaire responses
     const { data: responses, error: responsesError } = await supabaseClient
       .from('questionnaire_responses')
       .select('*')
@@ -47,67 +46,30 @@ serve(async (req) => {
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openAIApiKey) throw new Error('OpenAI API key not configured');
 
-    const prompt = `As a backend architect, design a comprehensive backend structure for this project.
+    const prompt = `Design a backend architecture for this software project:
 
-Project Idea:
-${project.project_idea}
+Project Title: ${project.title}
+Project Description: ${project.description || 'Not provided'}
+Project Idea: ${project.project_idea || 'Not provided'}
 
-Project Context:
-${responses.map(r => `Q: ${r.question}\nA: ${r.answer}`).join('\n\n')}
+Context from questionnaire:
+${responses?.map(r => `Q: ${r.question}\nA: ${r.answer}`).join('\n\n') || 'No additional context provided'}
 
-Create a detailed backend architecture document with these sections:
+Please provide a comprehensive backend architecture document that includes:
+1. API Design & Endpoints
+2. Database Schema
+3. Authentication & Authorization
+4. Business Logic Layer
+5. Data Models
+6. Error Handling
+7. Service Architecture
+8. Security Measures
+9. Performance Considerations
 
-1. System Architecture
-   - Service architecture
-   - API design principles
-   - Data flow patterns
-   - System boundaries
-   - Integration points
+Format this as a clear, structured document with sections and diagrams described in text.`;
 
-2. API Structure
-   - Endpoint design
-   - Authentication/Authorization
-   - Rate limiting
-   - Error handling
-   - API versioning
+    console.log('Sending request to OpenAI...');
 
-3. Database Design
-   - Schema design
-   - Data models
-   - Relationships
-   - Indexing strategy
-   - Query optimization
-
-4. Security Architecture
-   - Authentication system
-   - Authorization framework
-   - Data encryption
-   - Security protocols
-   - Input validation
-
-5. Performance Considerations
-   - Caching strategy
-   - Load balancing
-   - Database optimization
-   - Resource management
-   - Scalability plans
-
-6. Integration Points
-   - Third-party services
-   - External APIs
-   - Message queues
-   - Event handling
-   - Webhooks
-
-For each section, provide:
-- Detailed implementation guidelines
-- Best practices
-- Security considerations
-- Scalability factors
-- Maintenance recommendations`;
-
-    console.log('Generating backend structure document...');
-    
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -117,12 +79,9 @@ For each section, provide:
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
-          { 
-            role: 'system', 
-            content: 'You are a senior backend architect. Create detailed, practical backend architecture documentation.' 
-          },
+          { role: 'system', content: 'You are a senior backend architect designing scalable and secure backend systems.' },
           { role: 'user', content: prompt }
-        ],
+        ]
       }),
     });
 
@@ -132,16 +91,16 @@ For each section, provide:
       throw new Error(`OpenAI API request failed: ${errorText}`);
     }
 
-    const aiResult = await response.json();
-    const documentContent = aiResult.choices[0].message.content;
+    const result = await response.json();
+    const content = result.choices[0].message.content;
 
-    console.log('Backend structure document generated successfully, saving to database...');
+    console.log('Saving document to database...');
 
     const { data: document, error: insertError } = await supabaseClient
       .from('generated_documents')
       .insert({
-        content: documentContent,
-        document_type: 'backend_architecture_and_api',
+        content,
+        document_type: 'Backend Structure Document',
         project_id: projectId,
         user_id: userId,
         status: 'completed'
@@ -151,7 +110,7 @@ For each section, provide:
 
     if (insertError) {
       console.error('Error saving document:', insertError);
-      throw new Error('Failed to save generated document');
+      throw insertError;
     }
 
     return new Response(
@@ -162,10 +121,10 @@ For each section, provide:
   } catch (error) {
     console.error('Error in generate-backend-structure function:', error);
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ error: error.message }),
       { 
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
     );
   }

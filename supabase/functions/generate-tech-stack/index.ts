@@ -14,14 +14,18 @@ serve(async (req) => {
   }
 
   try {
-    const { projectId } = await req.json();
-    
+    const { projectId, userId } = await req.json();
+    console.log('Function called with projectId:', projectId, 'userId:', userId);
+
+    if (!projectId || !userId) {
+      throw new Error('Project ID and User ID are required');
+    }
+
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Fetch project details
     const { data: project, error: projectError } = await supabaseClient
       .from('user_projects')
       .select('*')
@@ -31,7 +35,6 @@ serve(async (req) => {
     if (projectError) throw projectError;
     if (!project) throw new Error('Project not found');
 
-    // Fetch questionnaire responses
     const { data: responses, error: responsesError } = await supabaseClient
       .from('questionnaire_responses')
       .select('*')
@@ -39,55 +42,38 @@ serve(async (req) => {
       .order('question_order');
 
     if (responsesError) throw responsesError;
-    if (!responses) throw new Error('No questionnaire responses found');
 
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openAIApiKey) throw new Error('OpenAI API key not configured');
 
-    const prompt = `As a software architect, recommend a comprehensive technology stack for this project.
+    const prompt = `Recommend a comprehensive technology stack for this software project:
 
-Project Overview:
-${project.project_idea}
+Project Title: ${project.title}
+Project Description: ${project.description || 'Not provided'}
+Project Idea: ${project.project_idea || 'Not provided'}
 
-Project Context:
-${responses.map(r => `Q: ${r.question}\nA: ${r.answer}`).join('\n\n')}
+Context from questionnaire:
+${responses?.map(r => `Q: ${r.question}\nA: ${r.answer}`).join('\n\n') || 'No additional context provided'}
 
-Create a detailed technology stack recommendation document with these sections:
+Please provide a detailed technology stack recommendation that includes:
+1. Frontend Framework & Libraries
+2. Backend Technologies
+3. Database Solutions
+4. API Architecture
+5. DevOps & Deployment
+6. Testing Tools
+7. Performance Monitoring
+8. Security Tools
 
-1. Frontend Technology Stack
-   - Framework selection
-   - UI libraries
-   - State management
-   - Build tools
-   - Testing frameworks
+For each recommendation, provide:
+- Justification for the choice
+- Key features and benefits
+- Potential challenges and mitigation strategies
+- Alternative options considered
 
-2. Backend Technology Stack
-   - Programming language
-   - Framework selection
-   - API architecture
-   - Database selection
-   - Caching strategy
+Format this as a clear, structured document with sections and bullet points.`;
 
-3. Infrastructure
-   - Cloud platform
-   - Deployment strategy
-   - CI/CD pipeline
-   - Monitoring tools
-   - Security tools
-
-4. Development Tools
-   - Version control
-   - IDE recommendations
-   - Code quality tools
-   - Documentation tools
-   - Collaboration tools
-
-For each technology recommended, include:
-- Justification for selection
-- Pros and cons
-- Alternative options
-- Implementation considerations
-- Cost implications`;
+    console.log('Sending request to OpenAI...');
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -98,12 +84,9 @@ For each technology recommended, include:
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
-          { 
-            role: 'system', 
-            content: 'You are a senior software architect. Create detailed, practical technology recommendations.' 
-          },
+          { role: 'system', content: 'You are a senior software architect specializing in technology stack selection and architecture.' },
           { role: 'user', content: prompt }
-        ],
+        ]
       }),
     });
 
@@ -113,17 +96,18 @@ For each technology recommended, include:
       throw new Error(`OpenAI API request failed: ${errorText}`);
     }
 
-    const aiResult = await response.json();
-    const documentContent = aiResult.choices[0].message.content;
+    const result = await response.json();
+    const content = result.choices[0].message.content;
 
-    console.log('Tech stack document generated successfully, saving to database...');
+    console.log('Saving document to database...');
 
     const { data: document, error: insertError } = await supabaseClient
       .from('generated_documents')
       .insert({
-        content: documentContent,
-        document_type: 'tech_stack',
+        content,
+        document_type: 'Tech Stack Document',
         project_id: projectId,
+        user_id: userId,
         status: 'completed'
       })
       .select()
@@ -131,7 +115,7 @@ For each technology recommended, include:
 
     if (insertError) {
       console.error('Error saving document:', insertError);
-      throw new Error('Failed to save generated document');
+      throw insertError;
     }
 
     return new Response(
@@ -142,10 +126,10 @@ For each technology recommended, include:
   } catch (error) {
     console.error('Error in generate-tech-stack function:', error);
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ error: error.message }),
       { 
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
     );
   }

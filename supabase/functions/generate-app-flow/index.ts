@@ -1,6 +1,7 @@
+
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,18 +15,17 @@ serve(async (req) => {
 
   try {
     const { projectId, userId } = await req.json();
-    
-    if (!projectId) {
-      throw new Error('Project ID is required');
+    console.log('Function called with projectId:', projectId, 'userId:', userId);
+
+    if (!projectId || !userId) {
+      throw new Error('Project ID and User ID are required');
     }
 
-    // Initialize Supabase client with admin privileges
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Fetch project details and questionnaire responses
     const { data: project, error: projectError } = await supabaseClient
       .from('user_projects')
       .select('*')
@@ -43,66 +43,87 @@ serve(async (req) => {
 
     if (responsesError) throw responsesError;
 
-    // Prepare data for OpenAI
-    const systemPrompt = `You are an expert software architect and UX designer. Your task is to create a detailed app flow document that outlines the user journey and application flow based on the project requirements and questionnaire responses. Focus on:
-1. User journeys and interaction points
-2. Main application flows and navigation paths
-3. Key features and their interconnections
-4. User interface transitions and state changes
-5. Error handling and edge cases`;
+    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    if (!openAIApiKey) throw new Error('OpenAI API key not configured');
 
-    const userPrompt = `
-Project Idea: ${project.project_idea}
+    const prompt = `Create a detailed app flow document for this software project:
 
-Questionnaire Responses:
-${responses.map(r => `Q: ${r.question}\nA: ${r.answer}`).join('\n\n')}
+Project Title: ${project.title}
+Project Description: ${project.description || 'Not provided'}
+Project Idea: ${project.project_idea || 'Not provided'}
 
-Please provide a comprehensive app flow document based on this information. Structure your response in clear sections and use bullet points where appropriate.`;
+Context from questionnaire:
+${responses?.map(r => `Q: ${r.question}\nA: ${r.answer}`).join('\n\n') || 'No additional context provided'}
 
-    // Generate content using OpenAI
-    const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+Please provide a comprehensive app flow document that includes:
+1. User Journey Maps
+2. Key User Flows
+3. Screen-to-Screen Navigation
+4. State Management
+5. Data Flow
+6. Error Handling Flows
+7. Authentication Flows (if applicable)
+
+Format this as a clear, structured document with sections and diagrams described in text format.`;
+
+    console.log('Sending request to OpenAI...');
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+        'Authorization': `Bearer ${openAIApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
+          { role: 'system', content: 'You are a senior software architect specializing in user experience and application flows.' },
+          { role: 'user', content: prompt }
+        ]
       }),
     });
 
-    const openAIData = await openAIResponse.json();
-    const generatedContent = openAIData.choices[0].message.content;
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('OpenAI API Error:', errorText);
+      throw new Error(`OpenAI API request failed: ${errorText}`);
+    }
 
-    // Save the generated document
-    const { data: document, error: documentError } = await supabaseClient
+    const result = await response.json();
+    const content = result.choices[0].message.content;
+
+    console.log('Saving document to database...');
+
+    const { data: document, error: insertError } = await supabaseClient
       .from('generated_documents')
       .insert({
-        project_id: projectId,
+        content,
         document_type: 'App Flow Document',
-        content: generatedContent,
-        status: 'completed',
-        user_id: userId
+        project_id: projectId,
+        user_id: userId,
+        status: 'completed'
       })
       .select()
       .single();
 
-    if (documentError) throw documentError;
+    if (insertError) {
+      console.error('Error saving document:', insertError);
+      throw insertError;
+    }
 
     return new Response(
-      JSON.stringify({ success: true, data: document }), 
+      JSON.stringify({ success: true, document }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
     console.error('Error in generate-app-flow function:', error);
     return new Response(
-      JSON.stringify({ error: error.message }), 
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ error: error.message }),
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
     );
   }
 });

@@ -14,14 +14,18 @@ serve(async (req) => {
   }
 
   try {
-    const { projectId } = await req.json();
-    
+    const { projectId, userId } = await req.json();
+    console.log('Function called with projectId:', projectId, 'userId:', userId);
+
+    if (!projectId || !userId) {
+      throw new Error('Project ID and User ID are required');
+    }
+
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Fetch project details
     const { data: project, error: projectError } = await supabaseClient
       .from('user_projects')
       .select('*')
@@ -31,7 +35,6 @@ serve(async (req) => {
     if (projectError) throw projectError;
     if (!project) throw new Error('Project not found');
 
-    // Fetch questionnaire responses
     const { data: responses, error: responsesError } = await supabaseClient
       .from('questionnaire_responses')
       .select('*')
@@ -43,67 +46,29 @@ serve(async (req) => {
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openAIApiKey) throw new Error('OpenAI API key not configured');
 
-    const prompt = `As a software architect, create a comprehensive file structure and organization document for this project.
+    const prompt = `Create a file structure and organization guide for this software project:
 
-Project Idea:
-${project.project_idea}
+Project Title: ${project.title}
+Project Description: ${project.description || 'Not provided'}
+Project Idea: ${project.project_idea || 'Not provided'}
 
-Project Context:
-${responses.map(r => `Q: ${r.question}\nA: ${r.answer}`).join('\n\n')}
+Context from questionnaire:
+${responses?.map(r => `Q: ${r.question}\nA: ${r.answer}`).join('\n\n') || 'No additional context provided'}
 
-Create a detailed file structure document with these sections:
+Please provide a comprehensive file structure document that includes:
+1. Directory Organization
+2. File Naming Conventions
+3. Module Organization
+4. Component Structure
+5. Asset Management
+6. Configuration Files
+7. Testing File Structure
+8. Documentation Organization
 
-1. Project Root Structure
-   - Directory organization
-   - Configuration files
-   - Build files
-   - Documentation files
-   - Environment files
+Format this as a clear, structured document with examples and explanations.`;
 
-2. Source Code Organization
-   - Components structure
-   - Features organization
-   - Shared utilities
-   - Type definitions
-   - Assets management
+    console.log('Sending request to OpenAI...');
 
-3. Test File Structure
-   - Unit tests
-   - Integration tests
-   - E2E tests
-   - Test utilities
-   - Test data
-
-4. Documentation Structure
-   - API documentation
-   - Component documentation
-   - Setup guides
-   - Development guides
-   - Deployment guides
-
-5. Build and Deploy
-   - Build configuration
-   - Environment configs
-   - CI/CD files
-   - Docker files
-   - Deploy scripts
-
-6. Naming Conventions
-   - File naming
-   - Directory naming
-   - Component naming
-   - Test file naming
-   - Asset naming
-
-For each section, provide:
-- Detailed structure
-- Purpose of each directory
-- File naming conventions
-- Organization rules
-- Best practices`;
-
-    console.log('Generating file structure document...');
-    
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -113,12 +78,9 @@ For each section, provide:
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
-          { 
-            role: 'system', 
-            content: 'You are a software architect specializing in project organization and file structure. Create detailed, practical file structure documentation.' 
-          },
+          { role: 'system', content: 'You are a senior software architect creating file structure and organization guidelines.' },
           { role: 'user', content: prompt }
-        ],
+        ]
       }),
     });
 
@@ -128,17 +90,18 @@ For each section, provide:
       throw new Error(`OpenAI API request failed: ${errorText}`);
     }
 
-    const aiResult = await response.json();
-    const documentContent = aiResult.choices[0].message.content;
+    const result = await response.json();
+    const content = result.choices[0].message.content;
 
-    console.log('File structure document generated successfully, saving to database...');
+    console.log('Saving document to database...');
 
     const { data: document, error: insertError } = await supabaseClient
       .from('generated_documents')
       .insert({
-        content: documentContent,
-        document_type: 'file_structure',
+        content,
+        document_type: 'File Structure Document',
         project_id: projectId,
+        user_id: userId,
         status: 'completed'
       })
       .select()
@@ -146,7 +109,7 @@ For each section, provide:
 
     if (insertError) {
       console.error('Error saving document:', insertError);
-      throw new Error('Failed to save generated document');
+      throw insertError;
     }
 
     return new Response(
@@ -157,10 +120,10 @@ For each section, provide:
   } catch (error) {
     console.error('Error in generate-file-structure function:', error);
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ error: error.message }),
       { 
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
     );
   }
