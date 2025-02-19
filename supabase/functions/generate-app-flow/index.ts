@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
@@ -14,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { projectId } = await req.json();
+    const { projectId, userId } = await req.json();
     
     if (!projectId) {
       throw new Error('Project ID is required');
@@ -84,24 +83,26 @@ Please provide a comprehensive app flow document based on this information. Stru
       .from('generated_documents')
       .insert({
         project_id: projectId,
-        document_type: 'app_flow',
+        document_type: 'user_journey_and_app_flow',
         content: generatedContent,
-        status: 'completed'
+        status: 'completed',
+        user_id: userId
       })
       .select()
       .single();
 
     if (documentError) throw documentError;
 
-    return new Response(JSON.stringify({ success: true, data: document }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({ success: true, data: document }), 
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
 
   } catch (error) {
     console.error('Error in generate-app-flow function:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({ error: error.message }), 
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   }
 });
