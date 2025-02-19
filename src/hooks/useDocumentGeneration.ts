@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { DocumentType } from "@/types/documents";
+import { DocumentType, documentTypes } from "@/types/documents";
 
 export const useDocumentGeneration = (projectId: string) => {
   const [generatingDoc, setGeneratingDoc] = useState<string | null>(null);
