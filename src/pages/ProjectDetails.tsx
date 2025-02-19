@@ -1,10 +1,10 @@
-
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { FileText } from "lucide-react";
 
 type ProjectStatus = 'draft' | 'active' | 'completed' | 'archived';
 
@@ -94,6 +94,25 @@ const ProjectDetailsPage = () => {
     }
   };
 
+  const handleGenerateDocuments = () => {
+    if (project && questionnaireResponses.length > 0) {
+      const questions = questionnaireResponses.map(r => r.question);
+      const answers = questionnaireResponses.reduce((acc, r) => ({
+        ...acc,
+        [r.question]: r.answer
+      }), {});
+
+      navigate('/generate-documents', {
+        state: {
+          projectId: project.id,
+          appIdea: project.project_idea,
+          questions,
+          answers
+        }
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto p-6">
@@ -141,6 +160,17 @@ const ProjectDetailsPage = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-purple-900">{project.title}</h1>
+        <Button 
+          onClick={handleGenerateDocuments}
+          className="bg-purple-600 hover:bg-purple-700"
+        >
+          <FileText className="w-4 h-4 mr-2" />
+          Generate Documents
+        </Button>
+      </div>
+
       {/* Project Basic Info */}
       <Card>
         <CardHeader>
