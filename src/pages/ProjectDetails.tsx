@@ -1,48 +1,16 @@
+
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatDistanceToNow } from 'date-fns';
-import { FileText, ChevronLeft } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
-import type { Json } from '@/integrations/supabase/types';
+import { ProjectHeader } from "@/components/project/ProjectHeader";
+import { ProjectInfo } from "@/components/project/ProjectInfo";
+import { DocumentsList } from "@/components/project/DocumentsList";
+import type { ProjectDetails, DocumentDetails, ProjectSubmission } from '@/types/project';
+import { Card, CardContent } from "@/components/ui/card";
 
-interface ProjectDetails {
-  id: string;
-  title: string;
-  description: string | null;
-  created_at: string;
-  status: string | null;
-  submission_id: string | null;
-}
-
-interface DocumentDetails {
-  id: string;
-  document_type: string;
-  content: string;
-  created_at: string;
-  status: string;
-  submission_id: string | null;
-}
-
-interface ProjectSubmission {
-  id: string;
-  project_idea: string;
-  answers: Json;
-  core_features: string;
-  target_audience: string;
-  problem_solved: string;
-  tech_stack: string;
-  development_timeline: string;
-  monetization: string;
-  ai_integration: string;
-  technical_expertise: string;
-  scaling_expectation: string;
-}
-
-const ProjectDetails = () => {
+const ProjectDetailsPage = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -161,129 +129,15 @@ const ProjectDetails = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white py-8">
       <div className="container mx-auto px-4">
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/projects')}
-          className="mb-6"
-        >
-          <ChevronLeft className="mr-2 h-4 w-4" />
-          Back to Projects
-        </Button>
-
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold text-purple-900">{project?.title}</CardTitle>
-            <CardDescription>
-              Created {formatDistanceToNow(new Date(project?.created_at || ''))} ago
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600 whitespace-pre-wrap mb-6">{project?.description}</p>
-            
-            {submission && (
-              <div className="mt-6 space-y-4">
-                <h3 className="text-lg font-semibold text-purple-800">Project Details</h3>
-                <div className="grid gap-6 md:grid-cols-2">
-                  <div>
-                    <h4 className="font-medium text-gray-700">Project Idea</h4>
-                    <p className="text-gray-600">{submission.project_idea}</p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-700">Core Features</h4>
-                    <p className="text-gray-600">{submission.core_features}</p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-700">Target Audience</h4>
-                    <p className="text-gray-600">{submission.target_audience}</p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-700">Problem Solved</h4>
-                    <p className="text-gray-600">{submission.problem_solved}</p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-700">Tech Stack</h4>
-                    <p className="text-gray-600">{submission.tech_stack}</p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-700">Development Timeline</h4>
-                    <p className="text-gray-600">{submission.development_timeline}</p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-700">Monetization Strategy</h4>
-                    <p className="text-gray-600">{submission.monetization}</p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-700">AI Integration</h4>
-                    <p className="text-gray-600">{submission.ai_integration}</p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-700">Technical Expertise</h4>
-                    <p className="text-gray-600">{submission.technical_expertise}</p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-700">Scaling Expectations</h4>
-                    <p className="text-gray-600">{submission.scaling_expectation}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <div className="mb-6 flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-purple-900">Generated Documents</h2>
-          <Button 
-            onClick={handleGenerateDocuments} 
-            className="bg-purple-600 hover:bg-purple-700 text-white"
-          >
-            Generate Documents
-          </Button>
-        </div>
-
-        <div className="grid gap-4">
-          {documents.length === 0 ? (
-            <Card>
-              <CardContent className="py-12">
-                <div className="text-center">
-                  <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Documents Yet</h3>
-                  <p className="text-gray-600 mb-4">Start generating documents for your project!</p>
-                  <Button 
-                    onClick={handleGenerateDocuments} 
-                    className="bg-purple-600 hover:bg-purple-700 text-white"
-                  >
-                    Generate Documents
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            documents.map((doc) => (
-              <Card key={doc.id} className="hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <CardTitle className="text-lg font-semibold text-purple-900">
-                    {doc.document_type.split('_')
-                      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                      .join(' ')}
-                  </CardTitle>
-                  <CardDescription>
-                    Generated {formatDistanceToNow(new Date(doc.created_at))} ago
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="prose max-w-none">
-                    {doc.content.split('\n').map((paragraph, index) => (
-                      <p key={index} className="text-gray-600 mb-2">{paragraph}</p>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
+        <ProjectHeader />
+        <ProjectInfo project={project} submission={submission} />
+        <DocumentsList 
+          documents={documents} 
+          onGenerateClick={handleGenerateDocuments}
+        />
       </div>
     </div>
   );
 };
 
-export default ProjectDetails;
+export default ProjectDetailsPage;
