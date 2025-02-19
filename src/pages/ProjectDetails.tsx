@@ -30,7 +30,7 @@ interface DocumentDetails {
 interface ProjectSubmission {
   id: string;
   project_idea: string;
-  answers: Json;
+  answers: Record<string, any>;
   core_features: string;
   target_audience: string;
   problem_solved: string;
@@ -61,7 +61,7 @@ const ProjectDetails = () => {
     if (!projectId) return;
     
     try {
-      // First, get the project which contains the submission_id
+      // First, get the project details including submission_id
       const { data: projectData, error: projectError } = await supabase
         .from('user_projects')
         .select('*')
@@ -74,17 +74,32 @@ const ProjectDetails = () => {
       }
       
       setProject(projectData);
+      console.log('Project data:', projectData); // Debug log
 
       // Then, if we have a submission_id, get the submission details
       if (projectData.submission_id) {
         const { data: submissionData, error: submissionError } = await supabase
           .from('project_submissions')
-          .select('*')
+          .select(`
+            id,
+            project_idea,
+            answers,
+            core_features,
+            target_audience,
+            problem_solved,
+            tech_stack,
+            development_timeline,
+            monetization,
+            ai_integration,
+            technical_expertise,
+            scaling_expectation
+          `)
           .eq('id', projectData.submission_id)
           .maybeSingle();
 
         if (submissionError) throw submissionError;
         if (submissionData) {
+          console.log('Submission data:', submissionData); // Debug log
           setSubmission(submissionData);
 
           // Finally, get documents associated with this submission
@@ -111,7 +126,7 @@ const ProjectDetails = () => {
     }
   };
 
-  const handleGenerateMore = () => {
+  const handleGenerateDocuments = () => {
     if (!submission) {
       toast({
         title: "Error",
@@ -239,8 +254,11 @@ const ProjectDetails = () => {
 
         <div className="mb-6 flex justify-between items-center">
           <h2 className="text-xl font-semibold text-purple-900">Generated Documents</h2>
-          <Button onClick={handleGenerateMore} className="bg-purple-600 hover:bg-purple-700">
-            Generate More Documents
+          <Button 
+            onClick={handleGenerateDocuments} 
+            className="bg-purple-600 hover:bg-purple-700"
+          >
+            Generate Documents
           </Button>
         </div>
 
@@ -252,7 +270,10 @@ const ProjectDetails = () => {
                   <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">No Documents Yet</h3>
                   <p className="text-gray-600 mb-4">Start generating documents for your project!</p>
-                  <Button onClick={handleGenerateMore} className="bg-purple-600 hover:bg-purple-700">
+                  <Button 
+                    onClick={handleGenerateDocuments} 
+                    className="bg-purple-600 hover:bg-purple-700"
+                  >
                     Generate Documents
                   </Button>
                 </div>
