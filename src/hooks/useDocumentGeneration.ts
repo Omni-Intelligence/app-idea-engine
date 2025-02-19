@@ -21,28 +21,27 @@ export const useDocumentGeneration = (projectId: string) => {
 
     setGeneratingDoc(docType.id);
     try {
-      const functionName = `generate_${docType.id.replace('-', '_')}`;
+      console.log('Starting document generation for:', docType.id);
+      const functionName = `generate_${docType.id}`;
       
       console.log('Calling edge function:', functionName, {
         projectId
       });
 
-      const { data: generatedDoc, error } = await supabase.functions.invoke(functionName, {
-        body: {
-          projectId
-        },
+      const { data, error } = await supabase.functions.invoke(functionName, {
+        body: { projectId }
       });
+
+      console.log('Edge function response:', { data, error });
 
       if (error) {
         console.error('Edge function error:', error);
         throw error;
       }
 
-      if (!generatedDoc) {
-        throw new Error('No document generated');
+      if (!data?.document) {
+        throw new Error('No document data in response');
       }
-
-      console.log('Generated document:', generatedDoc);
 
       toast({
         title: "Success",
@@ -53,9 +52,15 @@ export const useDocumentGeneration = (projectId: string) => {
 
     } catch (error: any) {
       console.error('Error generating document:', error);
+      
+      let errorMessage = 'Failed to generate document. Please try again.';
+      if (error.message) {
+        errorMessage = `Error: ${error.message}`;
+      }
+      
       toast({
         title: "Error",
-        description: error.message || "Failed to generate document. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
