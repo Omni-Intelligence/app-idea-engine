@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Lightbulb, FileText } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const industries = [
   "Healthcare",
@@ -60,6 +61,7 @@ const Index = () => {
   const [idea, setIdea] = useState("");
   const [selectedIndustry, setSelectedIndustry] = useState<string>("");
   const [selectedFunction, setSelectedFunction] = useState<string>("");
+  const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -78,6 +80,38 @@ const Index = () => {
     navigate('/questionnaire', { state: { appIdea: idea } });
   };
 
+  const generateOutlineFromTemplate = async (template: string) => {
+    setIsGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-app-outline', {
+        body: {
+          template,
+          industry: selectedIndustry,
+          businessFunction: selectedFunction,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.outline) {
+        setIdea(data.outline);
+        toast({
+          title: "Success",
+          description: "Generated app outline from template! Feel free to modify it.",
+        });
+      }
+    } catch (error) {
+      console.error('Error generating outline:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate outline. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const getTemplatesForSelection = () => {
     if (!selectedIndustry && !selectedFunction) return null;
 
@@ -88,7 +122,7 @@ const Index = () => {
         <ul className="space-y-2">
           {templates.map((template, index) => (
             <li key={index} className="p-3 bg-purple-50 rounded-lg hover:bg-purple-100 cursor-pointer transition-colors"
-                onClick={() => setIdea(template)}>
+                onClick={() => generateOutlineFromTemplate(template)}>
               {template}
             </li>
           ))}
@@ -128,6 +162,7 @@ const Index = () => {
                     onChange={(e) => setIdea(e.target.value)}
                     placeholder="Describe your app idea here..."
                     className="min-h-[150px] text-base"
+                    disabled={isGenerating}
                   />
                 </div>
 
@@ -135,6 +170,7 @@ const Index = () => {
                   <Button 
                     type="submit"
                     className="bg-purple-600 hover:bg-purple-700 w-full sm:w-1/2"
+                    disabled={isGenerating}
                   >
                     Submit Idea
                   </Button>
@@ -145,6 +181,7 @@ const Index = () => {
                           type="button"
                           variant="outline"
                           className="flex items-center gap-2"
+                          disabled={isGenerating}
                         >
                           <Lightbulb className="w-4 h-4" />
                           Need inspiration?
@@ -202,6 +239,7 @@ const Index = () => {
                           type="button"
                           variant="outline"
                           className="flex items-center gap-2"
+                          disabled={isGenerating}
                         >
                           <FileText className="w-4 h-4" />
                           Templates
@@ -217,12 +255,10 @@ const Index = () => {
                               <div 
                                 key={template}
                                 className="p-4 border rounded-lg hover:bg-purple-50 cursor-pointer transition-colors"
-                                onClick={() => {
-                                  setIdea(`I want to build a ${template.toLowerCase()} that...`);
-                                }}
+                                onClick={() => generateOutlineFromTemplate(template)}
                               >
                                 <h3 className="font-medium text-purple-900 mb-2">{template}</h3>
-                                <p className="text-sm text-gray-600">Click to use this template as a starting point.</p>
+                                <p className="text-sm text-gray-600">Click to generate a detailed outline.</p>
                               </div>
                             ))}
                           </div>
