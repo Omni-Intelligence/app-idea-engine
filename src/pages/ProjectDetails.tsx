@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
@@ -30,7 +29,7 @@ interface DocumentDetails {
 interface ProjectSubmission {
   id: string;
   project_idea: string;
-  answers: Record<string, any>; // Changed from Record<string, string> to handle JSON
+  answers: Record<string, any>;
   core_features: string;
   target_audience: string;
   problem_solved: string;
@@ -57,50 +56,43 @@ const ProjectDetails = () => {
     if (!projectId) return;
     
     try {
-      // Fetch project details including submission_id
+      // First, get the project which contains the submission_id
       const { data: projectData, error: projectError } = await supabase
         .from('user_projects')
-        .select('id, title, description, created_at, status, submission_id')
+        .select('*')
         .eq('id', projectId)
-        .single();
+        .maybeSingle();
 
       if (projectError) throw projectError;
+      if (!projectData) {
+        throw new Error('Project not found');
+      }
+      
       setProject(projectData);
 
-      // Only fetch submission if we have a submission_id
+      // Then, if we have a submission_id, get the submission details
       if (projectData.submission_id) {
         const { data: submissionData, error: submissionError } = await supabase
           .from('project_submissions')
           .select('*')
           .eq('id', projectData.submission_id)
-          .single();
+          .maybeSingle();
 
-        if (submissionError && submissionError.code !== 'PGRST116') throw submissionError;
+        if (submissionError) throw submissionError;
         if (submissionData) {
-          // Ensure type safety by transforming the data
-          const transformedSubmission: ProjectSubmission = {
-            id: submissionData.id,
-            project_idea: submissionData.project_idea,
-            answers: submissionData.answers as Record<string, any>,
-            core_features: submissionData.core_features,
-            target_audience: submissionData.target_audience,
-            problem_solved: submissionData.problem_solved,
-            tech_stack: submissionData.tech_stack,
-            development_timeline: submissionData.development_timeline
-          };
-          setSubmission(transformedSubmission);
+          setSubmission(submissionData);
+
+          // Finally, get documents associated with this submission
+          const { data: documentsData, error: documentsError } = await supabase
+            .from('generated_documents')
+            .select('*')
+            .eq('submission_id', projectData.submission_id)
+            .order('created_at', { ascending: false });
+
+          if (documentsError) throw documentsError;
+          setDocuments(documentsData || []);
         }
       }
-
-      // Fetch generated documents
-      const { data: documentsData, error: documentsError } = await supabase
-        .from('generated_documents')
-        .select('*')
-        .eq('submission_id', projectId)
-        .order('created_at', { ascending: false });
-
-      if (documentsError) throw documentsError;
-      setDocuments(documentsData || []);
 
     } catch (error: any) {
       console.error('Error fetching project details:', error);
@@ -126,7 +118,7 @@ const ProjectDetails = () => {
 
     navigate('/generate-documents', { 
       state: { 
-        projectId,
+        projectId: submission.id,
         appIdea: submission.project_idea,
         questions: Object.keys(submission.answers),
         answers: submission.answers
