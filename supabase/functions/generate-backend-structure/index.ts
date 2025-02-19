@@ -14,7 +14,11 @@ serve(async (req) => {
   }
 
   try {
-    const { projectId } = await req.json();
+    const { projectId, userId } = await req.json();
+    
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
     
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -137,8 +141,9 @@ For each section, provide:
       .from('generated_documents')
       .insert({
         content: documentContent,
-        document_type: 'backend_structure',
+        document_type: 'backend_architecture_and_api',
         project_id: projectId,
+        user_id: userId,
         status: 'completed'
       })
       .select()

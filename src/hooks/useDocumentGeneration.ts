@@ -22,10 +22,41 @@ export const useDocumentGeneration = (projectId: string) => {
     setGeneratingDoc(docType.id);
     
     try {
-      const functionName = docType.id === 'app_flow' ? 'generate-app-flow' : 'generate_requirements';
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Authentication required');
+      
+      let functionName = '';
+      switch(docType.id) {
+        case 'user_journey_and_app_flow':
+          functionName = 'generate-app-flow';
+          break;
+        case 'detailed_project_requirements':
+          functionName = 'generate_requirements';
+          break;
+        case 'recommended_technology_stack':
+          functionName = 'generate-tech-stack';
+          break;
+        case 'frontend_development_guidelines':
+          functionName = 'generate-frontend-guidelines';
+          break;
+        case 'backend_architecture_and_api':
+          functionName = 'generate-backend-structure';
+          break;
+        case 'project_file_organization':
+          functionName = 'generate-file-structure';
+          break;
+        case 'project_implementation_plan':
+          functionName = 'generate-implementation-plan';
+          break;
+        default:
+          throw new Error('Invalid document type');
+      }
       
       const { data, error } = await supabase.functions.invoke(functionName, {
-        body: { projectId }
+        body: { 
+          projectId,
+          userId: user.id 
+        }
       });
 
       if (error) throw error;
