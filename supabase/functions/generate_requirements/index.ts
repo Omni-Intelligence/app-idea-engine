@@ -2,11 +2,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { OPENAI_CONFIG, corsHeaders } from "../_shared/openai-config.ts";
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -21,13 +17,11 @@ serve(async (req) => {
       throw new Error('Project ID and User ID are required');
     }
 
-    // Initialize Supabase client
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Fetch project details
     const { data: project, error: projectError } = await supabaseClient
       .from('user_projects')
       .select('*')
@@ -37,7 +31,6 @@ serve(async (req) => {
     if (projectError) throw projectError;
     if (!project) throw new Error('Project not found');
 
-    // Fetch questionnaire responses
     const { data: responses, error: responsesError } = await supabaseClient
       .from('questionnaire_responses')
       .select('*')
@@ -75,12 +68,12 @@ Format this as a clear, structured document with sections and bullet points wher
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
+        ...OPENAI_CONFIG.headers,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: OPENAI_CONFIG.model,
         messages: [
-          { role: 'system', content: 'You are a senior software requirements specialist. Create detailed, practical requirements documentation.' },
+          { role: 'system', content: OPENAI_CONFIG.defaultSystemPrompt },
           { role: 'user', content: prompt }
         ]
       }),
@@ -97,7 +90,6 @@ Format this as a clear, structured document with sections and bullet points wher
 
     console.log('Saving document to database...');
 
-    // Save the generated document
     const { data: document, error: insertError } = await supabaseClient
       .from('generated_documents')
       .insert({
