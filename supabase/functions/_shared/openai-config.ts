@@ -1,6 +1,6 @@
 
 export const OPENAI_CONFIG = {
-  model: 'gpt-4o-mini',
+  model: 'o3-mini',
   headers: {
     'Content-Type': 'application/json',
   },
