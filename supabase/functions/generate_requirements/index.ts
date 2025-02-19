@@ -97,14 +97,14 @@ Format this as a clear, structured document with sections and bullet points wher
 
     console.log('Saving document to database...');
 
-    // Save the generated document with user_id
+    // Save the generated document
     const { data: document, error: insertError } = await supabaseClient
       .from('generated_documents')
       .insert({
-        content,
-        document_type: 'Project Requirements Document',
         project_id: projectId,
         user_id: userId,
+        document_type: 'Project Requirements Document',
+        content: content,
         status: 'completed'
       })
       .select()
@@ -123,7 +123,10 @@ Format this as a clear, structured document with sections and bullet points wher
   } catch (error) {
     console.error('Error in generate_requirements function:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        success: false, 
+        error: error.message 
+      }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
