@@ -3,30 +3,13 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
-
-type ProjectStatus = 'draft' | 'active' | 'completed' | 'archived';
-
-interface ProjectData {
-  id: string;
-  title: string;
-  description: string | null;
-  status: ProjectStatus | null;
-  created_at: string;
-  updated_at: string;
-  project_idea: string | null;
-  user_id: string;
-}
-
-interface GeneratedDocument {
-  id: string;
-  content: string;
-  document_type: string;
-  status: string;
-  created_at: string;
-}
+import { ProjectData, QuestionnaireResponse, GeneratedDocument } from "@/types/project-details";
+import { GeneratedDocuments } from "@/components/project/GeneratedDocuments";
+import { ProjectDetailsCard } from "@/components/project/ProjectDetailsCard";
+import { QuestionnaireResponses } from "@/components/project/QuestionnaireResponses";
 
 const ProjectDetailsPage = () => {
   const { projectId } = useParams();
@@ -35,11 +18,7 @@ const ProjectDetailsPage = () => {
   const [loading, setLoading] = useState(true);
   const [project, setProject] = useState<ProjectData | null>(null);
   const [documents, setDocuments] = useState<GeneratedDocument[]>([]);
-  const [questionnaireResponses, setQuestionnaireResponses] = useState<Array<{
-    question: string;
-    answer: string;
-    question_order: number;
-  }>>([]);
+  const [questionnaireResponses, setQuestionnaireResponses] = useState<QuestionnaireResponse[]>([]);
 
   useEffect(() => {
     if (projectId) {
@@ -51,7 +30,6 @@ const ProjectDetailsPage = () => {
     if (!projectId) return;
     
     try {
-      // Fetch project details
       const { data: projectData, error: projectError } = await supabase
         .from('user_projects')
         .select('*')
@@ -71,7 +49,6 @@ const ProjectDetailsPage = () => {
 
       setProject(projectData);
 
-      // Fetch questionnaire responses
       const { data: responsesData, error: responsesError } = await supabase
         .from('questionnaire_responses')
         .select('*')
@@ -81,7 +58,6 @@ const ProjectDetailsPage = () => {
       if (responsesError) throw responsesError;
       setQuestionnaireResponses(responsesData || []);
 
-      // Fetch generated documents
       const { data: documentsData, error: documentsError } = await supabase
         .from('generated_documents')
         .select('*')
@@ -152,21 +128,6 @@ const ProjectDetailsPage = () => {
     );
   }
 
-  const getStatusColor = (status: ProjectStatus | null) => {
-    switch (status) {
-      case 'draft':
-        return 'text-yellow-600';
-      case 'active':
-        return 'text-green-600';
-      case 'completed':
-        return 'text-blue-600';
-      case 'archived':
-        return 'text-gray-600';
-      default:
-        return 'text-gray-600';
-    }
-  };
-
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
@@ -180,75 +141,9 @@ const ProjectDetailsPage = () => {
         </Button>
       </div>
 
-      {/* Generated Documents */}
-      {documents.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Generated Documents</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {documents.map((doc) => (
-              <div key={doc.id} className="p-4 border rounded-lg">
-                <h3 className="font-semibold mb-2 text-purple-900 capitalize">
-                  {doc.document_type.replace('_', ' ')}
-                </h3>
-                <div className="whitespace-pre-wrap bg-gray-50 p-4 rounded-md text-sm">
-                  {doc.content}
-                </div>
-                <div className="text-xs text-gray-500 mt-2">
-                  Generated on {new Date(doc.created_at).toLocaleString()}
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Project Basic Info */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Project Details</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <h3 className="font-semibold">Title</h3>
-            <p>{project.title}</p>
-          </div>
-          <div>
-            <h3 className="font-semibold">Description</h3>
-            <p>{project.description || 'No description provided'}</p>
-          </div>
-          <div>
-            <h3 className="font-semibold">Status</h3>
-            <p className={getStatusColor(project.status)}>
-              {project.status ? project.status.charAt(0).toUpperCase() + project.status.slice(1) : 'No status set'}
-            </p>
-          </div>
-          <div>
-            <h3 className="font-semibold">Created At</h3>
-            <p>{new Date(project.created_at).toLocaleString()}</p>
-          </div>
-          <div>
-            <h3 className="font-semibold">Last Updated</h3>
-            <p>{new Date(project.updated_at).toLocaleString()}</p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Questionnaire Responses */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Project Information</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {questionnaireResponses.map((response, index) => (
-            <div key={index}>
-              <h3 className="font-semibold">{response.question}</h3>
-              <p>{response.answer || 'Not specified'}</p>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
+      <GeneratedDocuments documents={documents} />
+      <ProjectDetailsCard project={project} />
+      <QuestionnaireResponses responses={questionnaireResponses} />
     </div>
   );
 };
