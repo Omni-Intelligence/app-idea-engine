@@ -23,7 +23,14 @@ export const useDocumentGeneration = (projectId: string) => {
     
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Authentication required');
+      if (!user) {
+        toast({
+          title: "Authentication Required",
+          description: "Please sign in to generate documents.",
+          variant: "destructive",
+        });
+        return;
+      }
       
       let functionName = '';
       switch(docType.id) {
@@ -55,7 +62,7 @@ export const useDocumentGeneration = (projectId: string) => {
       const { data, error } = await supabase.functions.invoke(functionName, {
         body: { 
           projectId,
-          userId: user.id 
+          userId: user.id  // Explicitly passing userId to all functions
         }
       });
 
@@ -70,7 +77,7 @@ export const useDocumentGeneration = (projectId: string) => {
       navigate(`/project/${projectId}`);
       
     } catch (error: any) {
-      console.error('Error:', error);
+      console.error('Error generating document:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to generate document",
