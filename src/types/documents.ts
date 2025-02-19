@@ -24,7 +24,7 @@ export const documentTypes: DocumentType[] = [
     id: "app_flow",
     title: "App Flow Document",
     description: "User journey and application flow documentation",
-    available: false
+    available: true // Changed to true
   },
   {
     id: "tech_stack",

@@ -22,7 +22,9 @@ export const useDocumentGeneration = (projectId: string) => {
     setGeneratingDoc(docType.id);
     
     try {
-      const { data, error } = await supabase.functions.invoke('generate_requirements', {
+      const functionName = docType.id === 'app_flow' ? 'generate-app-flow' : 'generate_requirements';
+      
+      const { data, error } = await supabase.functions.invoke(functionName, {
         body: { projectId }
       });
 
