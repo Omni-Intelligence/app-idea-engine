@@ -16,15 +16,7 @@ interface ProjectData {
   created_at: string;
   updated_at: string;
   project_idea: string | null;
-  core_features: string | null;
-  target_audience: string | null;
-  problem_solved: string | null;
-  tech_stack: string | null;
-  development_timeline: string | null;
-  monetization: string | null;
-  ai_integration: string | null;
-  technical_expertise: string | null;
-  scaling_expectation: string | null;
+  user_id: string;
 }
 
 const ProjectDetailsPage = () => {
@@ -33,6 +25,11 @@ const ProjectDetailsPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [project, setProject] = useState<ProjectData | null>(null);
+  const [questionnaireResponses, setQuestionnaireResponses] = useState<Array<{
+    question: string;
+    answer: string;
+    question_order: number;
+  }>>([]);
 
   useEffect(() => {
     if (projectId) {
@@ -46,11 +43,12 @@ const ProjectDetailsPage = () => {
     try {
       console.log('Fetching project with ID:', projectId);
       
+      // Fetch project details
       const { data: projectData, error: projectError } = await supabase
         .from('user_projects')
         .select('*')
         .eq('id', projectId)
-        .maybeSingle();
+        .single();
 
       if (projectError) {
         console.error('Project fetch error:', projectError);
@@ -68,8 +66,21 @@ const ProjectDetailsPage = () => {
         return;
       }
 
-      console.log('Project data:', projectData);
       setProject(projectData);
+
+      // Fetch questionnaire responses
+      const { data: responsesData, error: responsesError } = await supabase
+        .from('questionnaire_responses')
+        .select('*')
+        .eq('project_id', projectId)
+        .order('question_order');
+
+      if (responsesError) {
+        console.error('Responses fetch error:', responsesError);
+        throw responsesError;
+      }
+
+      setQuestionnaireResponses(responsesData || []);
       
     } catch (error: any) {
       console.error('Error in fetchProjectDetails:', error);
@@ -146,7 +157,7 @@ const ProjectDetailsPage = () => {
           </div>
           <div>
             <h3 className="font-semibold">Status</h3>
-            <p className={getStatusColor(project.status as ProjectStatus)}>
+            <p className={getStatusColor(project.status)}>
               {project.status ? project.status.charAt(0).toUpperCase() + project.status.slice(1) : 'No status set'}
             </p>
           </div>
@@ -161,52 +172,18 @@ const ProjectDetailsPage = () => {
         </CardContent>
       </Card>
 
-      {/* Project Details */}
+      {/* Questionnaire Responses */}
       <Card>
         <CardHeader>
           <CardTitle>Project Information</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div>
-            <h3 className="font-semibold">Project Idea</h3>
-            <p>{project.project_idea || 'Not specified'}</p>
-          </div>
-          <div>
-            <h3 className="font-semibold">Core Features</h3>
-            <p>{project.core_features || 'Not specified'}</p>
-          </div>
-          <div>
-            <h3 className="font-semibold">Target Audience</h3>
-            <p>{project.target_audience || 'Not specified'}</p>
-          </div>
-          <div>
-            <h3 className="font-semibold">Problem Solved</h3>
-            <p>{project.problem_solved || 'Not specified'}</p>
-          </div>
-          <div>
-            <h3 className="font-semibold">Tech Stack</h3>
-            <p>{project.tech_stack || 'Not specified'}</p>
-          </div>
-          <div>
-            <h3 className="font-semibold">Development Timeline</h3>
-            <p>{project.development_timeline || 'Not specified'}</p>
-          </div>
-          <div>
-            <h3 className="font-semibold">Monetization Strategy</h3>
-            <p>{project.monetization || 'Not specified'}</p>
-          </div>
-          <div>
-            <h3 className="font-semibold">AI Integration</h3>
-            <p>{project.ai_integration || 'Not specified'}</p>
-          </div>
-          <div>
-            <h3 className="font-semibold">Technical Expertise</h3>
-            <p>{project.technical_expertise || 'Not specified'}</p>
-          </div>
-          <div>
-            <h3 className="font-semibold">Scaling Expectations</h3>
-            <p>{project.scaling_expectation || 'Not specified'}</p>
-          </div>
+          {questionnaireResponses.map((response, index) => (
+            <div key={index}>
+              <h3 className="font-semibold">{response.question}</h3>
+              <p>{response.answer || 'Not specified'}</p>
+            </div>
+          ))}
         </CardContent>
       </Card>
     </div>

@@ -14,43 +14,100 @@ serve(async (req) => {
   }
 
   try {
-    const { appIdea, questions, answers, projectId } = await req.json();
+    const { projectId } = await req.json();
     
-    if (!appIdea || !questions || !answers || !projectId) {
-      throw new Error('Missing required parameters');
-    }
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    // Fetch project details
+    const { data: project, error: projectError } = await supabaseClient
+      .from('user_projects')
+      .select('*')
+      .eq('id', projectId)
+      .single();
+
+    if (projectError) throw projectError;
+    if (!project) throw new Error('Project not found');
+
+    // Fetch questionnaire responses
+    const { data: responses, error: responsesError } = await supabaseClient
+      .from('questionnaire_responses')
+      .select('*')
+      .eq('project_id', projectId)
+      .order('question_order');
+
+    if (responsesError) throw responsesError;
+    if (!responses) throw new Error('No questionnaire responses found');
+
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    if (!openAIApiKey) throw new Error('OpenAI API key not configured');
 
-    if (!supabaseUrl || !supabaseKey || !openAIApiKey) {
-      throw new Error('Missing required environment variables');
-    }
+    // Create a comprehensive prompt using all project data
+    const prompt = `As a software requirements specialist, create a detailed requirements document for this software project.
 
-    const supabaseClient = createClient(supabaseUrl, supabaseKey);
+Project Overview:
+${project.project_idea}
 
-    console.log('Starting requirements generation for project:', projectId);
+Project Context:
+${responses.map(r => `Q: ${r.question}\nA: ${r.answer}`).join('\n\n')}
 
-    const prompt = `As a senior business analyst, create a comprehensive software requirements specification (SRS) document for this project.
+Create a comprehensive requirements document with these sections:
 
-Project Idea:
-${appIdea}
+1. Project Overview
+   - Project description
+   - Business objectives
+   - Project scope
+   - Key stakeholders
 
-Requirements Gathering Session:
-${questions.map((q: string, i: number) => `Q: ${q}\nA: ${answers[i]}`).join('\n\n')}
+2. Functional Requirements
+   - Core features
+   - User stories
+   - Use cases
+   - Business rules
+   - Workflows
 
-Create a detailed SRS document with these sections:
-1. Executive Summary
-2. Project Overview
-3. Functional Requirements
-4. Non-Functional Requirements
-5. User Stories
-6. System Constraints
-7. Assumptions and Dependencies
-8. Success Criteria`;
+3. Non-Functional Requirements
+   - Performance requirements
+   - Security requirements
+   - Scalability requirements
+   - Reliability requirements
+   - Usability requirements
 
-    console.log('Calling OpenAI API...');
+4. Technical Requirements
+   - System architecture
+   - Integration requirements
+   - Data requirements
+   - Infrastructure requirements
+
+5. User Interface Requirements
+   - Design guidelines
+   - Navigation requirements
+   - Accessibility requirements
+   - Responsive design requirements
+
+6. Security Requirements
+   - Authentication
+   - Authorization
+   - Data protection
+   - Compliance requirements
+
+7. Implementation Considerations
+   - Development approach
+   - Testing requirements
+   - Deployment requirements
+   - Maintenance requirements
+
+8. Project Constraints
+   - Technical constraints
+   - Business constraints
+   - Timeline constraints
+   - Budget constraints
+
+Format this as a clear, actionable document that will guide the development team in implementing the project successfully.`;
+
+    console.log('Generating requirements document...');
     
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -59,16 +116,14 @@ Create a detailed SRS document with these sections:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o',
         messages: [
           { 
             role: 'system', 
-            content: 'You are an experienced business analyst specializing in software requirements documentation. Generate clear, detailed, and actionable requirements documents.' 
+            content: 'You are a software requirements specialist. Create detailed, practical requirements documentation.' 
           },
           { role: 'user', content: prompt }
         ],
-        temperature: 0.7,
-        max_tokens: 2000,
       }),
     });
 
@@ -79,60 +134,25 @@ Create a detailed SRS document with these sections:
     }
 
     const aiResult = await response.json();
-    if (!aiResult.choices?.[0]?.message?.content) {
-      throw new Error('Invalid response from OpenAI API');
-    }
-
     const documentContent = aiResult.choices[0].message.content;
-    console.log('Successfully generated requirements document');
 
-    // First, check if a document already exists
-    const { data: existingDoc, error: checkError } = await supabaseClient
+    console.log('Requirements document generated successfully, saving to database...');
+
+    const { data: document, error: insertError } = await supabaseClient
       .from('generated_documents')
-      .select('id')
-      .eq('submission_id', projectId)
-      .eq('document_type', 'requirements')
+      .insert({
+        content: documentContent,
+        document_type: 'requirements',
+        project_id: projectId,
+        status: 'completed'
+      })
+      .select()
       .single();
 
-    if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is the "not found" error code
-      console.error('Error checking existing document:', checkError);
-      throw checkError;
+    if (insertError) {
+      console.error('Error saving document:', insertError);
+      throw new Error('Failed to save generated document');
     }
-
-    let document;
-    if (existingDoc) {
-      // Update existing document
-      const { data, error: updateError } = await supabaseClient
-        .from('generated_documents')
-        .update({
-          content: documentContent,
-          status: 'completed',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', existingDoc.id)
-        .select()
-        .single();
-
-      if (updateError) throw updateError;
-      document = data;
-    } else {
-      // Insert new document
-      const { data, error: insertError } = await supabaseClient
-        .from('generated_documents')
-        .insert({
-          content: documentContent,
-          document_type: 'requirements',
-          submission_id: projectId,
-          status: 'completed',
-        })
-        .select()
-        .single();
-
-      if (insertError) throw insertError;
-      document = data;
-    }
-
-    console.log('Successfully saved document to database');
 
     return new Response(
       JSON.stringify({ success: true, document }),
@@ -142,10 +162,7 @@ Create a detailed SRS document with these sections:
   } catch (error) {
     console.error('Error in generate-requirements function:', error);
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: error instanceof Error ? error.message : 'An unknown error occurred'
-      }),
+      JSON.stringify({ success: false, error: error.message }),
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }

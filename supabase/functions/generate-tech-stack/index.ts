@@ -14,96 +14,110 @@ serve(async (req) => {
   }
 
   try {
-    const { appIdea, questions, answers, projectId } = await req.json();
+    const { projectId } = await req.json();
     
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
+    // Fetch project details
+    const { data: project, error: projectError } = await supabaseClient
+      .from('user_projects')
+      .select('*')
+      .eq('id', projectId)
+      .single();
+
+    if (projectError) throw projectError;
+    if (!project) throw new Error('Project not found');
+
+    // Fetch questionnaire responses
+    const { data: responses, error: responsesError } = await supabaseClient
+      .from('questionnaire_responses')
+      .select('*')
+      .eq('project_id', projectId)
+      .order('question_order');
+
+    if (responsesError) throw responsesError;
+    if (!responses) throw new Error('No questionnaire responses found');
+
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-    if (!openAIApiKey) {
-      throw new Error('OpenAI API key not configured');
-    }
+    if (!openAIApiKey) throw new Error('OpenAI API key not configured');
 
-    const prompt = `As a technical architect with expertise in modern software development, create a comprehensive technology stack recommendation document for this project.
+    const prompt = `As a software architect, recommend a comprehensive technology stack for this project.
 
-Project Idea:
-${appIdea}
+Project Overview:
+${project.project_idea}
 
-Project Requirements:
-${questions.map((q, i) => `Q: ${q}\nA: ${answers[i]}`).join('\n\n')}
+Project Context:
+${responses.map(r => `Q: ${r.question}\nA: ${r.answer}`).join('\n\n')}
 
-Create a detailed technology stack document with these sections:
+Create a detailed technology stack recommendation document with these sections:
 
-1. Executive Summary
-   - Project overview
-   - Key technical requirements
-   - Stack overview
-   - Implementation timeline
-
-2. Frontend Technology Stack
+1. Frontend Technology Stack
    - Framework selection
    - UI libraries
    - State management
    - Build tools
-   - Testing framework
-   - Performance optimization tools
+   - Testing frameworks
 
-3. Backend Technology Stack
+2. Backend Technology Stack
    - Programming language
    - Framework selection
    - API architecture
-   - Authentication system
-   - Background job processing
+   - Database selection
    - Caching strategy
 
-4. Database Architecture
-   - Database type(s)
-   - Data modeling
-   - Scaling strategy
-   - Backup solutions
-   - Data migration plan
-
-5. DevOps & Infrastructure
-   - Cloud provider
+3. Infrastructure
+   - Cloud platform
    - Deployment strategy
    - CI/CD pipeline
    - Monitoring tools
-   - Logging system
-   - Security measures
+   - Security tools
 
-6. Third-Party Services
-   - External APIs
-   - Analytics tools
+4. Development Tools
+   - Version control
+   - IDE recommendations
+   - Code quality tools
+   - Documentation tools
+   - Collaboration tools
+
+5. Third-party Services
+   - Authentication
+   - Analytics
    - Payment processing
-   - Email service
+   - Email/Messaging
    - File storage
-   - Other integrations
+
+6. Performance Optimization
+   - Caching solutions
+   - CDN setup
+   - Database optimization
+   - Asset optimization
+   - Load balancing
 
 7. Security Considerations
    - Authentication methods
-   - Authorization strategy
+   - Authorization framework
    - Data encryption
    - API security
-   - Compliance requirements
+   - Compliance tools
 
-8. Scalability & Performance
-   - Caching strategies
-   - Load balancing
+8. Scalability Strategy
+   - Horizontal scaling
+   - Vertical scaling
    - Database scaling
-   - CDN implementation
-   - Performance monitoring
+   - Caching strategy
+   - Load distribution
 
-For each technology choice, include:
-- Justification
+For each technology recommended, include:
+- Justification for selection
 - Pros and cons
+- Alternative options
+- Implementation considerations
 - Cost implications
-- Learning curve
-- Community support
-- Long-term viability
 
-Format this as a comprehensive technical document that will guide the development team in implementing the solution.`;
+Format this as a comprehensive guide that will help the development team make informed technology choices.`;
 
     console.log('Generating tech stack document...');
     
@@ -118,7 +132,7 @@ Format this as a comprehensive technical document that will guide the developmen
         messages: [
           { 
             role: 'system', 
-            content: 'You are a technical architect specializing in modern software architecture. Create detailed, practical technology stack recommendations.' 
+            content: 'You are a software architect specializing in technology stack selection. Create detailed, practical technology recommendations.' 
           },
           { role: 'user', content: prompt }
         ],
