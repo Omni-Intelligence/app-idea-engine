@@ -141,9 +141,9 @@ const ProjectDetailsPage = () => {
         </Button>
       </div>
 
-      <GeneratedDocuments documents={documents} />
       <ProjectDetailsCard project={project} />
       <QuestionnaireResponses responses={questionnaireResponses} />
+      <GeneratedDocuments documents={documents} />
     </div>
   );
 };
