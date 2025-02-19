@@ -32,15 +32,27 @@ export const useQuestionnaireSubmission = () => {
         processedAnswers[key] = Array.isArray(value) ? value.join(', ') : String(value);
       });
 
+      // Create project data with required fields
+      const projectData = {
+        user_id: user.id,
+        title: processedAnswers[0]?.substring(0, 100) || 'Untitled Project', // Use first answer as title or fallback
+        description: processedAnswers[0] || null, // Use first answer as description
+        status: 'draft' as const,
+        project_idea: processedAnswers[0] || null,
+        core_features: processedAnswers[1] || null,
+        target_audience: processedAnswers[2] || null,
+        problem_solved: processedAnswers[3] || null,
+        tech_stack: processedAnswers[4] || null,
+        development_timeline: processedAnswers[5] || null,
+        monetization: processedAnswers[6] || null,
+        ai_integration: processedAnswers[7] || null,
+        technical_expertise: processedAnswers[8] || null,
+        scaling_expectation: processedAnswers[9] || null
+      };
+
       const { data: project, error: projectError } = await supabase
         .from('user_projects')
-        .insert([
-          {
-            user_id: user.id,
-            status: 'draft',
-            ...processedAnswers
-          }
-        ])
+        .insert(projectData)
         .select()
         .single();
 
