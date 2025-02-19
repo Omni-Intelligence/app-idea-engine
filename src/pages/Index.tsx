@@ -2,11 +2,65 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Lightbulb } from "lucide-react";
+
+const industries = [
+  "Healthcare",
+  "Education",
+  "Finance",
+  "Retail",
+  "Manufacturing",
+  "Technology",
+  "Real Estate",
+  "Transportation",
+  "Hospitality",
+];
+
+const businessFunctions = [
+  "Sales",
+  "Marketing",
+  "Human Resources",
+  "Operations",
+  "Customer Service",
+  "Finance",
+  "IT",
+  "Research & Development",
+];
+
+const appTemplates = {
+  "Healthcare": [
+    "Patient Appointment Scheduler",
+    "Medical Records Management",
+    "Telemedicine Platform",
+  ],
+  "Education": [
+    "Learning Management System",
+    "Student Progress Tracker",
+    "Virtual Classroom Platform",
+  ],
+  // ... add more templates for other industries
+};
 
 const Index = () => {
   const [idea, setIdea] = useState("");
+  const [selectedIndustry, setSelectedIndustry] = useState<string>("");
+  const [selectedFunction, setSelectedFunction] = useState<string>("");
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -23,6 +77,25 @@ const Index = () => {
     }
 
     navigate('/questionnaire', { state: { appIdea: idea } });
+  };
+
+  const getTemplatesForSelection = () => {
+    if (!selectedIndustry && !selectedFunction) return null;
+
+    const templates = appTemplates[selectedIndustry as keyof typeof appTemplates] || [];
+    return (
+      <div className="mt-4 space-y-2">
+        <h3 className="font-medium text-purple-900">Suggested App Ideas:</h3>
+        <ul className="space-y-2">
+          {templates.map((template, index) => (
+            <li key={index} className="p-3 bg-purple-50 rounded-lg hover:bg-purple-100 cursor-pointer transition-colors"
+                onClick={() => setIdea(template)}>
+              {template}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
   };
 
   return (
@@ -42,25 +115,88 @@ const Index = () => {
                 <div>
                   <label 
                     htmlFor="idea" 
-                    className="block text-sm font-medium text-gray-700 mb-2 text-left"
+                    className="block text-lg font-medium text-gray-700 mb-2 text-left"
                   >
-                    Describe your app idea
+                    What do you want to build?
                   </label>
-                  <Input
+                  <p className="text-sm text-gray-600 mb-4 text-left">
+                    Please be as detailed as possible about all the key aspects of your application. 
+                    The more specific you are, the more useful the documents will be for outlining your app.
+                  </p>
+                  <Textarea
                     id="idea"
                     value={idea}
                     onChange={(e) => setIdea(e.target.value)}
-                    placeholder="Enter your app idea here..."
-                    className="h-32 py-2 resize-none"
+                    placeholder="Describe your app idea here..."
+                    className="min-h-[150px] text-base"
                   />
                 </div>
-                
-                <Button 
-                  type="submit"
-                  className="w-full bg-purple-600 hover:bg-purple-700"
-                >
-                  Submit Idea
-                </Button>
+
+                <div className="flex items-center justify-between">
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="flex items-center gap-2"
+                      >
+                        <Lightbulb className="w-4 h-4" />
+                        Need inspiration?
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle>Find App Ideas</DialogTitle>
+                      </DialogHeader>
+                      <div className="grid gap-4 py-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Select Industry</label>
+                          <Select
+                            value={selectedIndustry}
+                            onValueChange={setSelectedIndustry}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Choose an industry" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {industries.map((industry) => (
+                                <SelectItem key={industry} value={industry}>
+                                  {industry}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Select Business Function</label>
+                          <Select
+                            value={selectedFunction}
+                            onValueChange={setSelectedFunction}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Choose a function" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {businessFunctions.map((func) => (
+                                <SelectItem key={func} value={func}>
+                                  {func}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        {getTemplatesForSelection()}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
+                  <Button 
+                    type="submit"
+                    className="bg-purple-600 hover:bg-purple-700"
+                  >
+                    Submit Idea
+                  </Button>
+                </div>
               </form>
             </div>
           </div>
