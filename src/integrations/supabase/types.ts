@@ -83,7 +83,7 @@ export type Database = {
           problem_solved: string | null
           project_idea: string | null
           scaling_expectation: string | null
-          status: string | null
+          status: Database["public"]["Enums"]["project_status"] | null
           target_audience: string | null
           tech_stack: string | null
           technical_expertise: string | null
@@ -102,7 +102,7 @@ export type Database = {
           problem_solved?: string | null
           project_idea?: string | null
           scaling_expectation?: string | null
-          status?: string | null
+          status?: Database["public"]["Enums"]["project_status"] | null
           target_audience?: string | null
           tech_stack?: string | null
           technical_expertise?: string | null
@@ -121,7 +121,7 @@ export type Database = {
           problem_solved?: string | null
           project_idea?: string | null
           scaling_expectation?: string | null
-          status?: string | null
+          status?: Database["public"]["Enums"]["project_status"] | null
           target_audience?: string | null
           tech_stack?: string | null
           technical_expertise?: string | null
@@ -139,7 +139,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      project_status: "draft" | "active" | "completed" | "archived"
     }
     CompositeTypes: {
       [_ in never]: never

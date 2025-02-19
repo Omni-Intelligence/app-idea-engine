@@ -1,15 +1,18 @@
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+
+type ProjectStatus = 'draft' | 'active' | 'completed' | 'archived';
 
 interface ProjectData {
   id: string;
   title: string;
   description: string | null;
-  status: string | null;
+  status: ProjectStatus | null;
   created_at: string;
   updated_at: string;
   project_idea: string | null;
@@ -27,6 +30,7 @@ interface ProjectData {
 const ProjectDetailsPage = () => {
   const { projectId } = useParams();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [project, setProject] = useState<ProjectData | null>(null);
 
@@ -57,9 +61,10 @@ const ProjectDetailsPage = () => {
         console.log('No project found with ID:', projectId);
         toast({
           title: "Project not found",
-          description: "Could not find the requested project.",
+          description: "This project may have been deleted or you may not have access to it.",
           variant: "destructive",
         });
+        navigate('/projects');
         return;
       }
 
@@ -79,20 +84,49 @@ const ProjectDetailsPage = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!project) {
     return (
-      <div className="p-4">
+      <div className="container mx-auto p-6">
         <Card>
           <CardContent className="p-6">
-            <p className="text-center text-gray-600">Project not found</p>
+            <p className="text-center text-gray-600">Loading project details...</p>
           </CardContent>
         </Card>
       </div>
     );
   }
+
+  if (!project) {
+    return (
+      <div className="container mx-auto p-6">
+        <Card>
+          <CardContent className="p-6 text-center space-y-4">
+            <p className="text-gray-600">Project not found</p>
+            <Button 
+              onClick={() => navigate('/projects')}
+              variant="outline"
+            >
+              Return to Projects
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const getStatusColor = (status: ProjectStatus | null) => {
+    switch (status) {
+      case 'draft':
+        return 'text-yellow-600';
+      case 'active':
+        return 'text-green-600';
+      case 'completed':
+        return 'text-blue-600';
+      case 'archived':
+        return 'text-gray-600';
+      default:
+        return 'text-gray-600';
+    }
+  };
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -112,7 +146,9 @@ const ProjectDetailsPage = () => {
           </div>
           <div>
             <h3 className="font-semibold">Status</h3>
-            <p>{project.status || 'No status set'}</p>
+            <p className={getStatusColor(project.status as ProjectStatus)}>
+              {project.status ? project.status.charAt(0).toUpperCase() + project.status.slice(1) : 'No status set'}
+            </p>
           </div>
           <div>
             <h3 className="font-semibold">Created At</h3>
