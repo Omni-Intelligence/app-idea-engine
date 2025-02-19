@@ -3,13 +3,15 @@ import { useState } from "react";
 import { GeneratedDocument } from "@/types/project-details";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Copy } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface GeneratedDocumentsProps {
   documents: GeneratedDocument[];
 }
 
 export const GeneratedDocuments = ({ documents }: GeneratedDocumentsProps) => {
+  const { toast } = useToast();
   const [expandedDocs, setExpandedDocs] = useState<Record<string, boolean>>({});
 
   if (!documents.length) return null;
@@ -28,6 +30,23 @@ export const GeneratedDocuments = ({ documents }: GeneratedDocumentsProps) => {
     return plainText.slice(0, 200);
   };
 
+  const copyToClipboard = async (content: string, documentType: string) => {
+    try {
+      await navigator.clipboard.writeText(content);
+      toast({
+        title: "Copied!",
+        description: `${documentType} has been copied to clipboard`,
+        duration: 2000,
+      });
+    } catch (err) {
+      toast({
+        title: "Failed to copy",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -35,8 +54,17 @@ export const GeneratedDocuments = ({ documents }: GeneratedDocumentsProps) => {
       </CardHeader>
       <CardContent className="space-y-4">
         {documents.map((doc) => (
-          <div key={doc.id} className="p-4 border rounded-lg">
-            <h3 className="font-semibold mb-2 text-purple-900 capitalize">
+          <div key={doc.id} className="p-4 border rounded-lg relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => copyToClipboard(doc.content, doc.document_type)}
+              className="absolute top-4 right-4 h-8 w-8"
+              title="Copy to clipboard"
+            >
+              <Copy className="h-4 w-4" />
+            </Button>
+            <h3 className="font-semibold mb-2 text-purple-900 capitalize pr-12">
               {doc.document_type.replace('_', ' ')}
             </h3>
             <div className="space-y-2">
