@@ -52,34 +52,35 @@ const QuestionnaireConfirmation = () => {
         throw new Error('No authenticated user found');
       }
 
-      // Create a user project with the questionnaire data
+      // Create project and save responses
       const { data: project, error: projectError } = await supabase
         .from('user_projects')
         .insert({
           user_id: user.id,
-          title: appIdea.substring(0, 100), // Take first 100 chars as title
+          title: appIdea.substring(0, 100),
           description: appIdea,
           project_idea: appIdea,
-          status: 'draft',
-          // Map specific answers to their corresponding fields
-          core_features: answers[0] || null,
-          target_audience: answers[1] || null,
-          problem_solved: answers[2] || null,
-          tech_stack: answers[3] || null,
-          development_timeline: answers[4] || null,
-          monetization: answers[5] || null,
-          ai_integration: answers[6] || null,
-          technical_expertise: answers[7] || null,
-          scaling_expectation: answers[8] || null
+          status: 'draft'
         })
         .select()
         .single();
 
       if (projectError) throw projectError;
+      if (!project) throw new Error('Failed to create project');
 
-      if (!project) {
-        throw new Error('Failed to create project');
-      }
+      // Save questionnaire responses
+      const questionResponses = questions.map((question, index) => ({
+        project_id: project.id,
+        question,
+        answer: answers[index] || '',
+        question_order: index
+      }));
+
+      const { error: responsesError } = await supabase
+        .from('questionnaire_responses')
+        .insert(questionResponses);
+
+      if (responsesError) throw responsesError;
 
       toast({
         title: "Success",

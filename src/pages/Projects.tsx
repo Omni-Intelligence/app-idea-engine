@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -16,15 +15,6 @@ interface Project {
   created_at: string;
   status: 'draft' | 'active' | 'completed' | 'archived';
   project_idea: string | null;
-  core_features: string | null;
-  target_audience: string | null;
-  problem_solved: string | null;
-  tech_stack: string | null;
-  development_timeline: string | null;
-  monetization: string | null;
-  ai_integration: string | null;
-  technical_expertise: string | null;
-  scaling_expectation: string | null;
   user_id: string;
 }
 

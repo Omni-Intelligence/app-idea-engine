@@ -71,60 +71,71 @@ export type Database = {
         }
         Relationships: []
       }
+      questionnaire_responses: {
+        Row: {
+          answer: string | null
+          created_at: string
+          id: string
+          project_id: string
+          question: string
+          question_order: number
+          updated_at: string
+        }
+        Insert: {
+          answer?: string | null
+          created_at?: string
+          id?: string
+          project_id: string
+          question: string
+          question_order: number
+          updated_at?: string
+        }
+        Update: {
+          answer?: string | null
+          created_at?: string
+          id?: string
+          project_id?: string
+          question?: string
+          question_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "questionnaire_responses_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "user_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_projects: {
         Row: {
-          ai_integration: string | null
-          core_features: string | null
           created_at: string
           description: string | null
-          development_timeline: string | null
           id: string
-          monetization: string | null
-          problem_solved: string | null
           project_idea: string | null
-          scaling_expectation: string | null
           status: Database["public"]["Enums"]["project_status"] | null
-          target_audience: string | null
-          tech_stack: string | null
-          technical_expertise: string | null
           title: string
           updated_at: string
           user_id: string
         }
         Insert: {
-          ai_integration?: string | null
-          core_features?: string | null
           created_at?: string
           description?: string | null
-          development_timeline?: string | null
           id?: string
-          monetization?: string | null
-          problem_solved?: string | null
           project_idea?: string | null
-          scaling_expectation?: string | null
           status?: Database["public"]["Enums"]["project_status"] | null
-          target_audience?: string | null
-          tech_stack?: string | null
-          technical_expertise?: string | null
           title: string
           updated_at?: string
           user_id: string
         }
         Update: {
-          ai_integration?: string | null
-          core_features?: string | null
           created_at?: string
           description?: string | null
-          development_timeline?: string | null
           id?: string
-          monetization?: string | null
-          problem_solved?: string | null
           project_idea?: string | null
-          scaling_expectation?: string | null
           status?: Database["public"]["Enums"]["project_status"] | null
-          target_audience?: string | null
-          tech_stack?: string | null
-          technical_expertise?: string | null
           title?: string
           updated_at?: string
           user_id?: string

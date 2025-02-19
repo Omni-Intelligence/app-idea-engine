@@ -13,7 +13,7 @@ export const useQuestionnaireSubmission = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const handleSubmit = async (answers: Record<string | number, string | string[]>) => {
+  const handleSubmit = async (answers: Record<string | number, string | string[]>, questions: string[]) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -26,41 +26,45 @@ export const useQuestionnaireSubmission = () => {
         return;
       }
 
-      // Convert all answers to strings
-      const processedAnswers: SubmissionAnswers = {};
-      Object.entries(answers).forEach(([key, value]) => {
-        processedAnswers[key] = Array.isArray(value) ? value.join(', ') : String(value);
-      });
+      // Process the first answer as the project idea/title
+      const firstAnswer = Array.isArray(answers[0]) ? answers[0].join(', ') : String(answers[0]);
 
-      // Create project data with required fields
-      const projectData = {
-        user_id: user.id,
-        title: processedAnswers[0]?.substring(0, 100) || 'Untitled Project', // Use first answer as title or fallback
-        description: processedAnswers[0] || null, // Use first answer as description
-        status: 'draft' as const,
-        project_idea: processedAnswers[0] || null,
-        core_features: processedAnswers[1] || null,
-        target_audience: processedAnswers[2] || null,
-        problem_solved: processedAnswers[3] || null,
-        tech_stack: processedAnswers[4] || null,
-        development_timeline: processedAnswers[5] || null,
-        monetization: processedAnswers[6] || null,
-        ai_integration: processedAnswers[7] || null,
-        technical_expertise: processedAnswers[8] || null,
-        scaling_expectation: processedAnswers[9] || null
-      };
-
+      // Create the project first
       const { data: project, error: projectError } = await supabase
         .from('user_projects')
-        .insert(projectData)
+        .insert({
+          user_id: user.id,
+          title: firstAnswer.substring(0, 100),
+          description: firstAnswer,
+          project_idea: firstAnswer,
+          status: 'draft'
+        })
         .select()
         .single();
 
       if (projectError) throw projectError;
+      if (!project) throw new Error('Failed to create project');
 
-      if (!project) {
-        throw new Error('Failed to create project');
-      }
+      // Create questionnaire responses
+      const questionResponses = questions.map((question, index) => ({
+        project_id: project.id,
+        question,
+        answer: Array.isArray(answers[index]) 
+          ? answers[index].join(', ') 
+          : String(answers[index] || ''),
+        question_order: index
+      }));
+
+      const { error: responsesError } = await supabase
+        .from('questionnaire_responses')
+        .insert(questionResponses);
+
+      if (responsesError) throw responsesError;
+
+      toast({
+        title: "Success",
+        description: "Project created successfully!",
+      });
 
       navigate(`/project/${project.id}`);
       return project.id;
