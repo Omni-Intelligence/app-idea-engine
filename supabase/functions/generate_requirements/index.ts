@@ -14,8 +14,12 @@ serve(async (req) => {
   }
 
   try {
-    const { projectId } = await req.json();
-    console.log('Function called with projectId:', projectId);
+    const { projectId, userId } = await req.json();
+    console.log('Function called with projectId:', projectId, 'userId:', userId);
+
+    if (!projectId || !userId) {
+      throw new Error('Project ID and User ID are required');
+    }
 
     // Initialize Supabase client
     const supabaseClient = createClient(
@@ -43,7 +47,7 @@ serve(async (req) => {
     if (responsesError) throw responsesError;
 
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-    if (!openAIApiKey) throw new Error('OpenAI API key not found');
+    if (!openAIApiKey) throw new Error('OpenAI API key not configured');
 
     const prompt = `Generate a detailed software requirements document for this project:
 
@@ -65,6 +69,8 @@ Please provide a comprehensive requirements document that includes:
 
 Format this as a clear, structured document with sections and bullet points where appropriate.`;
 
+    console.log('Sending request to OpenAI...');
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -80,22 +86,34 @@ Format this as a clear, structured document with sections and bullet points wher
       }),
     });
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('OpenAI API Error:', errorText);
+      throw new Error(`OpenAI API request failed: ${errorText}`);
+    }
+
     const result = await response.json();
     const content = result.choices[0].message.content;
 
-    // Save the generated document
+    console.log('Saving document to database...');
+
+    // Save the generated document with user_id
     const { data: document, error: insertError } = await supabaseClient
       .from('generated_documents')
       .insert({
         content,
-        document_type: 'requirements',
+        document_type: 'Project Requirements Document',
         project_id: projectId,
+        user_id: userId,
         status: 'completed'
       })
       .select()
       .single();
 
-    if (insertError) throw insertError;
+    if (insertError) {
+      console.error('Error saving document:', insertError);
+      throw insertError;
+    }
 
     return new Response(
       JSON.stringify({ success: true, document }),
@@ -103,7 +121,7 @@ Format this as a clear, structured document with sections and bullet points wher
     );
 
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error in generate_requirements function:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
