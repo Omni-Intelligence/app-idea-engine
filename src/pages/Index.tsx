@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -63,6 +62,8 @@ const Index = () => {
   const [selectedIndustry, setSelectedIndustry] = useState<string>("");
   const [selectedFunction, setSelectedFunction] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isGeneratingIdeas, setIsGeneratingIdeas] = useState(false);
+  const [generatedIdeas, setGeneratedIdeas] = useState<string[]>([]);
   const [inspirationOpen, setInspirationOpen] = useState(false);
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const { toast } = useToast();
@@ -81,6 +82,42 @@ const Index = () => {
     }
 
     navigate('/questionnaire', { state: { appIdea: idea } });
+  };
+
+  const generateAppIdeas = async () => {
+    if (!selectedIndustry || !selectedFunction) {
+      toast({
+        title: "Selection Required",
+        description: "Please select both an industry and a business function.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsGeneratingIdeas(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-app-ideas', {
+        body: {
+          industry: selectedIndustry,
+          businessFunction: selectedFunction,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.ideas) {
+        setGeneratedIdeas(data.ideas);
+      }
+    } catch (error) {
+      console.error('Error generating ideas:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate ideas. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingIdeas(false);
+    }
   };
 
   const generateOutlineFromTemplate = async (template: string) => {
@@ -121,18 +158,61 @@ const Index = () => {
   const getTemplatesForSelection = () => {
     if (!selectedIndustry && !selectedFunction) return null;
 
-    const templates = appTemplates[selectedIndustry as keyof typeof appTemplates] || [];
     return (
-      <div className="mt-4 space-y-2">
-        <h3 className="font-medium text-purple-900">Suggested App Ideas:</h3>
-        <ul className="space-y-2">
-          {templates.map((template, index) => (
-            <li key={index} className="p-3 bg-purple-50 rounded-lg hover:bg-purple-100 cursor-pointer transition-colors"
-                onClick={() => generateOutlineFromTemplate(template)}>
-              {template}
-            </li>
-          ))}
-        </ul>
+      <div className="mt-4 space-y-4">
+        <div className="flex justify-between items-center">
+          <h3 className="font-medium text-purple-900">Generate Custom Ideas</h3>
+          <Button 
+            size="sm"
+            onClick={generateAppIdeas}
+            disabled={isGeneratingIdeas || !selectedIndustry || !selectedFunction}
+            className="bg-purple-600 hover:bg-purple-700"
+          >
+            {isGeneratingIdeas ? (
+              <div className="flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Generating...</span>
+              </div>
+            ) : (
+              "Generate Ideas"
+            )}
+          </Button>
+        </div>
+        
+        {isGeneratingIdeas ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="w-6 h-6 animate-spin text-purple-600" />
+          </div>
+        ) : generatedIdeas.length > 0 ? (
+          <ul className="space-y-2">
+            {generatedIdeas.map((idea, index) => (
+              <li 
+                key={index}
+                className="p-3 bg-purple-50 rounded-lg hover:bg-purple-100 cursor-pointer transition-colors"
+                onClick={() => generateOutlineFromTemplate(idea)}
+              >
+                {idea}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+
+        {appTemplates[selectedIndustry as keyof typeof appTemplates] && (
+          <div className="mt-6">
+            <h3 className="font-medium text-purple-900 mb-2">Pre-made Templates:</h3>
+            <ul className="space-y-2">
+              {appTemplates[selectedIndustry as keyof typeof appTemplates].map((template, index) => (
+                <li 
+                  key={index}
+                  className="p-3 bg-purple-50 rounded-lg hover:bg-purple-100 cursor-pointer transition-colors"
+                  onClick={() => generateOutlineFromTemplate(template)}
+                >
+                  {template}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     );
   };
