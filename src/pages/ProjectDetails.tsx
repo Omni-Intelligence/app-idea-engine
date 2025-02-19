@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistanceToNow } from 'date-fns';
 import { FileText, ChevronLeft } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
+import type { Json } from '@/integrations/supabase/types';
 
 interface ProjectDetails {
   id: string;
@@ -30,7 +31,7 @@ interface DocumentDetails {
 interface ProjectSubmission {
   id: string;
   project_idea: string;
-  answers: Record<string, any>;
+  answers: Record<string, Json>;
   core_features: string;
   target_audience: string;
   problem_solved: string;
