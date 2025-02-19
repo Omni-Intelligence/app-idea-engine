@@ -1,1 +1,5 @@
+
 project_id = "mrleaafljzzyorivozpm"
+
+[functions.generate_requirements]
+verify_jwt = false
