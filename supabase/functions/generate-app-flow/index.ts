@@ -83,7 +83,7 @@ Please provide a comprehensive app flow document based on this information. Stru
       .from('generated_documents')
       .insert({
         project_id: projectId,
-        document_type: 'user_journey_and_app_flow',
+        document_type: 'App Flow Document',
         content: generatedContent,
         status: 'completed',
         user_id: userId

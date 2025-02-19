@@ -15,43 +15,43 @@ export type DocumentType = {
 
 export const documentTypes: DocumentType[] = [
   {
-    id: "detailed_project_requirements",
+    id: "Project Requirements Document",
     title: "Project Requirements Document",
     description: "Detailed requirements specification based on your project idea",
     available: true
   },
   {
-    id: "user_journey_and_app_flow",
+    id: "App Flow Document",
     title: "App Flow Document",
     description: "User journey and application flow documentation",
     available: true
   },
   {
-    id: "recommended_technology_stack",
+    id: "Tech Stack Document",
     title: "Tech Stack Document",
     description: "Recommended technology stack and architecture",
     available: true
   },
   {
-    id: "frontend_development_guidelines",
+    id: "Frontend Guidelines Document",
     title: "Frontend Guidelines Document",
     description: "Frontend development standards and best practices",
     available: true
   },
   {
-    id: "backend_architecture_and_api",
+    id: "Backend Structure Document",
     title: "Backend Structure Document",
     description: "Backend architecture and API design",
     available: true
   },
   {
-    id: "project_file_organization",
+    id: "File Structure Document",
     title: "File Structure Document",
     description: "Project file organization and naming conventions",
     available: true
   },
   {
-    id: "project_implementation_plan",
+    id: "Implementation Plan",
     title: "Implementation Plan",
     description: "Step-by-step development and deployment plan",
     available: true

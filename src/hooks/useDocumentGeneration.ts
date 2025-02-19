@@ -27,25 +27,25 @@ export const useDocumentGeneration = (projectId: string) => {
       
       let functionName = '';
       switch(docType.id) {
-        case 'user_journey_and_app_flow':
+        case 'App Flow Document':
           functionName = 'generate-app-flow';
           break;
-        case 'detailed_project_requirements':
+        case 'Project Requirements Document':
           functionName = 'generate_requirements';
           break;
-        case 'recommended_technology_stack':
+        case 'Tech Stack Document':
           functionName = 'generate-tech-stack';
           break;
-        case 'frontend_development_guidelines':
+        case 'Frontend Guidelines Document':
           functionName = 'generate-frontend-guidelines';
           break;
-        case 'backend_architecture_and_api':
+        case 'Backend Structure Document':
           functionName = 'generate-backend-structure';
           break;
-        case 'project_file_organization':
+        case 'File Structure Document':
           functionName = 'generate-file-structure';
           break;
-        case 'project_implementation_plan':
+        case 'Implementation Plan':
           functionName = 'generate-implementation-plan';
           break;
         default:
