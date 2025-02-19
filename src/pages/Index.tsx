@@ -248,7 +248,7 @@ const Index = () => {
                       value={idea}
                       onChange={(e) => setIdea(e.target.value)}
                       placeholder="Describe your app idea here..."
-                      className="min-h-[150px] text-base"
+                      className="min-h-[250px] text-base"
                       disabled={isGenerating}
                     />
                     {isGenerating && (
@@ -283,7 +283,7 @@ const Index = () => {
                           Need inspiration?
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="sm:max-w-[425px]">
+                      <DialogContent className="sm:max-w-[550px] max-h-[80vh] overflow-y-auto">
                         <DialogHeader>
                           <DialogTitle>Find App Ideas</DialogTitle>
                         </DialogHeader>
