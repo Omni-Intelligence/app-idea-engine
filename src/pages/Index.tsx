@@ -69,7 +69,7 @@ const Index = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!idea.trim()) {
@@ -81,7 +81,65 @@ const Index = () => {
       return;
     }
 
-    navigate('/questionnaire', { state: { appIdea: idea } });
+    setIsGenerating(true);
+    try {
+      // Generate title from description
+      const { data: titleData, error: titleError } = await supabase.functions.invoke('generate-title', {
+        body: { description: idea },
+      });
+
+      if (titleError) throw titleError;
+      if (!titleData?.title) throw new Error('Failed to generate title');
+
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "Please sign in to save your project",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Save to user_projects
+      const { data: project, error: projectError } = await supabase
+        .from('user_projects')
+        .insert({
+          title: titleData.title,
+          description: idea,
+          project_idea: idea,
+          user_id: user.id,
+          status: 'draft'
+        })
+        .select()
+        .single();
+
+      if (projectError) throw projectError;
+
+      toast({
+        title: "Success",
+        description: "Your project has been saved!",
+      });
+
+      // Navigate to questionnaire with the project data
+      navigate('/questionnaire', { 
+        state: { 
+          appIdea: idea,
+          projectId: project.id 
+        } 
+      });
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save your project. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const generateAppIdeas = async () => {
