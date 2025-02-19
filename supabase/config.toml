@@ -3,3 +3,6 @@ project_id = "mrleaafljzzyorivozpm"
 
 [functions.generate_requirements]
 verify_jwt = false
+
+[functions.generate-app-flow]
+verify_jwt = false
