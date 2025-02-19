@@ -7,6 +7,7 @@ import { DocumentType } from "@/types/documents";
 
 export const useDocumentGeneration = (projectId: string) => {
   const [generatingDoc, setGeneratingDoc] = useState<string | null>(null);
+  const [isGeneratingAll, setIsGeneratingAll] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -62,7 +63,7 @@ export const useDocumentGeneration = (projectId: string) => {
       const { data, error } = await supabase.functions.invoke(functionName, {
         body: { 
           projectId,
-          userId: user.id  // Explicitly passing userId to all functions
+          userId: user.id
         }
       });
 
@@ -71,25 +72,71 @@ export const useDocumentGeneration = (projectId: string) => {
 
       toast({
         title: "Success",
-        description: "Document has been generated!",
+        description: `${docType.title} has been generated!`,
       });
 
-      navigate(`/project/${projectId}`);
-      
+      return true;
     } catch (error: any) {
       console.error('Error generating document:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to generate document",
+        description: `Failed to generate ${docType.title}: ${error.message}`,
         variant: "destructive",
       });
+      return false;
     } finally {
       setGeneratingDoc(null);
     }
   };
 
+  const generateAllDocuments = async () => {
+    if (isGeneratingAll) return;
+    
+    setIsGeneratingAll(true);
+    let success = true;
+    
+    // Define the order of document generation
+    const orderedDocTypes = [
+      documentTypes.find(d => d.id === "Project Requirements Document"),
+      documentTypes.find(d => d.id === "App Flow Document"),
+      documentTypes.find(d => d.id === "Tech Stack Document"),
+      documentTypes.find(d => d.id === "Backend Structure Document"),
+      documentTypes.find(d => d.id === "Frontend Guidelines Document"),
+      documentTypes.find(d => d.id === "File Structure Document"),
+      documentTypes.find(d => d.id === "Implementation Plan"),
+    ].filter((d): d is DocumentType => d !== undefined);
+
+    for (const docType of orderedDocTypes) {
+      toast({
+        title: "Generating Document",
+        description: `Starting generation of ${docType.title}...`,
+      });
+
+      const result = await generateDocument(docType);
+      if (!result) {
+        success = false;
+        break;
+      }
+
+      // Add a small delay between documents to prevent rate limiting
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+
+    setIsGeneratingAll(false);
+
+    if (success) {
+      toast({
+        title: "All Documents Generated",
+        description: "Successfully generated all project documents!",
+      });
+      navigate(`/project/${projectId}`);
+    }
+  };
+
   return {
     generatingDoc,
-    generateDocument
+    isGeneratingAll,
+    generateDocument,
+    generateAllDocuments
   };
 };
