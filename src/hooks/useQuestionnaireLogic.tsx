@@ -22,6 +22,7 @@ export const useQuestionnaireLogic = ({
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [generatingAnswers, setGeneratingAnswers] = useState<Record<number, boolean>>({});
+  const [isGeneratingAll, setIsGeneratingAll] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -94,10 +95,12 @@ export const useQuestionnaireLogic = ({
 
       setAnswers(prev => ({ ...prev, [index]: data.answer }));
       
-      toast({
-        title: "Success",
-        description: "AI suggestion generated! Feel free to edit it.",
-      });
+      if (!isGeneratingAll) {
+        toast({
+          title: "Success",
+          description: "AI suggestion generated! Feel free to edit it.",
+        });
+      }
     } catch (error) {
       console.error('Error:', error);
       toast({
@@ -105,9 +108,28 @@ export const useQuestionnaireLogic = ({
         description: "Failed to generate AI suggestion. Please try again.",
         variant: "destructive",
       });
+      setIsGeneratingAll(false);
     } finally {
       setGeneratingAnswers(prev => ({ ...prev, [index]: false }));
     }
+  };
+
+  const generateAllAnswers = async () => {
+    setIsGeneratingAll(true);
+    
+    for (let i = 0; i < questions.length; i++) {
+      if (!answers[i]) { // Only generate if answer doesn't exist
+        await generateAnswer(i);
+        // Add a small delay between requests to prevent rate limiting
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
+    
+    setIsGeneratingAll(false);
+    toast({
+      title: "Success",
+      description: "All AI suggestions have been generated!",
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -163,8 +185,10 @@ export const useQuestionnaireLogic = ({
     isLoading,
     isSaving,
     generatingAnswers,
+    isGeneratingAll,
     handleAnswerChange,
     generateAnswer,
+    generateAllAnswers,
     handleSubmit,
   };
 };
