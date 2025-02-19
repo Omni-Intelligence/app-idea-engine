@@ -116,16 +116,14 @@ Format this as a clear, actionable document that will guide the development team
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4o-mini',
         messages: [
           { 
             role: 'system', 
             content: 'You are a software requirements specialist. Create detailed, practical requirements documentation.' 
           },
           { role: 'user', content: prompt }
-        ],
-        temperature: 0.7,
-        max_tokens: 2500
+        ]
       }),
     });
 
