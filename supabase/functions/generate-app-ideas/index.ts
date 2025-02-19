@@ -1,15 +1,20 @@
 
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { OPENAI_CONFIG } from "../_shared/openai-config.ts";
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
 
 const systemPrompt = `You are a startup and product ideation expert. When given an industry and business function, generate a list of 4-5 innovative app ideas that could solve real problems in that space. Keep the ideas concise but clear. Format each idea as a simple bullet point list.`;
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: OPENAI_CONFIG.corsHeaders });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
@@ -26,7 +31,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: OPENAI_CONFIG.model,
+        model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: prompt }
@@ -47,13 +52,13 @@ serve(async (req) => {
       .map((line: string) => line.trim().substring(2));
 
     return new Response(JSON.stringify({ ideas }), {
-      headers: { ...OPENAI_CONFIG.corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
     console.error('Error in generate-app-ideas function:', error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
-      headers: { ...OPENAI_CONFIG.corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 });
