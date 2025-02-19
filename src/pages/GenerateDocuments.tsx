@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 interface DocumentGenerationData {
   appIdea: string;
   questions: string[];
-  answers: Record<number, string>;
+  answers: Record<string, any>;
   projectId: string;
 }
 
@@ -95,7 +95,16 @@ const GenerateDocuments = () => {
 
     setGeneratingDoc(docType.id);
     try {
-      const functionName = `generate-${docType.id.replace('_', '-')}`;
+      // Convert dash to underscore for function name
+      const functionName = `generate_${docType.id}`;
+      
+      console.log('Calling edge function:', functionName, {
+        appIdea: data.appIdea,
+        questions: data.questions,
+        answers: data.answers,
+        projectId: data.projectId
+      });
+
       const { data: generatedDoc, error } = await supabase.functions.invoke(functionName, {
         body: {
           appIdea: data.appIdea,
@@ -105,21 +114,42 @@ const GenerateDocuments = () => {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
+      }
+
+      if (!generatedDoc) {
+        throw new Error('No document generated');
+      }
+
+      console.log('Generated document:', generatedDoc);
+
+      // Save the generated document to the database
+      const { error: saveError } = await supabase
+        .from('generated_documents')
+        .insert({
+          document_type: docType.id,
+          content: generatedDoc.content,
+          submission_id: data.projectId,
+          status: 'completed'
+        });
+
+      if (saveError) throw saveError;
 
       toast({
         title: "Success",
         description: `${docType.title} has been generated!`,
       });
 
-      // Here you might want to navigate to a document viewer or download the document
-      console.log('Generated document:', generatedDoc);
+      // Navigate back to project details
+      navigate(`/project/${data.projectId}`);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error generating document:', error);
       toast({
         title: "Error",
-        description: "Failed to generate document. Please try again.",
+        description: error.message || "Failed to generate document. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -181,11 +211,11 @@ const GenerateDocuments = () => {
             
             <div className="flex justify-end">
               <Button
-                onClick={() => navigate('/questionnaire-confirmation')}
+                onClick={() => navigate(-1)}
                 variant="outline"
                 className="mr-4"
               >
-                Back to Summary
+                Back
               </Button>
             </div>
           </CardContent>
