@@ -2,11 +2,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { OPENAI_CONFIG, corsHeaders } from "../_shared/openai-config.ts";
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -46,7 +42,7 @@ serve(async (req) => {
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openAIApiKey) throw new Error('OpenAI API key not configured');
 
-    const prompt = `Create a file structure and organization guide for this software project:
+    const prompt = `Create a detailed file structure document for this software project:
 
 Project Title: ${project.title}
 Project Description: ${project.description || 'Not provided'}
@@ -58,14 +54,16 @@ ${responses?.map(r => `Q: ${r.question}\nA: ${r.answer}`).join('\n\n') || 'No ad
 Please provide a comprehensive file structure document that includes:
 1. Directory Organization
 2. File Naming Conventions
-3. Module Organization
-4. Component Structure
+3. Module Structure
+4. Component Organization
 5. Asset Management
 6. Configuration Files
-7. Testing File Structure
-8. Documentation Organization
+7. Testing Structure
+8. Documentation Layout
+9. Build System Organization
+10. Environment Configuration
 
-Format this as a clear, structured document with examples and explanations.`;
+Format this as a clear, structured document showing the recommended file and folder organization.`;
 
     console.log('Sending request to OpenAI...');
 
@@ -73,12 +71,12 @@ Format this as a clear, structured document with examples and explanations.`;
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
+        ...OPENAI_CONFIG.headers,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: OPENAI_CONFIG.model,
         messages: [
-          { role: 'system', content: 'You are a senior software architect creating file structure and organization guidelines.' },
+          { role: 'system', content: OPENAI_CONFIG.defaultSystemPrompt },
           { role: 'user', content: prompt }
         ]
       }),

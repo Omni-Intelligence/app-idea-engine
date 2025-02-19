@@ -2,11 +2,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { OPENAI_CONFIG, corsHeaders } from "../_shared/openai-config.ts";
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -46,7 +42,7 @@ serve(async (req) => {
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openAIApiKey) throw new Error('OpenAI API key not configured');
 
-    const prompt = `Design a backend architecture for this software project:
+    const prompt = `Create a detailed backend structure document for this software project:
 
 Project Title: ${project.title}
 Project Description: ${project.description || 'Not provided'}
@@ -55,18 +51,21 @@ Project Idea: ${project.project_idea || 'Not provided'}
 Context from questionnaire:
 ${responses?.map(r => `Q: ${r.question}\nA: ${r.answer}`).join('\n\n') || 'No additional context provided'}
 
-Please provide a comprehensive backend architecture document that includes:
-1. API Design & Endpoints
-2. Database Schema
-3. Authentication & Authorization
-4. Business Logic Layer
+Please provide a comprehensive backend structure document that includes:
+1. Architecture Overview
+2. API Design
+3. Database Schema
+4. Authentication & Authorization
 5. Data Models
-6. Error Handling
-7. Service Architecture
-8. Security Measures
-9. Performance Considerations
+6. Service Layer Structure
+7. Error Handling
+8. Logging & Monitoring
+9. Security Measures
+10. Performance Considerations
+11. Scalability Strategy
+12. Integration Points
 
-Format this as a clear, structured document with sections and diagrams described in text.`;
+Format this as a clear, structured document for backend developers.`;
 
     console.log('Sending request to OpenAI...');
 
@@ -74,12 +73,12 @@ Format this as a clear, structured document with sections and diagrams described
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
+        ...OPENAI_CONFIG.headers,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: OPENAI_CONFIG.model,
         messages: [
-          { role: 'system', content: 'You are a senior backend architect designing scalable and secure backend systems.' },
+          { role: 'system', content: OPENAI_CONFIG.defaultSystemPrompt },
           { role: 'user', content: prompt }
         ]
       }),

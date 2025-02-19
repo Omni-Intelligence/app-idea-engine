@@ -2,11 +2,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { OPENAI_CONFIG, corsHeaders } from "../_shared/openai-config.ts";
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -46,7 +42,7 @@ serve(async (req) => {
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openAIApiKey) throw new Error('OpenAI API key not configured');
 
-    const prompt = `Create a detailed app flow document for this software project:
+    const prompt = `Create a detailed application flow document for this software project:
 
 Project Title: ${project.title}
 Project Description: ${project.description || 'Not provided'}
@@ -55,16 +51,17 @@ Project Idea: ${project.project_idea || 'Not provided'}
 Context from questionnaire:
 ${responses?.map(r => `Q: ${r.question}\nA: ${r.answer}`).join('\n\n') || 'No additional context provided'}
 
-Please provide a comprehensive app flow document that includes:
-1. User Journey Maps
-2. Key User Flows
-3. Screen-to-Screen Navigation
+Please provide a comprehensive application flow document that includes:
+1. User Journeys
+2. Core Workflows
+3. Feature Interactions
 4. State Management
 5. Data Flow
-6. Error Handling Flows
-7. Authentication Flows (if applicable)
+6. Error Handling
+7. Edge Cases
+8. User Interface States
 
-Format this as a clear, structured document with sections and diagrams described in text format.`;
+Format this as a clear, structured document with diagrams described in text format.`;
 
     console.log('Sending request to OpenAI...');
 
@@ -72,12 +69,12 @@ Format this as a clear, structured document with sections and diagrams described
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
+        ...OPENAI_CONFIG.headers,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: OPENAI_CONFIG.model,
         messages: [
-          { role: 'system', content: 'You are a senior software architect specializing in user experience and application flows.' },
+          { role: 'system', content: OPENAI_CONFIG.defaultSystemPrompt },
           { role: 'user', content: prompt }
         ]
       }),

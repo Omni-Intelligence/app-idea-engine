@@ -2,11 +2,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { OPENAI_CONFIG, corsHeaders } from "../_shared/openai-config.ts";
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -55,17 +51,19 @@ Project Idea: ${project.project_idea || 'Not provided'}
 Context from questionnaire:
 ${responses?.map(r => `Q: ${r.question}\nA: ${r.answer}`).join('\n\n') || 'No additional context provided'}
 
-Please provide comprehensive frontend development guidelines that include:
+Please provide comprehensive frontend guidelines that include:
 1. Code Style & Conventions
 2. Component Architecture
 3. State Management
-4. Performance Optimization
-5. Accessibility Standards
-6. Testing Strategies
-7. Documentation Requirements
-8. UI/UX Guidelines
+4. Routing Strategy
+5. UI/UX Standards
+6. Performance Guidelines
+7. Testing Approach
+8. Accessibility Requirements
+9. Documentation Standards
+10. Version Control Guidelines
 
-Format this as a clear, structured document with sections and examples.`;
+Format this as a clear, actionable document for frontend developers.`;
 
     console.log('Sending request to OpenAI...');
 
@@ -73,12 +71,12 @@ Format this as a clear, structured document with sections and examples.`;
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
+        ...OPENAI_CONFIG.headers,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: OPENAI_CONFIG.model,
         messages: [
-          { role: 'system', content: 'You are a senior frontend developer creating development guidelines and best practices.' },
+          { role: 'system', content: OPENAI_CONFIG.defaultSystemPrompt },
           { role: 'user', content: prompt }
         ]
       }),
