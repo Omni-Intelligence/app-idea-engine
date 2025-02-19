@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Lightbulb, FileText } from "lucide-react";
+import { Lightbulb, FileText, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const industries = [
@@ -62,6 +63,8 @@ const Index = () => {
   const [selectedIndustry, setSelectedIndustry] = useState<string>("");
   const [selectedFunction, setSelectedFunction] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [inspirationOpen, setInspirationOpen] = useState(false);
+  const [templatesOpen, setTemplatesOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -82,6 +85,9 @@ const Index = () => {
 
   const generateOutlineFromTemplate = async (template: string) => {
     setIsGenerating(true);
+    setInspirationOpen(false);
+    setTemplatesOpen(false);
+    
     try {
       const { data, error } = await supabase.functions.invoke('generate-app-outline', {
         body: {
@@ -156,14 +162,24 @@ const Index = () => {
                     Please be as detailed as possible about all the key aspects of your application. 
                     The more specific you are, the more useful the documents will be for outlining your app.
                   </p>
-                  <Textarea
-                    id="idea"
-                    value={idea}
-                    onChange={(e) => setIdea(e.target.value)}
-                    placeholder="Describe your app idea here..."
-                    className="min-h-[150px] text-base"
-                    disabled={isGenerating}
-                  />
+                  <div className="relative">
+                    <Textarea
+                      id="idea"
+                      value={idea}
+                      onChange={(e) => setIdea(e.target.value)}
+                      placeholder="Describe your app idea here..."
+                      className="min-h-[150px] text-base"
+                      disabled={isGenerating}
+                    />
+                    {isGenerating && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-white/80 rounded-md">
+                        <div className="flex items-center space-x-2 text-purple-600">
+                          <Loader2 className="w-6 h-6 animate-spin" />
+                          <span className="text-sm font-medium">Generating outline...</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -175,7 +191,7 @@ const Index = () => {
                     Submit Idea
                   </Button>
                   <div className="flex gap-2 w-full sm:w-auto sm:ml-auto">
-                    <Dialog>
+                    <Dialog open={inspirationOpen} onOpenChange={setInspirationOpen}>
                       <DialogTrigger asChild>
                         <Button
                           type="button"
@@ -233,7 +249,7 @@ const Index = () => {
                       </DialogContent>
                     </Dialog>
 
-                    <Dialog>
+                    <Dialog open={templatesOpen} onOpenChange={setTemplatesOpen}>
                       <DialogTrigger asChild>
                         <Button
                           type="button"
