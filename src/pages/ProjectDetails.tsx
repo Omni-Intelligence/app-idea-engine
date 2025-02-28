@@ -130,11 +130,11 @@ const ProjectDetailsPage = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-purple-900">{project.title}</h1>
+      <div className="flex justify-end items-center">
+        {/* <h1 className="text-2xl font-bold text-purple-900">{project.title}</h1> */}
         <Button 
           onClick={handleGenerateDocuments}
-          className="bg-purple-600 hover:bg-purple-700"
+          
         >
           <FileText className="w-4 h-4 mr-2" />
           Generate Documents

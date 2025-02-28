@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from 'date-fns';
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
-import { Trash2 } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
+import { Badge } from "@/components/ui/badge";
 
 interface Project {
   id: string;
   title: string;
   description: string | null;
   created_at: string;
-  status: 'draft' | 'active' | 'completed' | 'archived';
   project_idea: string | null;
   user_id: string;
 }
@@ -37,10 +37,10 @@ const Projects = () => {
 
       if (error) throw error;
       setProjects(data as Project[]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error fetching projects",
-        description: error.message,
+        description: error instanceof Error ? error.message : 'An error occurred',
         variant: "destructive",
       });
     } finally {
@@ -70,10 +70,10 @@ const Projects = () => {
         title: "Project deleted",
         description: "The project has been successfully deleted.",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error deleting project",
-        description: error.message,
+        description: error instanceof Error ? error.message : 'An error occurred',
         variant: "destructive",
       });
     }
@@ -81,7 +81,7 @@ const Projects = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-8 px-4 bg-gradient-to-br from-purple-50 to-white min-h-screen">
+      <div className="container mx-auto py-8 px-4  min-h-screen">
         <h1 className="text-3xl font-bold mb-8 purple-gradient text-gradient">My Projects</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3].map((i) => (
@@ -101,10 +101,10 @@ const Projects = () => {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 bg-gradient-to-br from-purple-50 to-white min-h-screen">
+    <div className="container mx-auto py-8 px-4 min-h-screen">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold purple-gradient text-gradient">My Projects</h1>
-        <Button onClick={() => navigate('/')} className="primary-button">
+        <Button onClick={() => navigate('/')} size="lg" >
           New Project
         </Button>
       </div>
@@ -123,30 +123,39 @@ const Projects = () => {
           {projects.map((project) => (
             <Card 
               key={project.id}
-              className="glass-card cursor-pointer hover:shadow-lg transition-all duration-300 relative"
+              className="glass-card cursor-pointer group  transition-all duration-300 relative overflow-hidden border-none flex flex-col"
               onClick={() => handleProjectClick(project)}
             >
+              {/* <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" /> */}
               <CardHeader>
-                <div className="flex justify-between items-start">
-                  <CardTitle className="text-xl purple-gradient text-gradient">{project.title}</CardTitle>
+              <CardTitle className="text-xl  text-primary font-semibold">
+                {project.title}
+                </CardTitle>
+                </CardHeader>
+              
+              <CardContent className='flex-1'>
+                <CardDescription className="text-gray-500 mt-2 line-clamp-2">
+                  {project.description || 'No description provided'}
+                </CardDescription>
+
+              </CardContent>
+              
+              <CardFooter>
+              <div className="flex items-center justify-between gap-2 -mb-4">
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
+                    <div className="size-2 rounded-full bg-purple-500/50" />
+                    Created {formatDistanceToNow(new Date(project.created_at))} ago
+                  </div>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="absolute top-2 right-2 text-gray-500 hover:text-red-500 hover:bg-red-50"
+                    className=" text-gray-400 hover:text-red-500 hover:bg-red-50/30 rounded-full transform transition-all duration-300 hover:rotate-12"
                     onClick={(e) => handleDeleteProject(e, project.id)}
-                  >
-                    <Trash2 className="h-5 w-5" />
-                  </Button>
+                    >
+                    <Trash2 className="h-4 w-4" />
+                </Button>
                 </div>
-                <CardDescription className="text-gray-600">
-                  {project.description || 'No description provided'}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Created {formatDistanceToNow(new Date(project.created_at))} ago
-                </p>
-              </CardContent>
+              </CardFooter>
             </Card>
           ))}
         </div>

@@ -84,8 +84,8 @@ const Auth = () => {
               {isLoading
                 ? "Loading..."
                 : isSignUp
-                ? "Create Account"
-                : "Sign In"}
+                  ? "Create Account"
+                  : "Sign In"}
             </Button>
           </form>
           <p className="text-center mt-4">

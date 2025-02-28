@@ -99,6 +99,7 @@ export const useQuestionnaireLogic = ({
         toast({
           title: "Success",
           description: "AI suggestion generated! Feel free to edit it.",
+          variant: "success",
         });
       }
     } catch (error) {

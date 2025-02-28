@@ -69,9 +69,10 @@ const Index = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!idea.trim()) {
       toast({
         title: "Error",
@@ -93,7 +94,7 @@ const Index = () => {
 
       // Get current user
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         toast({
           title: "Error",
@@ -124,11 +125,11 @@ const Index = () => {
       });
 
       // Navigate to questionnaire with the project data
-      navigate('/questionnaire', { 
-        state: { 
+      navigate('/questionnaire', {
+        state: {
           appIdea: idea,
-          projectId: project.id 
-        } 
+          projectId: project.id
+        }
       });
     } catch (error) {
       console.error('Error:', error);
@@ -182,7 +183,7 @@ const Index = () => {
     setIsGenerating(true);
     setInspirationOpen(false);
     setTemplatesOpen(false);
-    
+
     try {
       const { data, error } = await supabase.functions.invoke('generate-app-outline', {
         body: {
@@ -198,7 +199,8 @@ const Index = () => {
         setIdea(data.outline);
         toast({
           title: "Success",
-          description: "Generated app outline from template! Feel free to modify it.",
+          description: "Generated app outline from template!\n Feel free to modify it.",
+          variant: "success",
         });
       }
     } catch (error) {
@@ -220,7 +222,7 @@ const Index = () => {
       <div className="mt-4 space-y-4">
         <div className="flex justify-between items-center">
           <h3 className="font-medium text-purple-900">Generate Custom Ideas</h3>
-          <Button 
+          <Button
             size="sm"
             onClick={generateAppIdeas}
             disabled={isGeneratingIdeas || !selectedIndustry || !selectedFunction}
@@ -236,7 +238,7 @@ const Index = () => {
             )}
           </Button>
         </div>
-        
+
         {isGeneratingIdeas ? (
           <div className="flex items-center justify-center py-8">
             <Loader2 className="w-6 h-6 animate-spin text-purple-600" />
@@ -244,9 +246,9 @@ const Index = () => {
         ) : generatedIdeas.length > 0 ? (
           <ul className="space-y-2">
             {generatedIdeas.map((idea, index) => (
-              <li 
+              <li
                 key={index}
-                className="p-3 bg-purple-50 rounded-lg hover:bg-purple-100 cursor-pointer transition-colors"
+                className="p-3 text-sm bg-purple-50 rounded-lg hover:bg-purple-100 cursor-pointer transition-colors"
                 onClick={() => generateOutlineFromTemplate(idea)}
               >
                 {idea}
@@ -256,13 +258,13 @@ const Index = () => {
         ) : null}
 
         {appTemplates[selectedIndustry as keyof typeof appTemplates] && (
-          <div className="mt-6">
-            <h3 className="font-medium text-purple-900 mb-2">Pre-made Templates:</h3>
+          <div className="mt-6 border-t pt-2">
+            <h3 className="font-medium  mb-2">Pre-made Templates:</h3>
             <ul className="space-y-2">
               {appTemplates[selectedIndustry as keyof typeof appTemplates].map((template, index) => (
-                <li 
+                <li
                   key={index}
-                  className="p-3 bg-purple-50 rounded-lg hover:bg-purple-100 cursor-pointer transition-colors"
+                  className="p-3 text-sm font-medium text-purple-900 bg-purple-50 rounded-md hover:bg-purple-100 cursor-pointer transition-colors"
                   onClick={() => generateOutlineFromTemplate(template)}
                 >
                   {template}
@@ -276,7 +278,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-50 to-white">
+    <div className=" flex flex-col bg-gradient-to-br from-purple-50 to-white">
       <div className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-purple-900 sm:text-5xl md:text-6xl mb-8">
@@ -285,19 +287,19 @@ const Index = () => {
           <p className="mt-6 max-w-md mx-auto text-base text-purple-600 sm:text-lg md:text-xl md:max-w-3xl mb-12">
             Transform your app ideas into reality with our AI-powered development assistant.
           </p>
-          
+
           <div className="mt-12 max-w-3xl mx-auto">
             <div className="bg-white rounded-lg shadow-xl p-6 md:p-8">
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label 
-                    htmlFor="idea" 
+                  <label
+                    htmlFor="idea"
                     className="block text-lg font-medium text-gray-700 mb-2 text-left"
                   >
                     What do you want to build?
                   </label>
                   <p className="text-sm text-gray-600 mb-4 text-left">
-                    Please be as detailed as possible about all the key aspects of your application. 
+                    Please be as detailed as possible about all the key aspects of your application.
                     The more specific you are, the more useful the documents will be for outlining your app.
                   </p>
                   <div className="relative">
@@ -321,7 +323,7 @@ const Index = () => {
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-center gap-4">
-                  <Button 
+                  <Button
                     type="submit"
                     className="bg-purple-600 hover:bg-purple-700 w-full sm:w-1/2"
                     disabled={isGenerating}
@@ -406,7 +408,7 @@ const Index = () => {
                         <div className="grid gap-4 py-4">
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {["E-commerce Platform", "Project Management Tool", "Social Media App", "Fitness Tracking App"].map((template) => (
-                              <div 
+                              <div
                                 key={template}
                                 className="p-4 border rounded-lg hover:bg-purple-50 cursor-pointer transition-colors"
                                 onClick={() => generateOutlineFromTemplate(template)}
@@ -427,15 +429,15 @@ const Index = () => {
         </div>
       </div>
 
-      <footer className="bg-white border-t border-gray-200 mt-auto">
+      {/* <footer className="bg-white border-t border-gray-200 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center space-x-2">
               <img src="/placeholder.svg" alt="Logo" className="h-8 w-8" />
               <span className="text-xl font-semibold text-purple-900">App Idea Engine</span>
             </div>
-            <a 
-              href="#" 
+            <a
+              href="#"
               className="text-purple-600 hover:text-purple-700 font-medium"
               onClick={(e) => {
                 e.preventDefault();
@@ -446,7 +448,7 @@ const Index = () => {
             </a>
           </div>
         </div>
-      </footer>
+      </footer> */}
     </div>
   );
 };

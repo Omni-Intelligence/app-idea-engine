@@ -4,7 +4,6 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { OPENAI_CONFIG } from "../_shared/openai-config.ts";
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-
 const systemPrompt = `You are a startup and product ideation expert. When given an industry and business function, generate a list of 4-5 innovative app ideas that could solve real problems in that space. Keep the ideas concise but clear. Format each idea as a simple bullet point list.`;
 
 serve(async (req) => {
