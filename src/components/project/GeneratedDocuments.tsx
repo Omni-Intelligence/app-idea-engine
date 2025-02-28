@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp, Copy } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import MarkdownRenderer from '@/components/MarkdownRenderer.tsx';
 
 interface GeneratedDocumentsProps {
   documents: GeneratedDocument[];
@@ -70,7 +71,8 @@ export const GeneratedDocuments = ({ documents }: GeneratedDocumentsProps) => {
             <div className="space-y-2">
               <div className="whitespace-pre-wrap text-sm">
                 {expandedDocs[doc.id] ? (
-                  doc.content.replace(/[#*`_~]/g, '')
+                  <MarkdownRenderer content={doc.content} />
+                  // doc.content.replace(/[#*`_~]/g, '')
                 ) : (
                   <>
                     {getPreviewContent(doc.content)}

@@ -1,13 +1,13 @@
 
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { OPENAI_CONFIG } from "../_shared/openai-config.ts";
+import { OPENAI_CONFIG, corsHeaders } from "../_shared/openai-config.ts";
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: OPENAI_CONFIG.corsHeaders });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
@@ -43,13 +43,13 @@ serve(async (req) => {
     const title = data.choices[0].message.content.trim();
 
     return new Response(JSON.stringify({ title }), {
-      headers: { ...OPENAI_CONFIG.corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
     console.error('Error in generate-title function:', error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
-      headers: { ...OPENAI_CONFIG.corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 });

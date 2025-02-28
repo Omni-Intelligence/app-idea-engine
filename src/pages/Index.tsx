@@ -69,6 +69,7 @@ const Index = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -198,7 +199,8 @@ const Index = () => {
         setIdea(data.outline);
         toast({
           title: "Success",
-          description: "Generated app outline from template! Feel free to modify it.",
+          description: "Generated app outline from template!\n Feel free to modify it.",
+          variant: "success",
         });
       }
     } catch (error) {
@@ -246,7 +248,7 @@ const Index = () => {
             {generatedIdeas.map((idea, index) => (
               <li
                 key={index}
-                className="p-3 bg-purple-50 rounded-lg hover:bg-purple-100 cursor-pointer transition-colors"
+                className="p-3 text-sm bg-purple-50 rounded-lg hover:bg-purple-100 cursor-pointer transition-colors"
                 onClick={() => generateOutlineFromTemplate(idea)}
               >
                 {idea}
@@ -256,13 +258,13 @@ const Index = () => {
         ) : null}
 
         {appTemplates[selectedIndustry as keyof typeof appTemplates] && (
-          <div className="mt-6">
-            <h3 className="font-medium text-purple-900 mb-2">Pre-made Templates:</h3>
+          <div className="mt-6 border-t pt-2">
+            <h3 className="font-medium  mb-2">Pre-made Templates:</h3>
             <ul className="space-y-2">
               {appTemplates[selectedIndustry as keyof typeof appTemplates].map((template, index) => (
                 <li
                   key={index}
-                  className="p-3 bg-purple-50 rounded-lg hover:bg-purple-100 cursor-pointer transition-colors"
+                  className="p-3 text-sm font-medium text-purple-900 bg-purple-50 rounded-md hover:bg-purple-100 cursor-pointer transition-colors"
                   onClick={() => generateOutlineFromTemplate(template)}
                 >
                   {template}
@@ -427,7 +429,7 @@ const Index = () => {
         </div>
       </div>
 
-      <footer className="bg-white border-t border-gray-200 mt-auto">
+      {/* <footer className="bg-white border-t border-gray-200 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center space-x-2">
@@ -446,7 +448,7 @@ const Index = () => {
             </a>
           </div>
         </div>
-      </footer>
+      </footer> */}
     </div>
   );
 };
