@@ -199,9 +199,9 @@ export const GeneratedDocuments = ({ documents, onGenerateDocument, projectId, o
                 <Button
                   variant="outline"
                   onClick={() => handleGenerateDocument(docType)}
-
+                  disabled={generatingDoc === docType.id && generatingDoc}
                 >
-                  {(generateDocId && generateDocId === docType.id) && generatingDoc ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <Plus className="h-3.5 w-3.5 mr-1.5" />}
+                  {(generatingDoc === docType.id) && generatingDoc ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin text-amber-500" /> : <Plus className="h-3.5 w-3.5 mr-1.5" />}
                   Generate
                 </Button>
               </div>
