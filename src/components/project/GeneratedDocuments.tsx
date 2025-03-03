@@ -19,7 +19,6 @@ interface GeneratedDocumentsProps {
 export const GeneratedDocuments = ({ documents, onGenerateDocument, projectId, onGeneretedDocumentEvent }: GeneratedDocumentsProps) => {
   const { toast } = useToast();
   const [expandedDocs, setExpandedDocs] = useState<Record<string, boolean>>({});
-  const [generateDocId, setGenerateDocId] = useState<string | null>(null);
 
   const toggleDocument = (docId: string) => {
     setExpandedDocs(prev => ({
@@ -68,10 +67,6 @@ export const GeneratedDocuments = ({ documents, onGenerateDocument, projectId, o
     }
   });
 
-  const handleGenerateDocument = (docType: DocumentType) => {
-    setGenerateDocId(docType.id);
-    generateDocument(docType);
-  }
 
 
   return (
@@ -198,10 +193,10 @@ export const GeneratedDocuments = ({ documents, onGenerateDocument, projectId, o
                 </div>
                 <Button
                   variant="outline"
-                  onClick={() => handleGenerateDocument(docType)}
-                  disabled={generatingDoc === docType.id && generatingDoc}
+                  onClick={() => generateDocument(docType)}
+                  disabled={generatingDoc === docType.id}
                 >
-                  {(generatingDoc === docType.id) && generatingDoc ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin text-amber-500" /> : <Plus className="h-3.5 w-3.5 mr-1.5" />}
+                  {generatingDoc === docType.id ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin text-amber-500" /> : <Plus className="h-3.5 w-3.5 mr-1.5" />}
                   Generate
                 </Button>
               </div>
