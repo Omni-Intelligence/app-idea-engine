@@ -32,9 +32,9 @@ export const QuestionInput = ({
         />
         <Button
           type="button"
-          size="sm"
+          size="icon-sm"
           variant="ghost"
-          className="absolute right-2 top-2 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+          className="absolute right-2 top-2 "
           onClick={onGenerateAnswer}
           disabled={isGenerating}
         >

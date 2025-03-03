@@ -33,13 +33,13 @@ const QuestionnaireConfirmation = () => {
   const { appIdea, questions, answers } = questionnaireData;
 
   const handleEdit = () => {
-    navigate('/questionnaire', { 
-      state: { 
-        appIdea, 
-        editMode: true, 
-        questions, 
-        answers 
-      } 
+    navigate('/questionnaire', {
+      state: {
+        appIdea,
+        editMode: true,
+        questions,
+        answers
+      }
     });
   };
 
@@ -47,7 +47,7 @@ const QuestionnaireConfirmation = () => {
     setIsSubmitting(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         throw new Error('No authenticated user found');
       }
@@ -88,13 +88,13 @@ const QuestionnaireConfirmation = () => {
       });
 
       // Navigate to document generation with all data
-      navigate('/generate-documents', { 
-        state: { 
+      navigate('/generate-documents', {
+        state: {
           appIdea,
           questions,
           answers,
           projectId: project.id
-        } 
+        }
       });
     } catch (error: any) {
       console.error('Error:', error);
@@ -108,22 +108,22 @@ const QuestionnaireConfirmation = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white py-12">
+    <div className="min-h-screen  py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <Card className="bg-white shadow-xl">
           <CardHeader>
-            <h2 className="text-2xl font-bold text-purple-900">Review Your Responses</h2>
+            <h2 className="text-2xl font-bold text-primary">Review Your Responses</h2>
             <p className="text-gray-600">Please review your app details and responses below</p>
           </CardHeader>
-          
+
           <CardContent className="space-y-6">
             <div className="border-b border-gray-200 pb-4">
-              <h3 className="text-lg font-semibold text-purple-800 mb-2">App Idea</h3>
+              <h3 className="text-lg font-semibold text-primary mb-2">App Idea</h3>
               <p className="text-gray-700 whitespace-pre-wrap">{appIdea}</p>
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-purple-800">Your Responses</h3>
+              <h3 className="text-lg font-semibold text-primary">Your Responses</h3>
               {questions.map((question, index) => (
                 <div key={index} className="bg-gray-50 p-4 rounded-lg">
                   <p className="font-medium text-gray-700 mb-2">{question}</p>
@@ -144,7 +144,6 @@ const QuestionnaireConfirmation = () => {
             <Button
               onClick={handleConfirm}
               disabled={isSubmitting}
-              className="bg-purple-600 hover:bg-purple-700"
             >
               {isSubmitting ? "Processing..." : "Generate Documents"}
             </Button>

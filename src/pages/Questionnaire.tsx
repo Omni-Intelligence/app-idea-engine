@@ -48,11 +48,11 @@ const Questionnaire = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white py-12">
+    <div className="min-h-screen  py-12">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-lg shadow-xl p-6 md:p-8">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-purple-900">Tell us more about your app</h2>
+            <h2 className="text-2xl font-bold text-primary">Tell us more about your app</h2>
             <Button
               onClick={generateAllAnswers}
               disabled={isGeneratingAll || isSaving}
@@ -72,7 +72,7 @@ const Questionnaire = () => {
               )}
             </Button>
           </div>
-          
+
           <form onSubmit={handleSubmit} className="space-y-6">
             {questions.map((question, index) => (
               <QuestionInput
@@ -84,10 +84,10 @@ const Questionnaire = () => {
                 onGenerateAnswer={() => generateAnswer(index)}
               />
             ))}
-            
+
             <Button
               type="submit"
-              className="w-full bg-purple-600 hover:bg-purple-700"
+              className="w-full "
               disabled={isSaving || isGeneratingAll}
             >
               {isSaving ? 'Saving...' : 'Submit Answers'}

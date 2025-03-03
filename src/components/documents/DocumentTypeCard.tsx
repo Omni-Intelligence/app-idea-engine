@@ -42,13 +42,13 @@ export const DocumentTypeCard = ({
         </div>
         <div className="flex-shrink-0">
           {isGenerating ? (
-            <Loader2 className="h-10 w-10 animate-spin text-purple-600" />
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
           ) : (
             <Button
               onClick={() => onGenerate(docType)}
               disabled={!docType.available}
               size="icon"
-              variant={existingDocument ? 'secondary' : 'default'}
+              variant={existingDocument ? 'outline' : 'default'}
 
             >
               {existingDocument ? <RefreshCw className="h-4 w-4" /> : <Play className="h-4 w-4" />}

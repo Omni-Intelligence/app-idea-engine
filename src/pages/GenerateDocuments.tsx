@@ -32,7 +32,7 @@ const GenerateDocuments = () => {
   }
 
   const onGeneretedEvent = (docType: DocumentType) => {
-    setProjectExists(prev => [...prev, docType.id]);
+    setProjectExists(prev => [...prev, docType.document_type]);
   }
 
   const { generatingDoc, isGeneratingAll, generateDocument, generateAllDocuments } = useDocumentGeneration(data.projectId, onGeneretedEvent);
@@ -44,13 +44,12 @@ const GenerateDocuments = () => {
           <CardHeader>
             <div className="flex justify-between items-center">
               <div>
-                <h2 className="text-2xl font-bold text-purple-900">Generate Documents</h2>
+                <h2 className="text-2xl font-bold text-primary">Generate Documents</h2>
                 <p className="text-gray-600">Select the documents you'd like to generate for your project</p>
               </div>
               <Button
                 onClick={generateAllDocuments}
                 disabled={isGeneratingAll}
-                className="bg-purple-600 hover:bg-purple-700 text-white"
               >
                 <Play className="w-4 h-4 mr-2" />
                 Generate All
