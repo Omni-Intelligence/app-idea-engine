@@ -1,31 +1,31 @@
-
-import { CheckCircle2, Loader2, Play } from "lucide-react";
+import { CheckCircle2, Loader2, Play, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DocumentType } from "@/types/documents";
 
 interface DocumentTypeCardProps {
   docType: DocumentType;
   isGenerating: boolean;
-  onGenerate: (docType: DocumentType) => void;
+  onGenerate: (docType: DocumentType) => Promise<boolean>;
+  existingDocument: boolean;
 }
 
 export const DocumentTypeCard = ({
   docType,
   isGenerating,
   onGenerate,
+  existingDocument,
 }: DocumentTypeCardProps) => {
   return (
     <div
-      className={`p-4 rounded-lg border ${
-        docType.available 
-          ? 'bg-white hover:bg-gray-50'
-          : 'bg-gray-50 opacity-75'
-      }`}
+      className={`p-4 rounded-lg border ${docType.available
+        ? 'bg-white hover:bg-gray-50'
+        : 'bg-gray-50 opacity-75'
+        }`}
     >
       <div className="flex items-start justify-between space-x-4">
         <div className="flex items-start space-x-4">
           <div className="flex-shrink-0 mt-1">
-            {docType.available ? (
+            {existingDocument ? (
               <CheckCircle2 className="h-6 w-6 text-green-500" />
             ) : (
               <CheckCircle2 className="h-6 w-6 text-gray-300" />
@@ -42,19 +42,16 @@ export const DocumentTypeCard = ({
         </div>
         <div className="flex-shrink-0">
           {isGenerating ? (
-            <Loader2 className="h-5 w-5 animate-spin text-purple-600" />
+            <Loader2 className="h-10 w-10 animate-spin text-purple-600" />
           ) : (
             <Button
               onClick={() => onGenerate(docType)}
               disabled={!docType.available}
-              size="sm"
-              className={`${
-                docType.available 
-                  ? 'bg-purple-600 hover:bg-purple-700' 
-                  : 'bg-gray-300'
-              } text-white`}
+              size="icon"
+              variant={existingDocument ? 'secondary' : 'default'}
+
             >
-              <Play className="h-4 w-4" />
+              {existingDocument ? <RefreshCw className="h-4 w-4" /> : <Play className="h-4 w-4" />}
             </Button>
           )}
         </div>

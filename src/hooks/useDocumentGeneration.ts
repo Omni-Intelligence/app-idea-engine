@@ -5,7 +5,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { DocumentType, documentTypes } from "@/types/documents";
 
-export const useDocumentGeneration = (projectId: string) => {
+export const useDocumentGeneration = (projectId: string, onGeneretedEvent: (docType: DocumentType) => void) => {
   const [generatingDoc, setGeneratingDoc] = useState<string | null>(null);
   const [isGeneratingAll, setIsGeneratingAll] = useState(false);
   const navigate = useNavigate();
@@ -74,7 +74,7 @@ export const useDocumentGeneration = (projectId: string) => {
         title: "Success",
         description: `${docType.title} has been generated!`,
       });
-
+      onGeneretedEvent(data?.document);
       return true;
     } catch (error: any) {
       console.error('Error generating document:', error);

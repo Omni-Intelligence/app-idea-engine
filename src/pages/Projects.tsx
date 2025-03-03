@@ -54,7 +54,7 @@ const Projects = () => {
 
   const handleDeleteProject = async (e: React.MouseEvent, projectId: string) => {
     e.stopPropagation(); // Prevent triggering the card click
-    
+
     try {
       const { error } = await supabase
         .from('user_projects')
@@ -65,7 +65,7 @@ const Projects = () => {
 
       // Update local state
       setProjects(projects.filter(project => project.id !== projectId));
-      
+
       toast({
         title: "Project deleted",
         description: "The project has been successfully deleted.",
@@ -82,7 +82,7 @@ const Projects = () => {
   if (loading) {
     return (
       <div className="container mx-auto py-8 px-4  min-h-screen">
-        <h1 className="text-3xl font-bold mb-8 purple-gradient text-gradient">My Projects</h1>
+        <h1 className="text-3xl font-bold mb-8 text-primary">My Projects</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3].map((i) => (
             <Card key={i} className="glass-card">
@@ -103,12 +103,13 @@ const Projects = () => {
   return (
     <div className="container mx-auto py-8 px-4 min-h-screen">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold purple-gradient text-gradient">My Projects</h1>
+        <h1 className="text-3xl font-bold text-primary">My Projects</h1>
         <Button onClick={() => navigate('/')} size="lg" >
+          <Plus className="w-4 h-4" />
           New Project
         </Button>
       </div>
-      
+
       {projects.length === 0 ? (
         <Card className="glass-card">
           <CardContent className="flex flex-col items-center justify-center py-12">
@@ -121,28 +122,28 @@ const Projects = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project) => (
-            <Card 
+            <Card
               key={project.id}
               className="glass-card cursor-pointer group  transition-all duration-300 relative overflow-hidden border-none flex flex-col"
               onClick={() => handleProjectClick(project)}
             >
               {/* <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" /> */}
               <CardHeader>
-              <CardTitle className="text-xl  text-primary font-semibold">
-                {project.title}
+                <CardTitle className="text-xl  text-primary font-semibold">
+                  {project.title}
                 </CardTitle>
-                </CardHeader>
-              
+              </CardHeader>
+
               <CardContent className='flex-1'>
                 <CardDescription className="text-gray-500 mt-2 line-clamp-2">
                   {project.description || 'No description provided'}
                 </CardDescription>
 
               </CardContent>
-              
+
               <CardFooter>
-              <div className="flex items-center justify-between gap-2 -mb-4">
-                  <div className="flex items-center gap-2 text-sm text-gray-400">
+                <div className="w-full flex items-center justify-between gap-2 -mb-4">
+                  <div className="flex-1 flex items-center gap-2 text-sm text-gray-400">
                     <div className="size-2 rounded-full bg-purple-500/50" />
                     Created {formatDistanceToNow(new Date(project.created_at))} ago
                   </div>
@@ -151,9 +152,9 @@ const Projects = () => {
                     size="icon"
                     className=" text-gray-400 hover:text-red-500 hover:bg-red-50/30 rounded-full transform transition-all duration-300 hover:rotate-12"
                     onClick={(e) => handleDeleteProject(e, project.id)}
-                    >
+                  >
                     <Trash2 className="h-4 w-4" />
-                </Button>
+                  </Button>
                 </div>
               </CardFooter>
             </Card>
