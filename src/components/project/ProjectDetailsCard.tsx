@@ -1,14 +1,15 @@
 import { ProjectData, ProjectStatus } from "@/types/project-details";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, ClockIcon } from "lucide-react";
+import { CalendarIcon, ClockIcon, FileTextIcon, UserIcon } from "lucide-react";
 import MarkdownRenderer from '@/components/MarkdownRenderer.tsx';
 
 interface ProjectDetailsCardProps {
   project: ProjectData;
+  children?: React.ReactNode;
 }
 
-export const ProjectDetailsCard = ({ project }: ProjectDetailsCardProps) => {
+export const ProjectDetailsCard = ({ project, children }: ProjectDetailsCardProps) => {
   const getStatusBadgeVariant = (status: ProjectStatus | null): "default" | "secondary" | "outline" | "destructive" => {
     switch (status) {
       case 'draft':
@@ -25,36 +26,59 @@ export const ProjectDetailsCard = ({ project }: ProjectDetailsCardProps) => {
   };
 
   return (
-    <Card className="overflow-hidden border-2 shadow-md transition-all hover:shadow-lg">
-      <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10 pb-4">
+    <Card className="overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+      <CardHeader className="border-b border-gray-100 bg-white">
         <div className="flex items-center justify-between">
-          <CardTitle className="font-poppins text-2xl font-bold">{project.title}</CardTitle>
-          <Badge variant={getStatusBadgeVariant(project.status)} className="text-sm">
-            {project.status ? project.status.charAt(0).toUpperCase() + project.status.slice(1) : 'No Status'}
-          </Badge>
+          <div className="space-y-1">
+            <CardTitle className="font-poppins text-xl font-semibold text-gray-900">{project.title}</CardTitle>
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <UserIcon className="h-4 w-4" />
+              <span>Project ID: {project.id}</span>
+            </div>
+          </div>
+          <div className="">
+            {children}
+          </div>
+
         </div>
       </CardHeader>
-      
-      <CardContent className="pt-6 space-y-6">
-        <div className="rounded-lg bg-muted/30 p-4">
-          <h3 className="mb-2 font-poppins text-sm font-semibold uppercase text-muted-foreground">Description</h3>
-          <div className="prose prose-sm max-w-none">
+
+      <CardContent className="p-6 space-y-6">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <FileTextIcon className="h-5 w-5 text-gray-400" />
+            <h3 className="font-poppins text-sm font-medium text-gray-700">Project Description</h3>
+          </div>
+          <div className="prose prose-sm max-w-none text-gray-600">
             <MarkdownRenderer content={project.description || 'No description provided'} />
           </div>
         </div>
-      </CardContent>
-      
-      <CardFooter className="flex flex-col space-y-3 border-t bg-muted/10 px-6 py-4 text-sm sm:flex-row sm:justify-between sm:space-y-0">
-        <div className="flex items-center gap-2">
-          <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-          <span className="text-muted-foreground">Created: </span>
-          <span className="font-medium">{new Date(project.created_at).toLocaleDateString()}</span>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <CalendarIcon className="h-4 w-4 text-gray-400" />
+            <span>Created: </span>
+            <span className="font-medium text-gray-900">{new Date(project.created_at).toLocaleDateString()}</span>
+          </div>
+
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <ClockIcon className="h-4 w-4 text-gray-400" />
+            <span>Last updated: </span>
+            <span className="font-medium text-gray-900">{new Date(project.updated_at).toLocaleDateString()}</span>
+          </div>
         </div>
-        
-        <div className="flex items-center gap-2">
-          <ClockIcon className="h-4 w-4 text-muted-foreground" />
-          <span className="text-muted-foreground">Last updated: </span>
-          <span className="font-medium">{new Date(project.updated_at).toLocaleDateString()}</span>
+      </CardContent>
+
+      <CardFooter className="border-t border-gray-100 bg-gray-50/50 px-6 py-4">
+        <div className="flex items-center justify-between w-full">
+          <div className="text-xs text-gray-500">
+            Last modified {new Date(project.updated_at).toLocaleString()}
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="text-xs">
+              Version 1.0
+            </Badge>
+          </div>
         </div>
       </CardFooter>
     </Card>

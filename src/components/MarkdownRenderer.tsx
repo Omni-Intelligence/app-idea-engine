@@ -17,7 +17,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, className 
   }, [content]);
 
   return (
-    <div className={`markdown-body  ${className || ''}`}>
+    <div className={`markdown-body bg-transparent  ${className || ''}`}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw]}

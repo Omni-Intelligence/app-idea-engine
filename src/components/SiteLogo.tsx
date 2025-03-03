@@ -6,7 +6,7 @@ interface SiteLogoProps {
 
 export function SiteLogo({ className = "" }: SiteLogoProps) {
   return (
-    <Link to="/" className={`flex items-center gap-2 text-xl font-bold text-purple-600 hover:opacity-90 transition-opacity ${className}`}>
+    <Link to="/" className={`flex items-center gap-2 text-xl font-bold text-primary hover:opacity-90 transition-opacity ${className}`}>
       <svg
         className="w-8 h-8"
         viewBox="0 0 24 24"
@@ -15,18 +15,18 @@ export function SiteLogo({ className = "" }: SiteLogoProps) {
       >
         <path
           d="M12 2L2 7L12 12L22 7L12 2Z"
-          className="fill-purple-600"
+          className="fill-primary"
         />
         <path
           d="M2 17L12 22L22 17"
-          className="stroke-purple-600"
+          className="stroke-primary"
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
         <path
           d="M2 12L12 17L22 12"
-          className="stroke-purple-600"
+          className="stroke-amber-500"
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"

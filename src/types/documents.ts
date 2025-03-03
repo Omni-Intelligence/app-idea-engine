@@ -1,9 +1,9 @@
-
 export interface DocumentGenerationData {
   appIdea: string;
   questions: string[];
-  answers: Record<string, any>;
+  answers: string[];
   projectId: string;
+  existingDocuments: string[];
 }
 
 export type DocumentType = {

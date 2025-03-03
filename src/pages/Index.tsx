@@ -69,7 +69,7 @@ const Index = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -221,12 +221,11 @@ const Index = () => {
     return (
       <div className="mt-4 space-y-4">
         <div className="flex justify-between items-center">
-          <h3 className="font-medium text-purple-900">Generate Custom Ideas</h3>
+          <h3 className="font-medium text-primary">Generate Custom Ideas</h3>
           <Button
             size="sm"
             onClick={generateAppIdeas}
             disabled={isGeneratingIdeas || !selectedIndustry || !selectedFunction}
-            className="bg-purple-600 hover:bg-purple-700"
           >
             {isGeneratingIdeas ? (
               <div className="flex items-center gap-2">
@@ -248,7 +247,7 @@ const Index = () => {
             {generatedIdeas.map((idea, index) => (
               <li
                 key={index}
-                className="p-3 text-sm bg-purple-50 rounded-lg hover:bg-purple-100 cursor-pointer transition-colors"
+                className="p-3 text-sm bg-primary/10 rounded-lg hover:bg-primary/20 cursor-pointer transition-colors"
                 onClick={() => generateOutlineFromTemplate(idea)}
               >
                 {idea}
@@ -264,7 +263,7 @@ const Index = () => {
               {appTemplates[selectedIndustry as keyof typeof appTemplates].map((template, index) => (
                 <li
                   key={index}
-                  className="p-3 text-sm font-medium text-purple-900 bg-purple-50 rounded-md hover:bg-purple-100 cursor-pointer transition-colors"
+                  className="p-3 text-sm font-medium text-primary bg-primary/10 rounded-md hover:bg-primary/20 cursor-pointer transition-colors"
                   onClick={() => generateOutlineFromTemplate(template)}
                 >
                   {template}
@@ -278,23 +277,23 @@ const Index = () => {
   };
 
   return (
-    <div className=" flex flex-col bg-gradient-to-br from-purple-50 to-white">
+    <div className=" flex flex-col ">
       <div className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-purple-900 sm:text-5xl md:text-6xl mb-8">
+          <h1 className="text-4xl font-bold text-primary sm:text-5xl md:text-6xl mb-8">
             App Idea Engine
           </h1>
-          <p className="mt-6 max-w-md mx-auto text-base text-purple-600 sm:text-lg md:text-xl md:max-w-3xl mb-12">
+          <p className="mt-6 max-w-md mx-auto text-base text-primary sm:text-lg md:text-xl md:max-w-3xl mb-12">
             Transform your app ideas into reality with our AI-powered development assistant.
           </p>
 
           <div className="mt-12 max-w-3xl mx-auto">
-            <div className="bg-white rounded-lg shadow-xl p-6 md:p-8">
+            <div className="bg-white rounded-3xl shadow-xl p-6 md:p-8">
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label
                     htmlFor="idea"
-                    className="block text-lg font-medium text-gray-700 mb-2 text-left"
+                    className="block text-lg font-semibold text-primary mb-2 text-left"
                   >
                     What do you want to build?
                   </label>
@@ -325,7 +324,7 @@ const Index = () => {
                 <div className="flex flex-col sm:flex-row items-center gap-4">
                   <Button
                     type="submit"
-                    className="bg-purple-600 hover:bg-purple-700 w-full sm:w-1/2"
+                    className=" w-full sm:w-1/2"
                     disabled={isGenerating}
                   >
                     Submit Idea
@@ -410,10 +409,10 @@ const Index = () => {
                             {["E-commerce Platform", "Project Management Tool", "Social Media App", "Fitness Tracking App"].map((template) => (
                               <div
                                 key={template}
-                                className="p-4 border rounded-lg hover:bg-purple-50 cursor-pointer transition-colors"
+                                className="p-4 border rounded-lg hover:bg-primary/10 cursor-pointer transition-colors"
                                 onClick={() => generateOutlineFromTemplate(template)}
                               >
-                                <h3 className="font-medium text-purple-900 mb-2">{template}</h3>
+                                <h3 className="font-semibold text-primary mb-2">{template}</h3>
                                 <p className="text-sm text-gray-600">Click to generate a detailed outline.</p>
                               </div>
                             ))}

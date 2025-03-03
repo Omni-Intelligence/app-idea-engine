@@ -17,7 +17,7 @@ function App() {
 
       <div className="min-h-screen flex flex-col">
         <Navbar />
-        <main className="flex-1 bg-gradient-to-br from-purple-50 to-white">
+        <main className="flex-1 bg-gradient-to-br from-primary/10 to-white">
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />

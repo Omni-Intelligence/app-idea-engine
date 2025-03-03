@@ -1,4 +1,3 @@
-
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
@@ -7,13 +6,20 @@ import { PlusCircle, Play } from "lucide-react";
 import { DocumentTypeCard } from "@/components/documents/DocumentTypeCard";
 import { useDocumentGeneration } from "@/hooks/useDocumentGeneration";
 import { DocumentGenerationData, documentTypes } from "@/types/documents";
+import { useState, useEffect } from "react";
 
 const GenerateDocuments = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-
+  const [projectExists, setProjectExists] = useState<string[]>([]);
   const data = location.state as DocumentGenerationData;
+
+  useEffect(() => {
+    if (Array.isArray(data?.existingDocuments)) {
+      setProjectExists(data.existingDocuments);
+    }
+  }, [data?.existingDocuments]);
 
   if (!data?.appIdea || !data?.questions || !data?.answers || !data?.projectId) {
     toast({
@@ -25,7 +31,11 @@ const GenerateDocuments = () => {
     return null;
   }
 
-  const { generatingDoc, isGeneratingAll, generateDocument, generateAllDocuments } = useDocumentGeneration(data.projectId);
+  const onGeneretedEvent = (docType: DocumentType) => {
+    setProjectExists(prev => [...prev, docType.id]);
+  }
+
+  const { generatingDoc, isGeneratingAll, generateDocument, generateAllDocuments } = useDocumentGeneration(data.projectId, onGeneretedEvent);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white py-12">
@@ -47,13 +57,14 @@ const GenerateDocuments = () => {
               </Button>
             </div>
           </CardHeader>
-          
+
           <CardContent className="space-y-6">
             <div className="grid gap-4">
               {documentTypes.map((docType) => (
                 <DocumentTypeCard
                   key={docType.id}
                   docType={docType}
+                  existingDocument={projectExists?.includes(docType.id)}
                   isGenerating={generatingDoc === docType.id || (isGeneratingAll && generatingDoc === docType.id)}
                   onGenerate={generateDocument}
                 />
@@ -66,7 +77,7 @@ const GenerateDocuments = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="flex justify-end">
               <Button
                 onClick={() => navigate(-1)}
