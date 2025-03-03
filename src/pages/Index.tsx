@@ -288,12 +288,12 @@ const Index = () => {
           </p>
 
           <div className="mt-12 max-w-3xl mx-auto">
-            <div className="bg-white rounded-lg shadow-xl p-6 md:p-8">
+            <div className="bg-white rounded-3xl shadow-xl p-6 md:p-8">
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label
                     htmlFor="idea"
-                    className="block text-lg font-medium text-gray-700 mb-2 text-left"
+                    className="block text-lg font-semibold text-primary mb-2 text-left"
                   >
                     What do you want to build?
                   </label>
