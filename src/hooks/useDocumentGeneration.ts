@@ -1,11 +1,10 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { DocumentType, documentTypes } from "@/types/documents";
+import { DocumentType, documentTypes, DocumentGenerationData } from "@/types/documents";
 
-export const useDocumentGeneration = (projectId: string, onGeneretedEvent: (docType: DocumentType) => void) => {
+export const useDocumentGeneration = (projectId: string, onGeneretedEvent: (docType: DocumentGenerationData) => void) => {
   const [generatingDoc, setGeneratingDoc] = useState<string | null>(null);
   const [isGeneratingAll, setIsGeneratingAll] = useState(false);
   const navigate = useNavigate();

@@ -56,7 +56,7 @@ const Questionnaire = () => {
             <Button
               onClick={generateAllAnswers}
               disabled={isGeneratingAll || isSaving}
-              variant="outline"
+              variant="secondary"
               className="flex items-center gap-2"
             >
               {isGeneratingAll ? (
@@ -85,13 +85,16 @@ const Questionnaire = () => {
               />
             ))}
 
-            <Button
-              type="submit"
-              className="w-full "
-              disabled={isSaving || isGeneratingAll}
-            >
-              {isSaving ? 'Saving...' : 'Submit Answers'}
-            </Button>
+            <div className="flex justify-center">
+              <Button
+                type="submit"
+                size="lg"
+                className="lg:min-w-[200px] "
+                disabled={isSaving || isGeneratingAll}
+              >
+                {isSaving ? 'Saving...' : 'Submit Answers'}
+              </Button>
+            </div>
           </form>
         </div>
       </div>

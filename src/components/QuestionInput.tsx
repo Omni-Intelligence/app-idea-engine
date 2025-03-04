@@ -34,7 +34,7 @@ export const QuestionInput = ({
           type="button"
           size="icon-sm"
           variant="ghost"
-          className="absolute right-2 top-2 "
+          className="absolute right-2 top-2 text-primary"
           onClick={onGenerateAnswer}
           disabled={isGenerating}
         >

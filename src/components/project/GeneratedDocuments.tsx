@@ -19,7 +19,6 @@ interface GeneratedDocumentsProps {
 export const GeneratedDocuments = ({ documents, onGenerateDocument, projectId, onGeneretedDocumentEvent }: GeneratedDocumentsProps) => {
   const { toast } = useToast();
   const [expandedDocs, setExpandedDocs] = useState<Record<string, boolean>>({});
-  const [generateDocId, setGenerateDocId] = useState<string | null>(null);
 
   const toggleDocument = (docId: string) => {
     setExpandedDocs(prev => ({
@@ -68,10 +67,6 @@ export const GeneratedDocuments = ({ documents, onGenerateDocument, projectId, o
     }
   });
 
-  const handleGenerateDocument = (docType: DocumentType) => {
-    setGenerateDocId(docType.id);
-    generateDocument(docType);
-  }
 
 
   return (
@@ -110,7 +105,7 @@ export const GeneratedDocuments = ({ documents, onGenerateDocument, projectId, o
                       <FileText className="size-6 text-success" />
                     </div>
                     <div>
-                      <h3 className="font-medium text-gray-900 capitalize">
+                      <h3 className="font-semibold text-gray-900 capitalize">
                         {existingDoc?.document_type}
                       </h3>
                       <div className="flex items-center gap-2 text-sm text-gray-500 mt-0.5">
@@ -121,7 +116,7 @@ export const GeneratedDocuments = ({ documents, onGenerateDocument, projectId, o
                   </div>
                   <Button
                     variant="ghost"
-                    size="icon"
+                    size="icon-sm"
                     onClick={() => copyToClipboard(existingDoc.content, docType.toString())}
                     title="Copy to clipboard"
                   >
@@ -145,7 +140,7 @@ export const GeneratedDocuments = ({ documents, onGenerateDocument, projectId, o
 
                 </div>
 
-                <div className="mt-3 pt-3 border-t border-gray-100">
+                <div className="mt-3 pt-3 border-t border-gray-100 sticky bottom-0 bg-white">
                   <div className="flex items-center justify-between text-xs text-gray-500">
                     <div className="flex items-center gap-2">
                       <span>Word count: {existingDoc.content.split(/\s+/).length}</span>
@@ -198,10 +193,10 @@ export const GeneratedDocuments = ({ documents, onGenerateDocument, projectId, o
                 </div>
                 <Button
                   variant="outline"
-                  onClick={() => handleGenerateDocument(docType)}
-                  disabled={generatingDoc === docType.id && generatingDoc}
+                  onClick={() => generateDocument(docType)}
+                  disabled={generatingDoc === docType.id}
                 >
-                  {(generatingDoc === docType.id) && generatingDoc ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin text-amber-500" /> : <Plus className="h-3.5 w-3.5 mr-1.5" />}
+                  {generatingDoc === docType.id ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin text-amber-500" /> : <Plus className="h-3.5 w-3.5 mr-1.5" />}
                   Generate
                 </Button>
               </div>

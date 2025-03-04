@@ -4,6 +4,7 @@ export interface DocumentGenerationData {
   answers: string[];
   projectId: string;
   existingDocuments: string[];
+  document_type: string;
 }
 
 export type DocumentType = {
