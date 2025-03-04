@@ -17,7 +17,7 @@ function App() {
 
       <div className="min-h-screen flex flex-col">
         <Navbar />
-        <main className="flex-1 bg-muted">
+        <main className="flex-1 bg-gray-50">
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />

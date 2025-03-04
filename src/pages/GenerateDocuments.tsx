@@ -31,7 +31,7 @@ const GenerateDocuments = () => {
     return null;
   }
 
-  const onGeneretedEvent = (docType: DocumentType) => {
+  const onGeneretedEvent = (docType: DocumentGenerationData) => {
     setProjectExists(prev => [...prev, docType.document_type]);
   }
 
@@ -79,7 +79,7 @@ const GenerateDocuments = () => {
 
             <div className="flex justify-end">
               <Button
-                onClick={() => navigate(-1)}
+                onClick={() => navigate('/project/' + data.projectId)}
                 variant="outline"
                 className="mr-4"
               >

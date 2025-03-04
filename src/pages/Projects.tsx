@@ -114,7 +114,7 @@ const Projects = () => {
         <Card className="glass-card">
           <CardContent className="flex flex-col items-center justify-center py-12">
             <p className="text-lg text-muted-foreground mb-4">You haven't created any projects yet</p>
-            <Button onClick={() => navigate('/')} className="primary-button">
+            <Button onClick={() => navigate('/')} >
               Create Your First Project
             </Button>
           </CardContent>

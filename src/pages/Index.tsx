@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Lightbulb, FileText, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { AuthModal } from "@/components/auth/AuthModal";
 
 const industries = [
   "Healthcare",
@@ -66,9 +67,17 @@ const Index = () => {
   const [generatedIdeas, setGeneratedIdeas] = useState<string[]>([]);
   const [inspirationOpen, setInspirationOpen] = useState(false);
   const [templatesOpen, setTemplatesOpen] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const pendingIdea = localStorage.getItem('pendingIdea');
+    if (pendingIdea) {
+      setIdea(pendingIdea);
+
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,6 +93,16 @@ const Index = () => {
 
     setIsGenerating(true);
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        localStorage.setItem('pendingIdea', idea);
+        setShowAuthModal(true);
+        setIsGenerating(false);
+        return;
+      }
+
       // Generate title from description
       const { data: titleData, error: titleError } = await supabase.functions.invoke('generate-title', {
         body: { description: idea },
@@ -91,18 +110,6 @@ const Index = () => {
 
       if (titleError) throw titleError;
       if (!titleData?.title) throw new Error('Failed to generate title');
-
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) {
-        toast({
-          title: "Error",
-          description: "Please sign in to save your project",
-          variant: "destructive",
-        });
-        return;
-      }
 
       // Save to user_projects
       const { data: project, error: projectError } = await supabase
@@ -123,7 +130,7 @@ const Index = () => {
         title: "Success",
         description: "Your project has been saved!",
       });
-
+      localStorage.removeItem('pendingIdea');
       // Navigate to questionnaire with the project data
       navigate('/questionnaire', {
         state: {
@@ -140,6 +147,14 @@ const Index = () => {
       });
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleAuthSuccess = async () => {
+    if (localStorage.getItem('pendingIdea')) {
+      setShowAuthModal(false);
+      setIdea(localStorage.getItem('pendingIdea') || "");
+      // await handleSubmit(new Event('submit') as any);
     }
   };
 
@@ -428,26 +443,13 @@ const Index = () => {
         </div>
       </div>
 
-      {/* <footer className="bg-white border-t border-gray-200 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center space-x-2">
-              <img src="/placeholder.svg" alt="Logo" className="h-8 w-8" />
-              <span className="text-xl font-semibold text-purple-900">App Idea Engine</span>
-            </div>
-            <a
-              href="#"
-              className="text-purple-600 hover:text-purple-700 font-medium"
-              onClick={(e) => {
-                e.preventDefault();
-                // Add logic to show "Why is this free?" dialog or navigate to the page
-              }}
-            >
-              Why is this free?
-            </a>
-          </div>
-        </div>
-      </footer> */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onSuccess={handleAuthSuccess}
+        flatCard={true}
+        additionalText="Your app idea will be saved and you can continue working on it later."
+      />
     </div>
   );
 };

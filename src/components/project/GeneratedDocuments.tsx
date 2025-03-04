@@ -105,7 +105,7 @@ export const GeneratedDocuments = ({ documents, onGenerateDocument, projectId, o
                       <FileText className="size-6 text-success" />
                     </div>
                     <div>
-                      <h3 className="font-medium text-gray-900 capitalize">
+                      <h3 className="font-semibold text-gray-900 capitalize">
                         {existingDoc?.document_type}
                       </h3>
                       <div className="flex items-center gap-2 text-sm text-gray-500 mt-0.5">
@@ -116,7 +116,7 @@ export const GeneratedDocuments = ({ documents, onGenerateDocument, projectId, o
                   </div>
                   <Button
                     variant="ghost"
-                    size="icon"
+                    size="icon-sm"
                     onClick={() => copyToClipboard(existingDoc.content, docType.toString())}
                     title="Copy to clipboard"
                   >
@@ -140,7 +140,7 @@ export const GeneratedDocuments = ({ documents, onGenerateDocument, projectId, o
 
                 </div>
 
-                <div className="mt-3 pt-3 border-t border-gray-100">
+                <div className="mt-3 pt-3 border-t border-gray-100 sticky bottom-0 bg-white">
                   <div className="flex items-center justify-between text-xs text-gray-500">
                     <div className="flex items-center gap-2">
                       <span>Word count: {existingDoc.content.split(/\s+/).length}</span>
