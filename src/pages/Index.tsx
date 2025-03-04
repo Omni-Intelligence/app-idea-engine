@@ -283,7 +283,7 @@ const Index = () => {
           <h1 className="text-4xl font-bold text-primary sm:text-5xl md:text-6xl mb-8">
             App Idea Engine
           </h1>
-          <p className="mt-6 max-w-md mx-auto text-base text-primary sm:text-lg md:text-xl md:max-w-3xl mb-12">
+          <p className="mt-6 max-w-md mx-auto text-base  sm:text-lg md:text-xl md:max-w-3xl mb-12">
             Transform your app ideas into reality with our AI-powered development assistant.
           </p>
 
