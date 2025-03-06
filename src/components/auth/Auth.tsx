@@ -128,8 +128,8 @@ export const Auth = ({ onSuccess, flatCard, additionalText }: AuthProps) => {
   };
 
   return (
-    <Card className={flatCard ? "border-none shadow-none bg-transparent" : ""}>
-      <CardContent className="pt-6">
+    <Card className={flatCard ? "border-none shadow-none bg-transparent p-0" : "p-4"}>
+      <CardContent className={flatCard ? "pt-2" : "pt-6"}>
         <div className="flex flex-col min-h-[400px]">
           <div className="space-y-2 text-center">
             <h1 className="text-2xl font-bold tracking-tight">
@@ -139,6 +139,9 @@ export const Auth = ({ onSuccess, flatCard, additionalText }: AuthProps) => {
               {isSignUp
                 ? "Enter your details to create your account"
                 : "Enter your credentials to access your account"}
+            </p>
+            <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+              Transform your app ideas into reality with our AI-powered development assistant.
             </p>
             {additionalText && (
               <Alert variant="primary" className="mt-2 text-sm font-medium">
@@ -191,7 +194,7 @@ export const Auth = ({ onSuccess, flatCard, additionalText }: AuthProps) => {
               </Button>
             </form>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 my-4">
               <div className="flex-1 h-px bg-border" />
               <span className="text-xs text-muted-foreground uppercase">
                 Or continue with
