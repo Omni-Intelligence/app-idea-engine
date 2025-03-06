@@ -140,6 +140,9 @@ export const Auth = ({ onSuccess, flatCard, additionalText }: AuthProps) => {
                 ? "Enter your details to create your account"
                 : "Enter your credentials to access your account"}
             </p>
+            <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+              Transform your app ideas into reality with our AI-powered development assistant.
+            </p>
             {additionalText && (
               <Alert variant="primary" className="mt-2 text-sm font-medium">
                 {additionalText}
