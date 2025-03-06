@@ -448,6 +448,8 @@ const Index = () => {
         onClose={() => setShowAuthModal(false)}
         onSuccess={handleAuthSuccess}
         flatCard={true}
+        titleSingIn="Please Log In"
+        titleSignUp="Create an Account"
         additionalText="Your app idea will be saved and you can continue working on it later."
       />
     </div>
