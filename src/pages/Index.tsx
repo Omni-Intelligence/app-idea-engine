@@ -259,7 +259,7 @@ const Index = () => {
           </div>
         ) : generatedIdeas.length > 0 ? (
           <ul className="space-y-2">
-            {generatedIdeas.map((idea, index) => (
+            {generatedIdeas.filter((idea) => idea.length > 0).map((idea, index) => (
               <li
                 key={index}
                 className="p-3 text-sm bg-primary/10 rounded-lg hover:bg-primary/20 cursor-pointer transition-colors"
