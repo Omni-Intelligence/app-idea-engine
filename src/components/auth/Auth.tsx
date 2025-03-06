@@ -12,9 +12,11 @@ interface AuthProps {
   onSuccess?: (user?: any) => void;
   flatCard?: boolean;
   additionalText?: string;
+  titleSingIn?: string;
+  titleSignUp?: string;
 }
 
-export const Auth = ({ onSuccess, flatCard, additionalText }: AuthProps) => {
+export const Auth = ({ onSuccess, flatCard, additionalText, titleSingIn, titleSignUp }: AuthProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -131,26 +133,26 @@ export const Auth = ({ onSuccess, flatCard, additionalText }: AuthProps) => {
     <Card className={flatCard ? "border-none shadow-none bg-transparent p-0" : "p-4"}>
       <CardContent className={flatCard ? "pt-2" : "pt-6"}>
         <div className="flex flex-col min-h-[400px]">
-          <div className="space-y-2 text-center">
+          <div className="space-y-4 text-center">
             <h1 className="text-2xl font-bold tracking-tight">
-              {isSignUp ? "Create an Account" : "Welcome Back"}
+              {isSignUp ? (titleSignUp || "Create an Account") : (titleSingIn || "Welcome Back")}
             </h1>
             <p className="text-sm text-gray-500">
               {isSignUp
                 ? "Enter your details to create your account"
                 : "Enter your credentials to access your account"}
             </p>
-            <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-              Transform your app ideas into reality with our AI-powered development assistant.
-            </p>
-            {additionalText && (
-              <Alert variant="primary" className="mt-2 text-sm font-medium">
+
+            {additionalText ? (
+              <Alert variant="primary" className=" text-sm font-medium">
                 {additionalText}
               </Alert>
-            )}
+            ) : <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+              Transform your app ideas into reality with our AI-powered development assistant.
+            </p>}
           </div>
 
-          <div className="mt-auto pt-6">
+          <div className="mt-auto pt-4">
             <form onSubmit={handleAuth} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>

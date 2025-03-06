@@ -7,16 +7,18 @@ interface AuthModalProps {
   onSuccess: (user?: any) => void;
   flatCard?: boolean;
   additionalText?: string;
+  titleSingIn?: string;
+  titleSignUp?: string;
 }
 
-export const AuthModal = ({ isOpen, onClose, onSuccess, flatCard, additionalText }: AuthModalProps) => {
+export const AuthModal = ({ isOpen, onClose, onSuccess, flatCard, additionalText, titleSingIn, titleSignUp }: AuthModalProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <Auth onSuccess={(v) => {
           onSuccess(v);
           onClose();
-        }} flatCard={flatCard} additionalText={additionalText} />
+        }} flatCard={flatCard} additionalText={additionalText} titleSingIn={titleSingIn} titleSignUp={titleSignUp} />
       </DialogContent>
     </Dialog>
   );

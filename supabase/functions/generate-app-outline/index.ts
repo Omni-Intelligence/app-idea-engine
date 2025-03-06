@@ -38,7 +38,7 @@ Be specific and practical in your recommendations, focusing on modern, productio
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { OPENAI_CONFIG.corsHeaders });
+    return new Response(null, { headers: OPENAI_CONFIG.corsHeaders });
   }
 
   try {

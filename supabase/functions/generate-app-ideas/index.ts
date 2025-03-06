@@ -40,9 +40,9 @@ serve(async (req) => {
     }
 
     const data = await response.json();
+
     const ideas = data.choices[0].message.content
       .split('\n')
-      .filter((line: string) => line.trim().startsWith('-'))
       .map((line: string) => line.trim().substring(2));
 
     return new Response(JSON.stringify({ ideas }), {
