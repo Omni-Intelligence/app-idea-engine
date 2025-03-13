@@ -27,38 +27,38 @@ export const Auth = ({ onSuccess, flatCard, additionalText, titleSingIn, titleSi
   });
   const { toast } = useToast();
 
-  const checkAvailableProviders = async () => {
-    try {
-      const { data: googleData } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: window.location.origin,
-          skipBrowserRedirect: true
-        }
-      });
-      const { data: githubData } = await supabase.auth.signInWithOAuth({
-        provider: 'github',
-        options: {
-          redirectTo: window.location.origin,
-          skipBrowserRedirect: true
-        }
-      });
-      setAvailableProviders({
-        google: !!googleData?.url,
-        github: !!githubData?.url
-      });
-    } catch (error) {
-      console.error('Error checking providers:', error);
-      setAvailableProviders({
-        google: false,
-        github: false
-      });
-    }
-  };
+  // const checkAvailableProviders = async () => {
+  //   try {
+  //     const { data: googleData } = await supabase.auth.signInWithOAuth({
+  //       provider: 'google',
+  //       options: {
+  //         redirectTo: window.location.origin,
+  //         skipBrowserRedirect: true
+  //       }
+  //     });
+  //     const { data: githubData } = await supabase.auth.signInWithOAuth({
+  //       provider: 'github',
+  //       options: {
+  //         redirectTo: window.location.origin,
+  //         skipBrowserRedirect: true
+  //       }
+  //     });
+  //     setAvailableProviders({
+  //       google: !!googleData?.url,
+  //       github: !!githubData?.url
+  //     });
+  //   } catch (error) {
+  //     console.error('Error checking providers:', error);
+  //     setAvailableProviders({
+  //       google: false,
+  //       github: false
+  //     });
+  //   }
+  // };
 
-  useEffect(() => {
-    checkAvailableProviders();
-  }, []);
+  // useEffect(() => {
+  //   checkAvailableProviders();
+  // }, []);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,8 +72,8 @@ export const Auth = ({ onSuccess, flatCard, additionalText, titleSingIn, titleSi
         });
         if (error) throw error;
         toast({
-          title: "Success!",
-          description: "Please check your email to verify your account.",
+          title: "Welcome to the app!",
+          description: "You can now create your first project.",
         });
         if (data?.user) {
           onSuccess?.(data.user);
@@ -98,36 +98,36 @@ export const Auth = ({ onSuccess, flatCard, additionalText, titleSingIn, titleSi
     }
   };
 
-  const handleSocialAuth = async (provider: 'google' | 'github') => {
-    if (!availableProviders[provider]) {
-      toast({
-        title: "Provider Not Available",
-        description: `${provider} authentication is currently not available. Please try another method.`,
-        variant: "destructive",
-      });
-      return;
-    }
+  // const handleSocialAuth = async (provider: 'google' | 'github') => {
+  //   if (!availableProviders[provider]) {
+  //     toast({
+  //       title: "Provider Not Available",
+  //       description: `${provider} authentication is currently not available. Please try another method.`,
+  //       variant: "destructive",
+  //     });
+  //     return;
+  //   }
 
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${window.location.origin}/projects`
-        }
-      });
+  //   setIsLoading(true);
+  //   try {
+  //     const { data, error } = await supabase.auth.signInWithOAuth({
+  //       provider,
+  //       options: {
+  //         redirectTo: `${window.location.origin}/projects`
+  //       }
+  //     });
 
-      if (error) throw error;
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  //     if (error) throw error;
+  //   } catch (error: any) {
+  //     toast({
+  //       title: "Error",
+  //       description: error.message,
+  //       variant: "destructive",
+  //     });
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   return (
     <Card className={flatCard ? "border-none shadow-none bg-transparent p-0" : "p-4"}>
