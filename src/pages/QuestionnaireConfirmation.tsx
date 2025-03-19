@@ -10,6 +10,7 @@ interface QuestionnaireData {
   appIdea: string;
   questions: string[];
   answers: Record<number, string>;
+  projectId?: string;
 }
 
 const QuestionnaireConfirmation = () => {
@@ -19,6 +20,7 @@ const QuestionnaireConfirmation = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const questionnaireData = location.state as QuestionnaireData;
+  const projectId = questionnaireData?.projectId;
 
   if (!questionnaireData?.appIdea || !questionnaireData?.questions || !questionnaireData?.answers) {
     toast({
@@ -38,7 +40,8 @@ const QuestionnaireConfirmation = () => {
         appIdea,
         editMode: true,
         questions,
-        answers
+        answers,
+        projectId
       }
     });
   };
@@ -55,12 +58,15 @@ const QuestionnaireConfirmation = () => {
       // Create project and save responses
       const { data: project, error: projectError } = await supabase
         .from('user_projects')
-        .insert({
+        .upsert({
           user_id: user.id,
           title: appIdea.substring(0, 100),
           description: appIdea,
           project_idea: appIdea,
-          status: 'draft'
+          status: 'draft',
+          id: projectId
+        }, {
+          onConflict: 'id'
         })
         .select()
         .single();
@@ -133,7 +139,7 @@ const QuestionnaireConfirmation = () => {
             </div>
           </CardContent>
 
-          <CardFooter className="flex justify-end space-x-4 bg-gray-50 rounded-b-lg">
+          <CardFooter className="flex justify-end space-x-4 bg-gray-50 rounded-b-lg pt-4 -mb-4 sticky bottom-0">
             <Button
               variant="outline"
               onClick={handleEdit}

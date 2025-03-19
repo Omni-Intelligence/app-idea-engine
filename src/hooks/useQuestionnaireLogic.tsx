@@ -9,6 +9,7 @@ interface UseQuestionnaireLogicProps {
   isEditMode: boolean | undefined;
   initialQuestions?: string[];
   initialAnswers?: Record<number, string>;
+  projectId?: string;
 }
 
 export const useQuestionnaireLogic = ({
@@ -16,6 +17,7 @@ export const useQuestionnaireLogic = ({
   isEditMode,
   initialQuestions,
   initialAnswers,
+  projectId,
 }: UseQuestionnaireLogicProps) => {
   const [questions, setQuestions] = useState<string[]>([]);
   const [answers, setAnswers] = useState<Record<number, string>>({});
@@ -78,10 +80,10 @@ export const useQuestionnaireLogic = ({
 
   const generateAnswer = async (index: number) => {
     setGeneratingAnswers(prev => ({ ...prev, [index]: true }));
-    
+
     try {
       const { data, error } = await supabase.functions.invoke('generate-answer', {
-        body: { 
+        body: {
           appIdea,
           question: questions[index],
         },
@@ -94,7 +96,7 @@ export const useQuestionnaireLogic = ({
       }
 
       setAnswers(prev => ({ ...prev, [index]: data.answer }));
-      
+
       if (!isGeneratingAll) {
         toast({
           title: "Success",
@@ -117,7 +119,7 @@ export const useQuestionnaireLogic = ({
 
   const generateAllAnswers = async () => {
     setIsGeneratingAll(true);
-    
+
     for (let i = 0; i < questions.length; i++) {
       if (!answers[i]) { // Only generate if answer doesn't exist
         await generateAnswer(i);
@@ -125,7 +127,7 @@ export const useQuestionnaireLogic = ({
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }
-    
+
     setIsGeneratingAll(false);
     toast({
       title: "Success",
@@ -139,7 +141,7 @@ export const useQuestionnaireLogic = ({
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         toast({
           title: "Error",
@@ -166,6 +168,7 @@ export const useQuestionnaireLogic = ({
           appIdea,
           questions,
           answers,
+          projectId,
         },
       });
     } catch (error) {
