@@ -56,8 +56,35 @@ export const Auth = ({ onSuccess, flatCard, additionalText, titleSingIn, titleSi
   //   }
   // };
 
+  // const checkGoogleConfig = async () => {
+  //   try {
+  //     const { data: { provider } } = await supabase.auth.getSession();
+  //     console.log('Current auth provider:', provider);
+
+  //     // Спробуйте отримати URL для авторизації
+  //     const { data, error } = await supabase.auth.signInWithOAuth({
+  //       provider: 'google',
+  //       options: {
+  //         redirectTo: `${window.location.origin}/projects`,
+  //         skipBrowserRedirect: true // Не виконувати редирект, тільки перевірка
+  //       }
+  //     });
+
+  //     if (error) {
+  //       console.error('Google auth configuration error:', error);
+  //       return false;
+  //     }
+
+  //     console.log('Google auth URL generated:', !!data.url);
+  //     return true;
+  //   } catch (error) {
+  //     console.error('Google auth check failed:', error);
+  //     return false;
+  //   }
+  // };
+
   // useEffect(() => {
-  //   checkAvailableProviders();
+  //   checkGoogleConfig();
   // }, []);
 
   const handleAuth = async (e: React.FormEvent) => {
@@ -98,36 +125,121 @@ export const Auth = ({ onSuccess, flatCard, additionalText, titleSingIn, titleSi
     }
   };
 
-  // const handleSocialAuth = async (provider: 'google' | 'github') => {
-  //   if (!availableProviders[provider]) {
-  //     toast({
-  //       title: "Provider Not Available",
-  //       description: `${provider} authentication is currently not available. Please try another method.`,
-  //       variant: "destructive",
-  //     });
-  //     return;
-  //   }
+  const checkExistingUser = async (email: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', email)
+        .single();
 
-  //   setIsLoading(true);
-  //   try {
-  //     const { data, error } = await supabase.auth.signInWithOAuth({
-  //       provider,
-  //       options: {
-  //         redirectTo: `${window.location.origin}/projects`
-  //       }
-  //     });
+      return !!data;
+    } catch (error) {
+      console.error('Error checking existing user:', error);
+      return false;
+    }
+  };
 
-  //     if (error) throw error;
-  //   } catch (error: any) {
-  //     toast({
-  //       title: "Error",
-  //       description: error.message,
-  //       variant: "destructive",
-  //     });
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
+  const handleSocialAuth = async (provider: 'google' | 'github') => {
+    setIsLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      const authOptions = {
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/projects`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+          skipBrowserRedirect: false,
+          ...(isSignUp && {
+            queryParams: {
+              access_type: 'offline',
+              prompt: 'consent',
+              registration: 'true',
+              create_user: 'true'
+            }
+          })
+        }
+      };
+
+      const { data, error } = await supabase.auth.signInWithOAuth(authOptions);
+
+      if (error) {
+        console.error('OAuth error:', error);
+        throw error;
+      }
+
+
+
+      if (!data.url) {
+        throw new Error('No authentication URL returned');
+      }
+
+      supabase.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'SIGNED_IN' && session?.user) {
+          const isExisting = await checkExistingUser(session.user.email!);
+
+          if (isSignUp && isExisting) {
+            toast({
+              title: "Account already exists",
+              description: "Please sign in instead",
+              variant: "warning",
+            });
+            return;
+          }
+
+          if (isSignUp) {
+            // Якщо це була реєстрація, можемо виконати додаткові дії
+            toast({
+              title: "Account created successfully!",
+              description: "Welcome to our platform!",
+            });
+          }
+          // Викликаємо callback успішної автентифікації
+          onSuccess?.(session?.user);
+        }
+      });
+
+      window.location.href = data.url;
+    } catch (error: any) {
+      console.error('Full error:', error);
+      toast({
+        title: "Authentication Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN') {
+        console.log('User signed in:', session?.user);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    const checkConfig = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        console.log('Current session:', session);
+      } catch (error) {
+        console.error('Config check error:', error);
+      }
+    };
+
+    checkConfig();
+  }, []);
 
   return (
     <Card className={flatCard ? "border-none shadow-none bg-transparent p-0" : "p-4"}>
@@ -204,7 +316,7 @@ export const Auth = ({ onSuccess, flatCard, additionalText, titleSingIn, titleSi
               <div className="flex-1 h-px bg-border" />
             </div>
 
-            {/* <div className="grid grid-cols-2 gap-3">
+            <div className="my-2">
               <Button
                 variant="outline"
                 type="button"
@@ -215,7 +327,7 @@ export const Auth = ({ onSuccess, flatCard, additionalText, titleSingIn, titleSi
                 <Mail className="mr-2 h-4 w-4" />
                 Google
               </Button>
-              <Button
+              {/*   <Button
                 variant="outline"
                 type="button"
                 disabled={isLoading}
@@ -224,8 +336,8 @@ export const Auth = ({ onSuccess, flatCard, additionalText, titleSingIn, titleSi
               >
                 <Github className="mr-2 h-4 w-4" />
                 GitHub
-              </Button>
-            </div> */}
+              </Button>*/}
+            </div>
 
             <div className="text-center text-sm text-muted-foreground">
               {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
