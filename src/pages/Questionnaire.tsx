@@ -10,12 +10,14 @@ interface LocationState {
   editMode?: boolean;
   questions?: string[];
   answers?: Record<number, string>;
+  projectId?: string;
 }
 
 const Questionnaire = () => {
   const location = useLocation();
   const locationState = location.state as LocationState;
   const appIdea = locationState?.appIdea;
+  const projectId = locationState?.projectId;
   const isEditMode = locationState?.editMode;
 
   const {
@@ -34,6 +36,7 @@ const Questionnaire = () => {
     isEditMode,
     initialQuestions: locationState?.questions,
     initialAnswers: locationState?.answers,
+    projectId,
   });
 
   if (isLoading) {

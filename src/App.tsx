@@ -10,6 +10,7 @@ import NotFound from "@/pages/NotFound";
 import { Toaster } from "@/components/ui/toaster";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import WhyFree from "@/pages/WhyFree";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
             <Route path="/generate-documents" element={<GenerateDocuments />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/project/:projectId" element={<ProjectDetails />} />
+            <Route path="/why-free" element={<WhyFree />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
