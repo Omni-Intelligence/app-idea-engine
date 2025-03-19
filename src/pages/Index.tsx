@@ -443,6 +443,8 @@ const Index = () => {
         </div>
       </div>
 
+      
+
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}

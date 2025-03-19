@@ -6,7 +6,7 @@ interface SiteLogoProps {
 
 export function SiteLogo({ className = "" }: SiteLogoProps) {
   return (
-    <Link to="/" className={`flex items-center gap-2 text-xl font-bold text-white hover:opacity-90 transition-opacity ${className}`}>
+    <Link to="/" className={`flex items-center gap-2  text-white hover:opacity-90 transition-opacity ${className}`}>
       <svg
         className="w-8 h-8"
         viewBox="0 0 24 24"
@@ -32,7 +32,14 @@ export function SiteLogo({ className = "" }: SiteLogoProps) {
           strokeLinejoin="round"
         />
       </svg>
-      App Idea Engine
+      <div className="">
+        <p className="text-xl font-bold">
+          App Idea Engine
+        </p>
+        <p className="text-xs text-white">
+          by Enterprise DNA
+        </p>
+      </div>
     </Link>
   );
 } 
