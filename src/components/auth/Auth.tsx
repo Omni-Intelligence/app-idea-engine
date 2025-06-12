@@ -19,6 +19,7 @@ interface AuthProps {
 export const Auth = ({ onSuccess, flatCard, additionalText, titleSingIn, titleSignUp }: AuthProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [availableProviders, setAvailableProviders] = useState<{ google: boolean; github: boolean }>({
@@ -96,6 +97,11 @@ export const Auth = ({ onSuccess, flatCard, additionalText, titleSingIn, titleSi
         const { error, data } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            data: {
+              full_name: name,
+            },
+          },
         });
         if (error) throw error;
         toast({
@@ -266,6 +272,20 @@ export const Auth = ({ onSuccess, flatCard, additionalText, titleSingIn, titleSi
 
           <div className="mt-auto pt-4">
             <form onSubmit={handleAuth} className="space-y-4">
+              {isSignUp && (
+                <div className="space-y-2">
+                  <Label htmlFor="name">Full Name</Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="John Doe"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required={isSignUp}
+                    className="w-full"
+                  />
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
