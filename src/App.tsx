@@ -11,17 +11,20 @@ import { Toaster } from "@/components/ui/toaster";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import WhyFree from "@/pages/WhyFree";
+import { ResetPassword } from "@/pages/ResetPassword";
+import { UpdatePassword } from "@/pages/UpdatePassword";
 
 function App() {
   return (
     <Router>
-
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-1 bg-gray-50">
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/update-password" element={<UpdatePassword />} />
             <Route path="/questionnaire" element={<Questionnaire />} />
             <Route path="/questionnaire-confirmation" element={<QuestionnaireConfirmation />} />
             <Route path="/generate-documents" element={<GenerateDocuments />} />

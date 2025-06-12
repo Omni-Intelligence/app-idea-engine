@@ -290,6 +290,14 @@ export const Auth = ({ onSuccess, flatCard, additionalText, titleSingIn, titleSi
                   className="w-full"
                 />
               </div>
+              <div className="flex justify-end">
+                <a
+                  href="/reset-password"
+                  className="text-sm text-primary hover:underline"
+                >
+                  Forgot password?
+                </a>
+              </div>
               <Button
                 className="w-full"
                 type="submit"
