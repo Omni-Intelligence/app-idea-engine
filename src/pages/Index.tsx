@@ -20,6 +20,7 @@ import {
 import { Lightbulb, FileText, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthModal } from "@/components/auth/AuthModal";
+import { HeroTitle } from "@/components/ui/typography";
 
 const industries = [
   "Healthcare",
@@ -295,9 +296,9 @@ const Index = () => {
     <div className=" flex flex-col ">
       <div className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-primary sm:text-5xl md:text-6xl mb-8">
+          <HeroTitle className=" sm:text-5xl md:text-6xl pb-4">
             App Idea Engine
-          </h1>
+          </HeroTitle>
           <p className="mt-6 max-w-md mx-auto text-base  sm:text-lg md:text-xl md:max-w-3xl mb-12">
             Transform your app ideas into reality with our AI-powered development assistant.
           </p>
@@ -443,7 +444,7 @@ const Index = () => {
         </div>
       </div>
 
-      
+
 
       <AuthModal
         isOpen={showAuthModal}

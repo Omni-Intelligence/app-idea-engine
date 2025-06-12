@@ -7,7 +7,7 @@ export function Footer() {
       <div className="container mx-auto px-4 pb-1">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 py-4">
           <div className="flex items-center gap-6">
-            <SiteLogo className="text-lg" />
+            <SiteLogo />
 
           </div>
           <Link to="/why-free" className="text-sm text-white hover:text-gray-300">
