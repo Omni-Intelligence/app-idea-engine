@@ -13,6 +13,8 @@ import { Footer } from "@/components/Footer";
 import AccessDetails from "@/pages/AccessDetails";
 import { ResetPassword } from "@/pages/ResetPassword";
 import { UpdatePassword } from "@/pages/UpdatePassword";
+import PricingPage from "./pages/PricingPage";
+import PaymentSuccess from "./pages/PaymentSuccess";
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/update-password" element={<UpdatePassword />} />
+            <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/questionnaire" element={<Questionnaire />} />
             <Route path="/questionnaire-confirmation" element={<QuestionnaireConfirmation />} />
             <Route path="/generate-documents" element={<GenerateDocuments />} />
