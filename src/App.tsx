@@ -20,6 +20,7 @@ import { UserProvider } from "./contexts/UserContext";
 import { SubscriptionProvider } from "./contexts/SubscriptionContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import AutoSSO from "./components/AutoSSO";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,7 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <Routes>
+                          <Route path="profile" element={<Profile />} />
                           <Route path="/questionnaire" element={<Questionnaire />} />
                           <Route path="/questionnaire-confirmation" element={<QuestionnaireConfirmation />} />
                           <Route path="/generate-documents" element={<GenerateDocuments />} />
