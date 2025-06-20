@@ -19,6 +19,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import { UserProvider } from "./contexts/UserContext";
 import { SubscriptionProvider } from "./contexts/SubscriptionContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import AutoSSO from "./components/AutoSSO";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ function App() {
         <SubscriptionProvider>
           <Router>
             <div className="min-h-screen flex flex-col">
+              <AutoSSO />
               <Navbar />
               <main className="flex-1 bg-gray-50">
                 <Routes>
