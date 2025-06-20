@@ -139,9 +139,9 @@ const PaymentSuccess = () => {
 
   if (isVerifying) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50">
+      <div className="min-h-screen flex items-center justify-center bg-muted">
         <div className="text-center space-y-4">
-          <Loader2 className="h-12 w-12 animate-spin mx-auto text-green-600" />
+          <Loader2 className="h-12 w-12 animate-spin mx-auto text-accent" />
           <p className="text-lg text-gray-700">Verifying your subscription...</p>
         </div>
       </div>
@@ -149,20 +149,20 @@ const PaymentSuccess = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-start justify-center bg-gradient-to-br from-green-50 to-blue-50 p-4 pt-20">
+    <div className="min-h-screen flex items-start justify-center bg-muted p-4 pt-20">
       <div className="w-full max-w-md text-center space-y-8">
         <div className="space-y-6">
           <div className="flex justify-center">
             <div
               className={`w-20 h-20 rounded-full flex items-center justify-center shadow-lg ${
-                verificationSuccess ? "bg-green-500" : "bg-orange-500"
+                verificationSuccess ? "bg-accent" : "bg-primary"
               }`}
             >
-              <CheckCircle className="h-12 w-12 text-white" />
+              <CheckCircle className="h-12 w-12 text-accent-foreground" />
             </div>
           </div>
           <div className="space-y-3">
-            <h1 className={`text-3xl font-bold ${verificationSuccess ? "text-green-600" : "text-orange-600"}`}>
+            <h1 className={`text-3xl font-bold ${verificationSuccess ? "text-accent" : "text-primary"}`}>
               {verificationSuccess ? "Payment Successful!" : "Payment Received"}
             </h1>
             <p className="text-lg text-gray-700">
@@ -174,13 +174,12 @@ const PaymentSuccess = () => {
         </div>
 
         {newUserCreated && (
-          <div className="bg-blue-50/70 backdrop-blur-sm rounded-lg p-6 shadow-lg border border-blue-200/50 space-y-4">
-            <h3 className="text-lg font-semibold text-blue-700">Account Created</h3>
-            <p className="text-blue-600 text-sm">
+          <div className="bg-accent/10 backdrop-blur-sm rounded-lg p-6 shadow-lg border border-accent/20 space-y-4">
+            <h3 className="text-lg font-semibold text-accent">Account Created</h3>
+            <p className="text-accent text-sm">
               We've created an account for you with email: <strong>{userEmail}</strong>
             </p>
-            <p className="text-blue-600 text-sm mb-4">Please set up a secure password to continue.</p>
-
+            <p className="text-accent text-sm mb-4">Please set up a secure password to continue.</p>
             <div className="space-y-4">
               <div className="relative">
                 <Input
@@ -200,10 +199,9 @@ const PaymentSuccess = () => {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
               </div>
-
               <Button
                 onClick={handlePasswordUpdate}
-                className="w-full bg-blue-600 hover:bg-blue-700"
+                className="w-full bg-accent text-accent-foreground hover:bg-accent/80"
                 disabled={!newPassword || newPassword.length < 6 || isUpdatingPassword}
               >
                 {isUpdatingPassword ? (
@@ -228,10 +226,10 @@ const PaymentSuccess = () => {
           <div className="flex gap-3">
             <Button
               onClick={handleContinue}
-              className="flex-1 bg-green-600 hover:bg-green-700"
+              className="flex-1 bg-accent text-accent-foreground hover:bg-accent/80"
               disabled={newUserCreated}
             >
-              Start Analyzing
+              Start Creating
             </Button>
             <Button onClick={handleCheckSubscription} variant="outline" className="flex-1" disabled={newUserCreated}>
               Check My Subscription
