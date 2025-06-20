@@ -45,25 +45,27 @@ export const Navbar = () => {
         <div className="flex items-center justify-between py-4">
           <SiteLogo />
           <div className="flex items-center space-x-4">
+            {!session && (
+              <Button
+                variant="ghost"
+                onClick={() => navigate("/pricing")}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Pricing
+              </Button>
+            )}
+            {session && <Button onClick={() => navigate("/projects")}>My Projects</Button>}
             {session ? (
-              <>
-                <Button
-                  onClick={() => navigate('/projects')}
-                >
-                  My Projects
+              <div className="relative flex items-center gap-4">
+                <Button variant="outline" onClick={() => navigate("/profile")} className="gap-2">
+                  Profile
                 </Button>
-                <Button
-                  variant="white"
-                  size="icon"
-                  onClick={handleSignOut}
-                >
+                <Button variant="white" size="icon" onClick={handleSignOut} className="ml-2">
                   <LogOut className="size-5" />
                 </Button>
-              </>
+              </div>
             ) : (
-              <Button
-                asChild
-              >
+              <Button asChild>
                 <Link to="/auth">Sign In</Link>
               </Button>
             )}
@@ -73,4 +75,3 @@ export const Navbar = () => {
     </nav>
   );
 };
-
