@@ -18,6 +18,7 @@ import PricingPage from "./pages/PricingPage";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import { UserProvider } from "./contexts/UserContext";
 import { SubscriptionProvider } from "./contexts/SubscriptionContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -37,13 +38,23 @@ function App() {
                   <Route path="/update-password" element={<UpdatePassword />} />
                   <Route path="/pricing" element={<PricingPage />} />
                   <Route path="/payment-success" element={<PaymentSuccess />} />
-                  <Route path="/questionnaire" element={<Questionnaire />} />
-                  <Route path="/questionnaire-confirmation" element={<QuestionnaireConfirmation />} />
-                  <Route path="/generate-documents" element={<GenerateDocuments />} />
-                  <Route path="/projects" element={<Projects />} />
-                  <Route path="/project/:projectId" element={<ProjectDetails />} />
                   <Route path="/access-details" element={<AccessDetails />} />
-                  <Route path="*" element={<NotFound />} />
+
+                  <Route
+                    path="/*"
+                    element={
+                      <ProtectedRoute>
+                        <Routes>
+                          <Route path="/questionnaire" element={<Questionnaire />} />
+                          <Route path="/questionnaire-confirmation" element={<QuestionnaireConfirmation />} />
+                          <Route path="/generate-documents" element={<GenerateDocuments />} />
+                          <Route path="/projects" element={<Projects />} />
+                          <Route path="/project/:projectId" element={<ProjectDetails />} />
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </ProtectedRoute>
+                    }
+                  />
                 </Routes>
               </main>
               <Footer />
