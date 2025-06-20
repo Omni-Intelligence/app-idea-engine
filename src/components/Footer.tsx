@@ -8,16 +8,15 @@ export function Footer() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 py-4">
           <div className="flex items-center gap-6">
             <SiteLogo />
-
           </div>
-          <Link to="/why-free" className="text-sm text-white hover:text-gray-300">
-            Why Free?
+          <Link to="/access-details" className="text-sm text-white hover:text-gray-300">
+            Access Details
           </Link>
         </div>
-        <div className="text-xs text-gray-500 text-center">
+        <div className="text-xs text-gray-500 text-center pb-2">
           © {new Date().getFullYear()} App Idea Engine. All rights reserved.
         </div>
       </div>
     </footer>
   );
-} 
+}
