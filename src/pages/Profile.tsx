@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CalendarDays, ExternalLink, Mail, User } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, Mail, User, ExternalLink, CreditCard } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEdnaMembership } from "@/hooks/useEdnaMembership";
-import { useSubscription } from "@/contexts/SubscriptionContext";
-import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface UserProfile {
   id: string;
@@ -23,7 +21,7 @@ const Profile = () => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [billingLoading, setBillingLoading] = useState(false);
-  const { subscription } = useSubscription();
+  // const { subscription } = useSubscription();
   const { checkMembershipAndRedirect, loading: membershipLoading } = useEdnaMembership();
   const navigate = useNavigate();
 
@@ -32,36 +30,36 @@ const Profile = () => {
     checkMembershipAndRedirect();
   };
 
-  const handleBillingPortal = async () => {
-    setBillingLoading(true);
-    try {
-      if (!subscription?.customer_id) {
-        toast.error("You don't have an active subscription yet. Please subscribe first to manage billing.");
-        return;
-      }
+  // const handleBillingPortal = async () => {
+  //   setBillingLoading(true);
+  //   try {
+  //     if (!subscription?.customer_id) {
+  //       toast.error("You don't have an active subscription yet. Please subscribe first to manage billing.");
+  //       return;
+  //     }
 
-      console.log("Customer ID for billing portal:", subscription.customer_id);
+  //     console.log("Customer ID for billing portal:", subscription.customer_id);
 
-      const { data: portalData, error: portalError } = await supabase.functions.invoke("stripe-billing-portal", {
-        body: { customerId: subscription.customer_id },
-      });
+  //     const { data: portalData, error: portalError } = await supabase.functions.invoke("stripe-billing-portal", {
+  //       body: { customerId: subscription.customer_id },
+  //     });
 
-      if (portalError) {
-        throw portalError;
-      }
+  //     if (portalError) {
+  //       throw portalError;
+  //     }
 
-      if (portalData?.portalUrl) {
-        window.open(portalData.portalUrl, "_blank");
-      } else {
-        throw new Error("No portal URL received");
-      }
-    } catch (error) {
-      console.error("Error opening billing portal:", error);
-      toast.error("Failed to open billing portal. Please try again.");
-    } finally {
-      setBillingLoading(false);
-    }
-  };
+  //     if (portalData?.portalUrl) {
+  //       window.open(portalData.portalUrl, "_blank");
+  //     } else {
+  //       throw new Error("No portal URL received");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error opening billing portal:", error);
+  //     toast.error("Failed to open billing portal. Please try again.");
+  //   } finally {
+  //     setBillingLoading(false);
+  //   }
+  // };
 
   useEffect(() => {
     const getUser = async () => {
@@ -170,7 +168,7 @@ const Profile = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        {/* <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CreditCard className="h-5 w-5" />
@@ -208,7 +206,7 @@ const Profile = () => {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
 
         <Card>
           <CardHeader>
